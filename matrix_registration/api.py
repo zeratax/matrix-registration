@@ -41,7 +41,8 @@ def register():
                                               SERVER_LOCATION,
                                               SHARED_SECRET)
             except requests.exceptions.HTTPError as e:
-                app.logger.warning(e)
+                app.logger.error('Failure communicating with HS',
+                                 exc_info=True)
                 abort(400)
             app.logger.debug('account creation succeded!')
             return jsonify(account_data)
