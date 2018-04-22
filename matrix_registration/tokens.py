@@ -9,7 +9,7 @@ def random_readable_string(length=3, wordlist='wordlist.txt'):
     lines = open(wordlist).read().splitlines()
     string = ""
     for n in range(length):
-        string += random.choice(lines)
+        string += random.choice(lines).title()
     return string
 
 
