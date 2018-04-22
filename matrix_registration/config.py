@@ -71,12 +71,12 @@ class DictWithRecursion:
 
 
 class Config(DictWithRecursion):
-    def __init__(self, path)
+    def __init__(self, path):
         super().__init__()
         self.path = path
         self.options = None
     
-    def load(self)
+    def load(self):
         try:
             with open(self.path, 'r') as stream:
                 self._data = yaml.load(stream)

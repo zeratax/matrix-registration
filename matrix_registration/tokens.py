@@ -44,14 +44,14 @@ class Tokens():
                                      datetime.time(token.expire), 
                                      token.one_time))
 
-    def usuable(self, token_name)
+    def usuable(self, token_name):
         # self.c.execute('SELECT * FROM tokens WHERE name = {}'.format(token))
         for token in self.tokens:
-            if token.name = token_name:
+            if token.name == token_name:
                 return token.is_expired()
 
     def add(token):
         self.c.execute('INSERT INTO tokens VALUE ("{}", "{}", {})'.format(token.name,
-                                                                          token.expire
-                                                                          token.one_time)
+                                                                          token.expire,
+                                                                          token.one_time))
         tokens.append(token)
