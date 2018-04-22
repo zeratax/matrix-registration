@@ -33,6 +33,6 @@ config.update()
 tokens = Tokens()
 
 if args.mode == 'api':
-    app.run()
+    app.run(host='0.0.0.0', port=config['PORT'])
 elif args.mode == 'token':
     tokens.add(Token(expire=args.expire, one_time=args.one_time))
