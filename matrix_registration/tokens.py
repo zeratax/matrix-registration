@@ -6,10 +6,13 @@ from .config import Config
 
 
 def random_readable_string(length=3, wordlist='wordlist.txt'):
-    lines = open(wordlist).read().splitlines()
-    string = ""
-    for n in range(length):
-        string += random.choice(lines).title()
+    with open(wordlist) as f:
+        lines = f.read().splitlines()
+        string = ""
+        
+        for n in range(length):
+            string += random.choice(lines).title()
+    
     return string
 
 
