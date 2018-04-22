@@ -50,7 +50,7 @@ class Tokens():
             if token.name = token_name:
                 return token.is_expired()
 
-    def add_token(token):
+    def add(token):
         self.c.execute('INSERT INTO tokens VALUE ("{}", "{}", {})'.format(token.name,
                                                                           token.expire
                                                                           token.one_time)

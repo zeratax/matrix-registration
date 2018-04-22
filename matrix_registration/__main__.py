@@ -3,6 +3,8 @@ import sys
 import logging
 
 from .config import Config
+from .tokens import Tokens
+from .tokens import Token
 from .api import app
 
 log = logging.getLogger('m_reg')
@@ -28,9 +30,9 @@ config = Config(arg.config)
 config.load()
 config.update()
 
-tokens = []
+tokens = Tokens()
 
 if args.mode == 'api':
     app.run()
 elif args.mode == 'token':
-    tokens.append(Token(expire=args.expire, one_time=args.one_time)
+    tokens.add(Token(expire=args.expire, one_time=args.one_time))
