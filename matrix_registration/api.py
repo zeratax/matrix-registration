@@ -18,7 +18,7 @@ from . import tokens
 
 app = Flask(__name__)
 
-re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z_\-\.:\/0-9]+)?$")
+re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$")
 
 
 def validate_token(form, token):

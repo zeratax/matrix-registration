@@ -219,7 +219,7 @@ class ApiTest(unittest.TestCase):
 
 
 class ConfigTest(unittest.TestCase):
-    def config_update(self):
+    def test_config_update(self):
         matrix_registration.config.config = Config(CONFIG_PATH)
         self.assertEqual(matrix_registration.config.config.PORT, 5000)
 
@@ -227,9 +227,8 @@ class ConfigTest(unittest.TestCase):
         matrix_registration.config.config.update(new_config)
         self.assertEqual(matrix_registration.config.config.PORT, 1000)
 
-    def config_wrong_path(self):
+    def test_config_wrong_path(self):
         bad_config = "x"
-        print("meme")
         with self.assertRaises(SystemExit) as cm:
             matrix_registration.config.config = Config(bad_config)
 

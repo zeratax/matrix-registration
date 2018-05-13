@@ -1,4 +1,4 @@
-SERVER_LOCATION: 'https://matrix.org'
-SHARED_SECRET: 'RegistrationSharedSecret'
+SERVER_LOCATION: 'https://test2.tld'
+SHARED_SECRET: 'alternativetestconfig'
 DB: 'tests/db.sqlite'
 PORT: 1000
