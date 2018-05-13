@@ -1,2 +1,3 @@
 [run]
 source = matrix_registration
+omit = matrix_registration/__main__.py
