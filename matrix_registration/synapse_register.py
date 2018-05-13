@@ -1,8 +1,11 @@
+# Standard library imports...
 import hashlib
 import hmac
 import requests
 
-def create_account(user, password, server_location, shared_secret, admin=False):
+
+def create_account(user, password, server_location, shared_secret,
+                   admin=False):
     mac = hmac.new(
         key=str.encode(shared_secret),
         digestmod=hashlib.sha1,
