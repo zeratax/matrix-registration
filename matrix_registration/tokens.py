@@ -1,11 +1,25 @@
+# Standard library imports...
 from datetime import datetime
+import os
 import random
 import sqlite3
 
-from .config import Config
+# Third-party imports...
+from dateutil import parser
+
+# Local imports...
+from .config import config
+from .constants import __location__
+from .constants import WORD_LIST
+
+WORD_LIST_PATH = os.path.join(__location__, WORD_LIST)
+DATABASE_PATH = os.path.join(__location__, "../" + config.DB)
+
+sqlite3.register_adapter(bool, int)
+sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
 
 
-def random_readable_string(length=3, wordlist='wordlist.txt'):
+def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
     with open(wordlist) as f:
         lines = f.read().splitlines()
         string = ""
@@ -59,3 +73,4 @@ class Tokens():
                                                                           token.expire,
                                                                           token.one_time))
         tokens.append(token)
+tokens = None

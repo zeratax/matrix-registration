@@ -1,20 +1,26 @@
-from flask import Flask, abort, jsonify, request
-
+# Standard library imports...
 import hashlib
 import hmac
 import yaml
 import requests
 import sys
 
-from .synapse_register import create_account 
-from .config import Config 
-from .tokens import Tokens
+# Third-party imports...
+from flask import Flask, abort, jsonify, request
+from wtforms import Form, BooleanField, StringField, PasswordField, validators
+
+# Local imports...
+from .synapse_register import create_account
+from . import config
+from . import tokens
 
 
 app = Flask(__name__)
 
-SHARED_SECRET = Config['SHARED_SECRET']
-SERVER_LOCATION = Config['SERVER_LOCATION']
+SHARED_SECRET = config.config.SHARED_SECRET
+SERVER_LOCATION = config.config.SERVER_LOCATION
+
+
 
 
 @app.route('/register', methods=['POST'])
