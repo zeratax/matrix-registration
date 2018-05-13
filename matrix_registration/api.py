@@ -17,9 +17,6 @@ from . import tokens
 
 app = Flask(__name__)
 
-SHARED_SECRET = config.config.SHARED_SECRET
-SERVER_LOCATION = config.config.SERVER_LOCATION
-
 
 def validate_token(form, token):
     tokens.tokens.load()
@@ -47,8 +44,8 @@ def register():
         try:
             account_data = create_account(form.username.data,
                                           form.password.data,
-                                          SERVER_LOCATION,
-                                          SHARED_SECRET)
+                                          config.config.SERVER_LOCATION,
+                                          config.config.SHARED_SECRET)
         except requests.exceptions.HTTPError as e:
             app.logger.error('Failure communicating with HS',
                              exc_info=True)

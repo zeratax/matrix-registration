@@ -13,11 +13,12 @@ class Config:
     def __init__(self, path):
         self.path = path
         self.options = None
+        self.load()
 
     def load(self):
         try:
-            with open((os.path.join(__location__,
-                                    "../" + self.path)), 'r') as stream:
+            with open((os.path.join(__location__, "../" + self.path)),
+                      'r') as stream:
                 dictionary = yaml.load(stream)
                 for k, v in dictionary.items():
                     setattr(self, k, v)
@@ -30,5 +31,4 @@ class Config:
         self.load()
 
 
-config = Config("config.sample.yaml")
-config.load()
+config = None
