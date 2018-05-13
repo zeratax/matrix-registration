@@ -56,7 +56,6 @@ class Tokens():
     def __init__(self):
         DATABASE_PATH = os.path.join(__location__, "../" + config.config.DB)
         self.conn = sqlite3.connect(DATABASE_PATH)
-        print(DATABASE_PATH)
         self.c = self.conn.cursor()
         self.tokens = []
 
@@ -83,7 +82,7 @@ class Tokens():
             if token.name == token_name:
                 return not token.is_expired()
                 break
-        return True
+        return False
 
     def use(self, token_name):
         if self.valid(token_name):

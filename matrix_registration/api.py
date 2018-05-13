@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import yaml
 import requests
+import re
 import sys
 
 # Third-party imports...
@@ -17,15 +18,25 @@ from . import tokens
 
 app = Flask(__name__)
 
+re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z_\-\.:\/0-9]+)?$")
+
 
 def validate_token(form, token):
     tokens.tokens.load()
     if not tokens.tokens.valid(token.data):
-        raise ValidationError('this token is not valid')
+        raise validators.ValidationError('this token is not valid')
+
+
+def validate_username(form, username):
+    if not re_mxid.match(username.data):
+        raise validators.ValidationError('this username is not valid')
 
 
 class RegistrationForm(Form):
-    username = StringField('Username', [validators.Length(min=4, max=25)])
+    username = StringField('Username', [
+        validators.Length(min=1, max=200),
+        validate_username
+    ])
     password = PasswordField('New Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match')
@@ -40,7 +51,8 @@ def register():
     form = RegistrationForm(request.form)
     if form.validate():
         tokens.tokens.use(form.token.data)
-        app.logger.debug('creating account %s...' % form.username.data)
+        username = form.username.data.rsplit(":")[0].split("@")[-1]
+        app.logger.debug('creating account %s...' % username)
         try:
             account_data = create_account(form.username.data,
                                           form.password.data,

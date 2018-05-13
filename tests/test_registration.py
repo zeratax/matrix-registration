@@ -1,10 +1,13 @@
 # Standard library imports...
 from datetime import date
 import json
+import os
+import random
+import re
+import string
 import unittest
 from unittest.mock import Mock, patch
-import os
-import re
+from urllib.parse import urlsplit
 
 # Third-party imports...
 from parameterized import parameterized
@@ -16,7 +19,7 @@ from matrix_registration.config import Config
 
 api = matrix_registration.api
 
-CONFIG_PATH = "tests/config.yaml"
+CONFIG_PATH = 'tests/config.yaml'
 
 
 def mocked_requests_post(*args, **kwargs):
@@ -31,20 +34,29 @@ def mocked_requests_post(*args, **kwargs):
         def raise_for_status(self):
             return self.status_code
 
+    # print(args[0])
+    # print(matrix_registration.config.config.SERVER_LOCATION)
     if args[0] == '%s/_matrix/client/api/v1/register' % matrix_registration.config.config.SERVER_LOCATION:
-        return MockResponse({
-                            'access_token': 'abc123',
-                            'device_id': 'GHTYAJCE',
-                            'home_server': 'matrix.org',
-                            'user_id': '@cheeky_monkey:matrix.org',
-                            }, 200)
+        if kwargs:
+            req = kwargs['json']
+            access_token = ''.join(random.choices(string.ascii_lowercase +
+                                                  string.digits, k=256))
+            device_id = ''.join(random.choices(string.ascii_uppercase, k=8))
+            home_server = matrix_registration.config.config.SERVER_LOCATION
+            user = req['user'].rsplit(":")[0].split("@")[-1]
+            user_id = "@{}:{}".format(user, home_server)
+            return MockResponse({
+                                'access_token': access_token,
+                                'device_id': device_id,
+                                'home_server': home_server,
+                                'user_id': user_id
+                                }, 200)
     return MockResponse(None, 404)
 
 
 class TokensTest(unittest.TestCase):
     def setUpClass():
         matrix_registration.config.config = Config(CONFIG_PATH)
-        print(matrix_registration.config.config.DB)
 
     def tearDownClass():
         os.remove(matrix_registration.config.config.DB)
@@ -55,11 +67,19 @@ class TokensTest(unittest.TestCase):
             words = re.sub('([a-z])([A-Z])', r'\1 \2', string).split()
             self.assertEqual(len(words), n)
 
+    def test_tokens_empty(self):
+        test_tokens = matrix_registration.tokens.Tokens()
+
+        self.assertFalse(test_tokens.valid(""))
+        test_token = test_tokens.new()
+
+        self.assertFalse(test_tokens.valid(""))
+
     @parameterized.expand([
         [None, False],
-        ["2100-01-12", False],
+        ['2100-01-12', False],
         [None, True],
-        ["2100-01-12", True]
+        ['2100-01-12', True]
     ])
     def test_tokens_new(self, expire, one_time):
         test_tokens = matrix_registration.tokens.Tokens()
@@ -78,12 +98,12 @@ class TokensTest(unittest.TestCase):
 
     @parameterized.expand([
         [None, False, 10, True],
-        ["2100-01-12", False, 10, True],
+        ['2100-01-12', False, 10, True],
         [None, True, 1, False],
         [None, True, 0, True],
-        ["2100-01-12", True, 1, False],
-        ["2100-01-12", True, 2, False],
-        ["2100-01-12", True, 0, True]
+        ['2100-01-12', True, 1, False],
+        ['2100-01-12', True, 2, False],
+        ['2100-01-12', True, 0, True]
     ])
     def test_tokens_valid_form(self, expire, one_time, times_used, valid):
         test_tokens = matrix_registration.tokens.Tokens()
@@ -102,9 +122,8 @@ class TokensTest(unittest.TestCase):
 
     @parameterized.expand([
         [None, True],
-        ["2100-01-12", False],
-        ["2100-01-12", False],
-        ["2100-01-12", False]
+        ['2100-01-12', False],
+        ['2200-01-13', True],
     ])
     def test_tokens_expired(self, expire, valid):
         test_tokens = matrix_registration.tokens.Tokens()
@@ -113,7 +132,7 @@ class TokensTest(unittest.TestCase):
         self.assertEqual(test_tokens.valid(test_token.name), True)
         # date changed to after expiration date
         with patch('matrix_registration.tokens.datetime') as mock_date:
-            mock_date.now.return_value = parser.parse("2200-01-12")
+            mock_date.now.return_value = parser.parse('2200-01-12')
             self.assertEqual(test_tokens.valid(test_token.name), valid)
 
 
@@ -126,22 +145,56 @@ class ApiTest(unittest.TestCase):
     def tearDown(self):
         os.remove(matrix_registration.config.config.DB)
 
+    @parameterized.expand([
+        ['test', 'test1234', 'test1234', True, 200],
+        ['test', 'test1234', 'test1234', False, 401],
+        ['@test:matrix.org', 'test1234', 'test1234', True, 200],
+        ['test', 'test1234', 'tet1234', True, 401],
+        ['teüst', 'test1234', 'test1234', True, 401],
+        ['@test@matrix.org', 'test1234', 'test1234', True, 401],
+        ['test@matrix.org', 'test1234', 'test1234', True, 401],
+        ['', 'test1234', 'test1234', True, 401],
+        ['aRGEZVYZ2YYxvIYVQITke24HurY4ZEMeXWSf2D2kx7rxtRhbO29Ksae0Uthc7m0dQTQBLCuHqdYHe101apCCotILLgqiRELqiRSSlZDT1UEG18ryg04kaCMjODOZXLwVOH78wZIpK4NreYEcpX00Wlkdo4qUfgH9Nlz3AEGZYluWuFeoo4PKj8hRplY9FPQLi5ACgfDgQpG1wrz9BEqtvd1KK5UvE8qLQnK6CZAnsjwNQq9UddvDFY2ngX1ftbqw', 'test1234', 'test1234', True, 401]
+    ])
     @patch('matrix_registration.synapse_register.requests.post',
            side_effect=mocked_requests_post)
-    def test_register_success(self, mock_get):
+    def test_register_success(self, username, password, confirm, token,
+                              status, mock_get):
         matrix_registration.config.config = Config(CONFIG_PATH)
 
-        matrix_registration.tokens.tokens =  matrix_registration.tokens.Tokens()
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
         test_token = matrix_registration.tokens.tokens.new(expire=None,
                                                            one_time=True)
+
+        if not token:
+            test_token.name = ""
         rv = self.app.post('/register', data=dict(
-            username='test',
-            password='test1234',
-            confirm='test1234',
+            username=username,
+            password=password,
+            confirm=confirm,
             token=test_token.name
         ))
-        # account_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
-        self.assertEqual(rv.status_code, 200)
+        if rv.status_code == 200:
+            account_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
+            # print(account_data)
+        self.assertEqual(rv.status_code, status)
+
+    # @patch('matrix_registration.synapse_register.requests.post',
+    #        side_effect=mocked_requests_post)
+    # def test_register_wrong_hs(self, mock_get):
+    #     matrix_registration.config.config = Config(CONFIG_PATH)
+    #
+    #     matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+    #     test_token = matrix_registration.tokens.tokens.new(expire=None,
+    #                                                        one_time=True)
+    #     api.config.config.SERVER_LOCATION = "x"
+    #     rv = self.app.post('/register', data=dict(
+    #         username='username',
+    #         password='password',
+    #         confirm='password',
+    #         token=test_token.name
+    #     ))
+    #     self.assertEqual(rv.status_code, 500)
 
 
 if __name__ == '__main__':
