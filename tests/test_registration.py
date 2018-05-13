@@ -14,7 +14,7 @@ from parameterized import parameterized
 from dateutil import parser
 
 # Local imports...
-import matrix_registration
+from .context import matrix_registration
 from matrix_registration.config import Config
 
 api = matrix_registration.api
@@ -74,6 +74,27 @@ class TokensTest(unittest.TestCase):
         test_token = test_tokens.new()
 
         self.assertFalse(test_tokens.valid(""))
+
+    def test_tokens_disable(self):
+        test_tokens = matrix_registration.tokens.Tokens()
+        test_token = test_tokens.new()
+
+        self.assertFalse(test_token.is_expired())
+        self.assertTrue(test_token.disable())
+        self.assertTrue(test_token.is_expired())
+
+        test_token2 = test_tokens.new()
+
+        self.assertTrue(test_tokens.valid(test_token2.name))
+        self.assertTrue(test_tokens.disable(test_token2.name))
+        self.assertFalse(test_tokens.valid(test_token2.name))
+
+        test_token3 = test_tokens.new(one_time=True)
+        test_token3.use()
+
+        self.assertFalse(test_tokens.valid(test_token2.name))
+        self.assertFalse(test_tokens.disable(test_token2.name))
+        self.assertFalse(test_tokens.valid(test_token2.name))
 
     @parameterized.expand([
         [None, False],

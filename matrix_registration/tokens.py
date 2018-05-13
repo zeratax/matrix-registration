@@ -48,8 +48,17 @@ class Token(object):
 
         return expired or used
 
+    def use(self):
+        if not self.is_expired():
+            self.used += 1
+            return True
+        return False
+
     def disable(self):
-        self.expire = datetime(1, 1, 1)
+        if not self.is_expired():
+            self.expire = datetime(1, 1, 1)
+            return True
+        return False
 
 
 class Tokens():
@@ -81,15 +90,24 @@ class Tokens():
         for token in self.tokens:
             if token.name == token_name:
                 return not token.is_expired()
-                break
         return False
 
     def use(self, token_name):
-        if self.valid(token_name):
-            for token in self.tokens:
-                if token.name == token_name:
-                    token.used += 1
+        for token in self.tokens:
+            if token.name == token_name:
+                if token.use():
                     return True
+                else:
+                    break
+        return False
+
+    def disable(self, token_name):
+        for token in self.tokens:
+            if token.name == token_name:
+                if token.disable():
+                    return True
+                else:
+                    break
         return False
 
     def new(self, expire=None, one_time=False):

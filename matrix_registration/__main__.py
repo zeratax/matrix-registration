@@ -17,15 +17,26 @@ parser.add_argument('mode', choices=['api', 'token'],
                     help='start as api server or generate new token')
 parser.add_argument('-o', '--one-time', type=bool, default=False,
                     help='one time use token')
+parser.add_argument('-o', '--one-time', action='store_true',
+                    help='one time use token')
 parser.add_argument('-e', '--expire', type=str, default=None,
                     help='expiration date for token')
+parser.add_argument('-d', '--disable', type=str, default=None,
+                    help='disable token')
 args = parser.parse_args()
 
-config.config.update(args.config)
+config.config = config.Config(args.config)
 tokens.tokens = tokens.Tokens()
 
 if args.mode == 'api':
     app.run(host='0.0.0.0', port=config.config.PORT)
 elif args.mode == 'token':
-    token = tokens.tokens.new(expire=args.expire, one_time=args.one_time)
-    print(token.name)
+    if args.disable:
+        disabled = tokens.tokens.disable(args.disable)
+        if disabled:
+            print("token has been disabled")
+        else:
+            print("token was already disabled")
+    else:
+        token = tokens.tokens.new(expire=args.expire, one_time=args.one_time)
+        print(token.name)
