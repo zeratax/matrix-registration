@@ -3,6 +3,7 @@
 *.sqlite
 !config.sample.yaml
 !tests/config.yaml
+!tests/test_config.yaml
 # nose
 man/
 # Byte-compiled / optimized / DLL files
