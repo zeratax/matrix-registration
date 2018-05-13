@@ -1,5 +1,9 @@
 # Project specific
 *.yaml
+*.sqlite
+!config.sample.yaml
+# nose
+man/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
