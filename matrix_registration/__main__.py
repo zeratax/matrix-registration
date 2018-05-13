@@ -17,8 +17,6 @@ parser.add_argument('mode', choices=['api', 'token'],
                     help='start as api server or generate new token')
 parser.add_argument('-o', '--one-time', type=bool, default=False,
                     help='one time use token')
-parser.add_argument('-o', '--one-time', action='store_true',
-                    help='one time use token')
 parser.add_argument('-e', '--expire', type=str, default=None,
                     help='expiration date for token')
 parser.add_argument('-d', '--disable', type=str, default=None,
