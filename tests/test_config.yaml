@@ -1,4 +1,4 @@
-SERVER_LOCATION: 'https://test2.tld'
-SHARED_SECRET: 'alternativetestconfig'
-DB: 'tests/db.sqlite'
-PORT: 1000
+server_location: 'https://alttests.tld'
+shared_secret: 'testsecret'
+db: 'tests/db.sqlite'
+port: 4000

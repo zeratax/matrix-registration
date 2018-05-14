@@ -64,6 +64,8 @@ class Token(object):
 class Tokens():
     def __init__(self):
         DATABASE_PATH = os.path.join(__location__, "../" + config.config.DB)
+        DATABASE_PATH = os.path.join(__location__,
+                                     "../" + config.config.db)
         self.conn = sqlite3.connect(DATABASE_PATH)
         self.c = self.conn.cursor()
         self.tokens = []

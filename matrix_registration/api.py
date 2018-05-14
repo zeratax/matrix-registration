@@ -61,6 +61,8 @@ def register():
                                           config.config.SHARED_SECRET)
         except requests.exceptions.HTTPError as e:
             app.logger.error('Failure communicating with HS',
+                                          config.config.server_location,
+                                          config.config.shared_secret)
                              exc_info=True)
             abort(500)
         app.logger.debug('account creation succeded!')

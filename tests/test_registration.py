@@ -35,14 +35,16 @@ def mocked_requests_post(*args, **kwargs):
             return self.status_code
 
     # print(args[0])
-    # print(matrix_registration.config.config.SERVER_LOCATION)
-    if args[0] == '%s/_matrix/client/api/v1/register' % matrix_registration.config.config.SERVER_LOCATION:
+    # print(matrix_registration.config.config.server_location)
+    if args[0] == '%s/_matrix/client/api/v1/register' % "https://wronghs.org":
+        return MockResponse(None, 404)
+    elif args[0] == '%s/_matrix/client/api/v1/register' % matrix_registration.config.config.server_location:
         if kwargs:
             req = kwargs['json']
             access_token = ''.join(random.choices(string.ascii_lowercase +
                                                   string.digits, k=256))
             device_id = ''.join(random.choices(string.ascii_uppercase, k=8))
-            home_server = matrix_registration.config.config.SERVER_LOCATION
+            home_server = matrix_registration.config.config.server_location
             user = req['user'].rsplit(":")[0].split("@")[-1]
             user_id = "@{}:{}".format(user, home_server)
             return MockResponse({
@@ -164,7 +166,7 @@ class ApiTest(unittest.TestCase):
         matrix_registration.config.config = Config(CONFIG_PATH)
 
     def tearDown(self):
-        os.remove(matrix_registration.config.config.DB)
+        os.remove(matrix_registration.config.config.db)
 
     @parameterized.expand([
         ['test', 'test1234', 'test1234', True, 200],
