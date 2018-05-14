@@ -5,6 +5,7 @@ import yaml
 import requests
 import re
 import sys
+from urllib.parse import urlparse
 
 # Third-party imports...
 from flask import Flask, abort, jsonify, request
@@ -18,8 +19,6 @@ from . import tokens
 
 app = Flask(__name__)
 
-re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$")
-
 
 def validate_token(form, token):
     tokens.tokens.load()
@@ -28,6 +27,10 @@ def validate_token(form, token):
 
 
 def validate_username(form, username):
+    domain = urlparse(config.config.server_location).hostname
+    re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:" +
+                         re.escape(domain) +
+                         ")?$")
     if not re_mxid.match(username.data):
         raise validators.ValidationError('this username is not valid')
 

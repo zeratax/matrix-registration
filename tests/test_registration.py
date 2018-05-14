@@ -7,7 +7,7 @@ import re
 import string
 import unittest
 from unittest.mock import Mock, patch
-from urllib.parse import urlsplit
+from urllib.parse import urlparse
 
 # Third-party imports...
 from parameterized import parameterized
@@ -188,6 +188,9 @@ class ApiTest(unittest.TestCase):
         matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
         test_token = matrix_registration.tokens.tokens.new(expire=None,
                                                            one_time=True)
+        # replace matrix with in config set hs
+        domain = urlparse(matrix_registration.config.config.server_location).hostname
+        username = username.replace("matrix.org", domain)
 
         if not token:
             test_token.name = ""
