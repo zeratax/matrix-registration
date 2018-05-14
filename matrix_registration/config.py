@@ -10,23 +10,29 @@ from .constants import __location__
 
 
 class Config:
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, data):
+        self.data = data
         self.options = None
         self.load()
 
     def load(self):
-        try:
-            with open((os.path.join(__location__, "../" + self.path)),
-                      'r') as stream:
-                dictionary = yaml.load(stream)
-                for k, v in dictionary.items():
-                    setattr(self, k, v)
-        except IOError as e:
-            sys.exit(e)
+        dictionary = None
+        if type(self.data) is dict:
+            dictionary = self.data
+        else:
+            try:
+                with open((os.path.join(__location__, "../" + self.data)),
+                          'r') as stream:
+                    dictionary = yaml.load(stream)
+            except IOError as e:
+                sys.exit(e)
 
-    def update(self, path):
-        self.path = path
+        # recusively set dictionary to class properties
+        for k, v in dictionary.items():
+            setattr(self, k, v)
+
+    def update(self, data):
+        self.data = data
         self.options = None
         self.load()
 

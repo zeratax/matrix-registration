@@ -19,7 +19,37 @@ from matrix_registration.config import Config
 
 api = matrix_registration.api
 
-CONFIG_PATH = 'tests/config.yaml'
+GOOD_CONFIG = {
+    'server_location': 'https://test.tld',
+    'shared_secret': 'coolsharesecret',
+    'db': 'tests/db.sqlite',
+    'port': 5000,
+    # password requirements
+    'password': {
+      'min_length': 8
+     },
+    'logger': {
+       'level': 'info',
+       'format': '[%(asctime)s] [%(levelname)s@%(name)s] %(message)s',
+       'file': 'reg.log'
+     }
+}
+
+BAD_CONFIG = {
+    'server_location': 'https://wronghs.org',
+    'shared_secret': 'wrongsecret',
+    'db': 'tests/db.sqlite',
+    'port': 1000,
+    # password requirements
+    'password': {
+      'min_length': 3
+     },
+    'logger': {
+       'level': 'info',
+       'format': '[%(asctime)s] [%(levelname)s@%(name)s] %(message)s',
+       'file': 'reg.log'
+     }
+}
 
 
 def mocked_requests_post(*args, **kwargs):
@@ -58,10 +88,10 @@ def mocked_requests_post(*args, **kwargs):
 
 class TokensTest(unittest.TestCase):
     def setUpClass():
-        matrix_registration.config.config = Config(CONFIG_PATH)
+        matrix_registration.config.config = Config(GOOD_CONFIG)
 
     def tearDownClass():
-        os.remove(matrix_registration.config.config.DB)
+        os.remove(matrix_registration.config.config.db)
 
     def test_random_readable_string(self):
         for n in range(10):
@@ -163,27 +193,28 @@ class ApiTest(unittest.TestCase):
     def setUp(self):
         api.app.testing = True
         self.app = api.app.test_client()
-        matrix_registration.config.config = Config(CONFIG_PATH)
+        matrix_registration.config.config = Config(GOOD_CONFIG)
 
     def tearDown(self):
         os.remove(matrix_registration.config.config.db)
 
     @parameterized.expand([
         ['test', 'test1234', 'test1234', True, 200],
-        ['test', 'test1234', 'test1234', False, 401],
+        ['test', 'test1234', 'test1234', False, 400],
         ['@test:matrix.org', 'test1234', 'test1234', True, 200],
-        ['test', 'test1234', 'tet1234', True, 401],
-        ['teüst', 'test1234', 'test1234', True, 401],
-        ['@test@matrix.org', 'test1234', 'test1234', True, 401],
-        ['test@matrix.org', 'test1234', 'test1234', True, 401],
-        ['', 'test1234', 'test1234', True, 401],
-        ['aRGEZVYZ2YYxvIYVQITke24HurY4ZEMeXWSf2D2kx7rxtRhbO29Ksae0Uthc7m0dQTQBLCuHqdYHe101apCCotILLgqiRELqiRSSlZDT1UEG18ryg04kaCMjODOZXLwVOH78wZIpK4NreYEcpX00Wlkdo4qUfgH9Nlz3AEGZYluWuFeoo4PKj8hRplY9FPQLi5ACgfDgQpG1wrz9BEqtvd1KK5UvE8qLQnK6CZAnsjwNQq9UddvDFY2ngX1ftbqw', 'test1234', 'test1234', True, 401]
+        ['@test:wronghs.org', 'test1234', 'test1234', True, 400],
+        ['test', 'test1234', 'tet1234', True, 400],
+        ['teüst', 'test1234', 'test1234', True, 400],
+        ['@test@matrix.org', 'test1234', 'test1234', True, 400],
+        ['test@matrix.org', 'test1234', 'test1234', True, 400],
+        ['', 'test1234', 'test1234', True, 400],
+        ['aRGEZVYZ2YYxvIYVQITke24HurY4ZEMeXWSf2D2kx7rxtRhbO29Ksae0Uthc7m0dQTQBLCuHqdYHe101apCCotILLgqiRELqiRSSlZDT1UEG18ryg04kaCMjODOZXLwVOH78wZIpK4NreYEcpX00Wlkdo4qUfgH9Nlz3AEGZYluWuFeoo4PKj8hRplY9FPQLi5ACgfDgQpG1wrz9BEqtvd1KK5UvE8qLQnK6CZAnsjwNQq9UddvDFY2ngX1ftbqw', 'test1234', 'test1234', True, 400]
     ])
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
-    def test_register_success(self, username, password, confirm, token,
-                              status, mock_get):
-        matrix_registration.config.config = Config(CONFIG_PATH)
+    def test_register(self, username, password, confirm, token,
+                      status, mock_get):
+        matrix_registration.config.config = Config(GOOD_CONFIG)
 
         matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
         test_token = matrix_registration.tokens.tokens.new(expire=None,
@@ -205,41 +236,47 @@ class ApiTest(unittest.TestCase):
             # print(account_data)
         self.assertEqual(rv.status_code, status)
 
-    # def test_register_wrong_hs(self, mock_get):
-    #     matrix_registration.config.config = Config(CONFIG_PATH)
-    #
-    #     matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-    #     test_token = matrix_registration.tokens.tokens.new(expire=None,
-    #                                                        one_time=True)
-    #     api.config.config.SERVER_LOCATION = "x"
-    #     rv = self.app.post('/register', data=dict(
-    #         username='username',
-    #         password='password',
-    #         confirm='password',
-    #         token=test_token.name
-    #     ))
-    #     self.assertEqual(rv.status_code, 500)
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
+    def test_register_wrong_hs(self, mock_get):
+        matrix_registration.config.config = Config(BAD_CONFIG)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(expire=None,
+                                                           one_time=True)
+        rv = self.app.post('/register', data=dict(
+            username='username',
+            password='password',
+            confirm='password',
+            token=test_token.name
+        ))
+        self.assertEqual(rv.status_code, 500)
 
 
 class ConfigTest(unittest.TestCase):
     def test_config_update(self):
-        matrix_registration.config.config = Config(CONFIG_PATH)
-        self.assertEqual(matrix_registration.config.config.PORT, 5000)
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+        self.assertEqual(matrix_registration.config.config.port,
+                         GOOD_CONFIG['port'])
+        self.assertEqual(matrix_registration.config.config.server_location,
+                         GOOD_CONFIG['server_location'])
 
-        new_config = "tests/test_config.yaml"
-        matrix_registration.config.config.update(new_config)
-        self.assertEqual(matrix_registration.config.config.PORT, 1000)
+        matrix_registration.config.config.update(BAD_CONFIG)
+        self.assertEqual(matrix_registration.config.config.port,
+                         BAD_CONFIG['port'])
+        self.assertEqual(matrix_registration.config.config.server_location,
+                         BAD_CONFIG['server_location'])
 
     def test_config_wrong_path(self):
-        bad_config = "x"
+        bad_config_path = "x"
+        good_config_path = "tests/test_config.yaml"
         with self.assertRaises(SystemExit) as cm:
-            matrix_registration.config.config = Config(bad_config)
+            matrix_registration.config.config = Config(bad_config_path)
 
-        matrix_registration.config.config = Config(CONFIG_PATH)
+        matrix_registration.config.config = Config(good_config_path)
+        self.assertIsNotNone(matrix_registration.config.config)
         with self.assertRaises(SystemExit) as cm:
-            matrix_registration.config.config.update(bad_config)
+            matrix_registration.config.config.update(bad_config_path)
 
 
 if __name__ == '__main__':
