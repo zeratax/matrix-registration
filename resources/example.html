@@ -11,6 +11,9 @@
     input:valid {
       border: 2px solid black;
     }
+    input[type="submit"] {
+      width: 100%;
+    }
   </style>
 </head>
 
@@ -34,7 +37,7 @@
       <input id="token" name="token" type="text"
       required pattern="^([A-Z][a-z]+)+$">
       <br><br>
-      <input type="submit">
+      <input type="submit" value="register">
     </form>
   </section>
   <script>

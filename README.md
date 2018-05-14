@@ -3,6 +3,10 @@
 
 a simple python application to have a token based matrix registration
 
+if you like me encountered the situation where you wanted to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user this project should be your solution.
+
+wwith this project you can just quickly generate tokens and share tthem with your friends to allow them to register to your hs.
+
 ## setup
 ```
   virtualenv -p /usr/bin/python3.6 .
@@ -16,7 +20,7 @@ usage: python -m matrix_registration [-h] [-c <path>] [-o ONE_TIME]
                                      [-e EXPIRE] [-d DISABLE]
                                      {api,token}
 
-a token based Matrix-registration api
+a token based matrix registration app
 
 positional arguments:
   {api,token}           start as api server or generate new token
@@ -43,3 +47,20 @@ curl -X POST \
      http://localhost:5000/register
 ```
 or a simple html form, see the sample [resources/example.html](resources/example.html)
+
+the html page looks for the query paramater `token` and sets the token input field to it's value. this would allow you to directly share links with the token included, e.g.:
+`http://localhost:5000/register?token=DoubleWizardSki`
+
+easying the registration even further
+
+### nginx reverse-proxy
+an example nginx setup to expose the html form and the api endpoint on the same URL, based on whether a POST or GET request was made.
+```
+location /register {
+    alias resources/example.html;
+
+    limit_except POST {
+        proxy_pass http://localhost:5000;
+    }
+}
+```

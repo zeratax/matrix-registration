@@ -9,7 +9,7 @@ from . import tokens
 from .api import app
 
 parser = argparse.ArgumentParser(
-    description='a token based Matrix-registration api',
+    description='a token based matrix registration app',
     prog='python -m matrix_registration')
 parser.add_argument('-c', '--config', type=str, default='config.yaml',
                     metavar='<path>', help='the path to your config file')
