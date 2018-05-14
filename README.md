@@ -43,13 +43,3 @@ curl -X POST \
      http://localhost:5000/register
 ```
 or a simple html form, see the sample [resources/example.html](resources/example.html)
-
-## contribute
-
-if you want to contribute please install the pre-commit script, execute the following scripts in the root of the repository
-```
-  ln -s ../../scripts/pre-commit.sh .git/hooks/pre-commit
-  chmod +x scripts/pre-commit.sh
-```
-
-now everytime you commit the project will be linted and tested.
