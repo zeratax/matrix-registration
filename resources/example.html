@@ -65,6 +65,7 @@
         username.setCustomValidity("");
       }
     });
+
     token.addEventListener("input", function (event) {
       if (token.validity.typeMismatch) {
         token.setCustomValidity("case-sensitive, e.g: SardineImpactReport");
@@ -72,11 +73,12 @@
         token.setCustomValidity("");
       }
     });
-    token.addEventListener("input", function (event) {
-      if (token.validity.typeMismatch) {
-        token.setCustomValidity("atleast 8 characters long");
+
+    password.addEventListener("input", function (event) {
+      if (password.validity.typeMismatch) {
+        password.setCustomValidity("atleast 8 characters long");
       } else {
-        token.setCustomValidity("");
+        password.setCustomValidity("");
       }
     });
 
