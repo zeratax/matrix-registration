@@ -14,7 +14,7 @@ from parameterized import parameterized
 from dateutil import parser
 
 # Local imports...
-from .context import matrix_registration
+import matrix_registration
 from matrix_registration.config import Config
 
 api = matrix_registration.api

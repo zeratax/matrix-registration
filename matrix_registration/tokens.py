@@ -9,10 +9,7 @@ from dateutil import parser
 
 # Local imports...
 from . import config
-from .constants import __location__
-from .constants import WORD_LIST
-
-WORD_LIST_PATH = os.path.join(__location__, WORD_LIST)
+from .constants import WORD_LIST_PATH
 
 sqlite3.register_adapter(bool, int)
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
@@ -63,9 +60,7 @@ class Token(object):
 
 class Tokens():
     def __init__(self):
-        DATABASE_PATH = os.path.join(__location__,
-                                     "../" + config.config.db)
-        self.conn = sqlite3.connect(DATABASE_PATH)
+        self.conn = sqlite3.connect(config.config.db)
         self.c = self.conn.cursor()
         self.tokens = []
 

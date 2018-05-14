@@ -5,9 +5,6 @@ import sys
 # Third-party imports...
 import yaml
 
-# Local imports...
-from .constants import __location__
-
 
 class Config:
     def __init__(self, data):
@@ -21,8 +18,7 @@ class Config:
             dictionary = self.data
         else:
             try:
-                with open((os.path.join(__location__, "../" + self.data)),
-                          'r') as stream:
+                with open(self.data, 'r') as stream:
                     dictionary = yaml.load(stream)
             except IOError as e:
                 sys.exit(e)

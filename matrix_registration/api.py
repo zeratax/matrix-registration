@@ -2,7 +2,7 @@
 import hashlib
 import hmac
 import yaml
-import requests
+from requests import exceptions
 import re
 import sys
 from urllib.parse import urlparse
@@ -62,11 +62,11 @@ def register():
                                           form.password.data,
                                           config.config.server_location,
                                           config.config.shared_secret)
-        except requests.exceptions.ConnectionError as e:
+        except ConnectionError as e:
             app.logger.error('no HS at SERVER_LOCATION',
                              exc_info=True)
             abort(500)
-        except requests.exceptions.HTTPError as e:
+        except HTTPError as e:
             resp = e.response
             error = resp.json()
             status_code = resp.status_code
