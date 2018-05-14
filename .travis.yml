@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.6"
+install:
+ - virtualenv -p /usr/bin/python3.6 .
+ - source ./bin/activate
+ - pip install -r requirements.txt
+ - pip install coveralls
+
+script: coverage run -m unittest
+
+after_success:
+    coveralls

@@ -1,4 +1,7 @@
+[![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration)
 # matrix-registration
+
+a simple python application to have a token based matrix registration
 
 ## setup
 ```
@@ -46,11 +49,7 @@ or a simple html form, see the sample [resources/example.html](resources/example
 if you want to contribute please install the pre-commit script, execute the following scripts in the root of the repository
 ```
   ln -s ../../scripts/pre-commit.sh .git/hooks/pre-commit
-<<<<<<< Updated upstream
-  chmod +x pre-commit.sh
-=======
   chmod +x scripts/pre-commit.sh
->>>>>>> Stashed changes
 ```
 
 now everytime you commit the project will be linted and tested.
