@@ -2,3 +2,6 @@ SERVER_LOCATION: 'https://matrix.org'
 SHARED_SECRET: 'RegistrationSharedSecret'
 DB: 'db.sqlite'
 PORT: 5000
+# password requirements
+password:
+  min_length: 8

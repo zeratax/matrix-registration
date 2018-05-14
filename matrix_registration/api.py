@@ -38,6 +38,7 @@ class RegistrationForm(Form):
         validate_username
     ])
     password = PasswordField('New Password', [
+        validators.Length(min=1 if not config.config else config.config.password.min_length),
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match')
     ])
