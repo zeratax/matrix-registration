@@ -11,7 +11,7 @@ from flask import Flask, abort, jsonify, request
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
 # Local imports...
-from .synapse_register import create_account
+from .matrix_api import create_account
 from . import config
 from . import tokens
 

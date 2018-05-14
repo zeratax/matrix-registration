@@ -29,7 +29,7 @@ def create_account(user, password, server_location, shared_secret,
 
     server_location = server_location.rstrip('/')
 
-    r = requests.post('%s/_matrix/client/api/v1/register' % (server_location,),
+    r = requests.post('%s/_matrix/client/api/v1/register' % (server_location),
                       json=data)
     r.raise_for_status()
     return r.json()

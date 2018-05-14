@@ -179,7 +179,7 @@ class ApiTest(unittest.TestCase):
         ['', 'test1234', 'test1234', True, 401],
         ['aRGEZVYZ2YYxvIYVQITke24HurY4ZEMeXWSf2D2kx7rxtRhbO29Ksae0Uthc7m0dQTQBLCuHqdYHe101apCCotILLgqiRELqiRSSlZDT1UEG18ryg04kaCMjODOZXLwVOH78wZIpK4NreYEcpX00Wlkdo4qUfgH9Nlz3AEGZYluWuFeoo4PKj8hRplY9FPQLi5ACgfDgQpG1wrz9BEqtvd1KK5UvE8qLQnK6CZAnsjwNQq9UddvDFY2ngX1ftbqw', 'test1234', 'test1234', True, 401]
     ])
-    @patch('matrix_registration.synapse_register.requests.post',
+    @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
     def test_register_success(self, username, password, confirm, token,
                               status, mock_get):
@@ -202,8 +202,6 @@ class ApiTest(unittest.TestCase):
             # print(account_data)
         self.assertEqual(rv.status_code, status)
 
-    # @patch('matrix_registration.synapse_register.requests.post',
-    #        side_effect=mocked_requests_post)
     # def test_register_wrong_hs(self, mock_get):
     #     matrix_registration.config.config = Config(CONFIG_PATH)
     #
@@ -218,6 +216,8 @@ class ApiTest(unittest.TestCase):
     #         token=test_token.name
     #     ))
     #     self.assertEqual(rv.status_code, 500)
+    @patch('matrix_registration.matrix_api.requests.post',
+           side_effect=mocked_requests_post)
 
 
 class ConfigTest(unittest.TestCase):
