@@ -1,11 +1,11 @@
 server_location: 'https://matrix.org'
 shared_secret: 'RegistrationSharedSecret'
-db: 'db.sqlite'
+db: 'db.sqlite3'
 port: 5000
 logger:
-  level: 'info' # debug, info, warning, error
+  level: 'INFO' # DEBUG, INFO, WARNING, ERROR
   format: '[%(asctime)s] [%(levelname)s@%(name)s] %(message)s'
-  file: 'reg.log'
+  file: 'm_reg.log'
 # password requirements
 password:
   min_length: 8

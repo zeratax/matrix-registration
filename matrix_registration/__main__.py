@@ -15,19 +15,24 @@ parser.add_argument('-c', '--config', type=str, default='config.yaml',
                     metavar='<path>', help='the path to your config file')
 parser.add_argument('mode', choices=['api', 'token'],
                     help='start as api server or generate new token')
-parser.add_argument('-o', '--one-time', type=bool, default=False,
+parser.add_argument('-o', '--one-time', action='store_true',
                     help='one time use token')
-parser.add_argument('-e', '--expire', type=str, default=None,
+parser.add_argument('-e', '--expiration-date', type=str, default=None,
                     help='expiration date for token')
 parser.add_argument('-d', '--disable', type=str, default=None,
                     help='disable token')
 args = parser.parse_args()
 
 config.config = config.Config(args.config)
+logging.config.dictConfig(config.config.logging)
 tokens.tokens = tokens.Tokens()
 
+logger = logging.getLogger(__name__)
+logger.debug('called with args: %s' % args)
+
+logger.info('starting in %s mode' % args.mode)
 if args.mode == 'api':
-    app.run(host='0.0.0.0', port=config.config.PORT)
+    app.run(host='0.0.0.0', port=config.config.port)
 elif args.mode == 'token':
     if args.disable:
         disabled = tokens.tokens.disable(args.disable)
@@ -36,5 +41,6 @@ elif args.mode == 'token':
         else:
             print("token was already disabled")
     else:
-        token = tokens.tokens.new(expire=args.expire, one_time=args.one_time)
+        token = tokens.tokens.new(ex_date=args.expiration_date,
+                                  one_time=args.one_time)
         print(token.name)
