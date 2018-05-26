@@ -1,4 +1,0 @@
-server_location: 'https://alttests.tld'
-shared_secret: 'testsecret'
-db: 'tests/db.sqlite'
-port: 4000

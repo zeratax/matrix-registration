@@ -1,8 +1,7 @@
 # Project specific
 *.yaml
-*.sqlite
+*.conf
 !config.sample.yaml
-!tests/config.yaml
 !tests/test_config.yaml
 # nose
 man/

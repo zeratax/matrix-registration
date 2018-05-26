@@ -6,6 +6,7 @@ import os
 import random
 import re
 import string
+import sys
 import unittest
 from unittest.mock import Mock, patch
 from urllib.parse import urlparse
@@ -15,9 +16,13 @@ from parameterized import parameterized
 from dateutil import parser
 
 # Local imports...
-import matrix_registration
+try:
+    from .context import matrix_registration
+except ModuleNotFoundError:
+    from context import matrix_registration
 from matrix_registration.config import Config
 
+logger = logging.getLogger(__name__)
 api = matrix_registration.api
 
 GOOD_CONFIG = {
@@ -53,6 +58,23 @@ BAD_CONFIG = {
 }
 
 
+def mock_new_user(username):
+    access_token = ''.join(random.choices(string.ascii_lowercase +
+                                          string.digits, k=256))
+    device_id = ''.join(random.choices(string.ascii_uppercase, k=8))
+    home_server = matrix_registration.config.config.server_location
+    user = username.rsplit(":")[0].split("@")[-1]
+    user_id = "@{}:{}".format(user, home_server)
+
+    user = {
+            'access_token': access_token,
+            'device_id': device_id,
+            'home_server': home_server,
+            'user_id': user_id
+            }
+    return user
+
+
 def mocked_requests_post(*args, **kwargs):
     class MockResponse:
         def __init__(self, json_data, status_code):
@@ -72,18 +94,7 @@ def mocked_requests_post(*args, **kwargs):
     elif args[0] == '%s/_matrix/client/api/v1/register' % matrix_registration.config.config.server_location:
         if kwargs:
             req = kwargs['json']
-            access_token = ''.join(random.choices(string.ascii_lowercase +
-                                                  string.digits, k=256))
-            device_id = ''.join(random.choices(string.ascii_uppercase, k=8))
-            home_server = matrix_registration.config.config.server_location
-            user = req['user'].rsplit(":")[0].split("@")[-1]
-            user_id = "@{}:{}".format(user, home_server)
-            return MockResponse({
-                                'access_token': access_token,
-                                'device_id': device_id,
-                                'home_server': home_server,
-                                'user_id': user_id
-                                }, 200)
+            return MockResponse(mock_new_user(req['user']), 200)
     return MockResponse(None, 404)
 
 
@@ -112,9 +123,9 @@ class TokensTest(unittest.TestCase):
         test_tokens = matrix_registration.tokens.Tokens()
         test_token = test_tokens.new()
 
-        self.assertFalse(test_token.is_expired())
+        self.assertTrue(test_token.valid())
         self.assertTrue(test_token.disable())
-        self.assertTrue(test_token.is_expired())
+        self.assertFalse(test_token.valid())
 
         test_token2 = test_tokens.new()
 
@@ -122,12 +133,43 @@ class TokensTest(unittest.TestCase):
         self.assertTrue(test_tokens.disable(test_token2.name))
         self.assertFalse(test_tokens.valid(test_token2.name))
 
-        test_token3 = test_tokens.new(one_time=True)
+        test_token3 = test_tokens.new()
         test_token3.use()
 
         self.assertFalse(test_tokens.valid(test_token2.name))
         self.assertFalse(test_tokens.disable(test_token2.name))
         self.assertFalse(test_tokens.valid(test_token2.name))
+
+    def test_tokens_load(self):
+        test_tokens = matrix_registration.tokens.Tokens()
+        test_token = test_tokens.new()
+        test_token2 = test_tokens.new()
+
+        test_tokens.disable(test_token2.name)
+
+        test_token3 = test_tokens.new(one_time=True)
+
+        test_tokens.use(test_token3.name)
+
+        test_token4 = test_tokens.new(ex_date="2111-01-01")
+        test_tokens.use(test_token4.name)
+
+        test_tokens.load()
+
+        self.assertEqual(test_token.name,
+                         test_tokens.get_token(test_token.name).name)
+        self.assertEqual(test_token2.name,
+                         test_tokens.get_token(test_token2.name).name)
+        self.assertEqual(test_token2.valid(),
+                         test_tokens.get_token(test_token2.name).valid())
+        self.assertEqual(test_token3.used,
+                         test_tokens.get_token(test_token3.name).used)
+        self.assertEqual(test_token3.valid(),
+                         test_tokens.get_token(test_token3.name).valid())
+        self.assertEqual(test_token4.used,
+                         test_tokens.get_token(test_token4.name).used)
+        self.assertEqual(test_token4.ex_date,
+                         test_tokens.get_token(test_token4.name).ex_date)
 
     @parameterized.expand([
         [None, False],
@@ -135,15 +177,15 @@ class TokensTest(unittest.TestCase):
         [None, True],
         ['2100-01-12', True]
     ])
-    def test_tokens_new(self, expire, one_time):
+    def test_tokens_new(self, ex_date, one_time):
         test_tokens = matrix_registration.tokens.Tokens()
-        test_token = test_tokens.new(expire=expire, one_time=one_time)
+        test_token = test_tokens.new(ex_date=ex_date, one_time=one_time)
 
         self.assertIsNotNone(test_token)
-        if expire:
-            self.assertIsNotNone(test_token.expire)
+        if ex_date:
+            self.assertIsNotNone(test_token.ex_date)
         else:
-            self.assertIsNone(test_token.expire)
+            self.assertIsNone(test_token.ex_date)
         if one_time:
             self.assertTrue(test_token.one_time)
         else:
@@ -159,9 +201,9 @@ class TokensTest(unittest.TestCase):
         ['2100-01-12', True, 2, False],
         ['2100-01-12', True, 0, True]
     ])
-    def test_tokens_valid_form(self, expire, one_time, times_used, valid):
+    def test_tokens_valid_form(self, ex_date, one_time, times_used, valid):
         test_tokens = matrix_registration.tokens.Tokens()
-        test_token = test_tokens.new(expire=expire, one_time=one_time)
+        test_token = test_tokens.new(ex_date=ex_date, one_time=one_time)
 
         for n in range(times_used):
             test_tokens.use(test_token.name)
@@ -179,9 +221,9 @@ class TokensTest(unittest.TestCase):
         ['2100-01-12', False],
         ['2200-01-13', True],
     ])
-    def test_tokens_expired(self, expire, valid):
+    def test_tokens_valid(self, ex_date, valid):
         test_tokens = matrix_registration.tokens.Tokens()
-        test_token = test_tokens.new(expire=expire)
+        test_token = test_tokens.new(ex_date=ex_date)
 
         self.assertEqual(test_tokens.valid(test_token.name), True)
         # date changed to after expiration date
@@ -201,6 +243,9 @@ class ApiTest(unittest.TestCase):
 
     @parameterized.expand([
         ['test', 'test1234', 'test1234', True, 200],
+        [None, 'test1234', 'test1234', True, 400],
+        ['test', None, 'test1234', True, 400],
+        ['test', 'test1234', None, True, 400],
         ['test', 'test1234', 'test1234', False, 400],
         ['@test:matrix.org', 'test1234', 'test1234', True, 200],
         ['@test:wronghs.org', 'test1234', 'test1234', True, 400],
@@ -209,7 +254,8 @@ class ApiTest(unittest.TestCase):
         ['@test@matrix.org', 'test1234', 'test1234', True, 400],
         ['test@matrix.org', 'test1234', 'test1234', True, 400],
         ['', 'test1234', 'test1234', True, 400],
-        ['aRGEZVYZ2YYxvIYVQITke24HurY4ZEMeXWSf2D2kx7rxtRhbO29Ksae0Uthc7m0dQTQBLCuHqdYHe101apCCotILLgqiRELqiRSSlZDT1UEG18ryg04kaCMjODOZXLwVOH78wZIpK4NreYEcpX00Wlkdo4qUfgH9Nlz3AEGZYluWuFeoo4PKj8hRplY9FPQLi5ACgfDgQpG1wrz9BEqtvd1KK5UvE8qLQnK6CZAnsjwNQq9UddvDFY2ngX1ftbqw', 'test1234', 'test1234', True, 400]
+        [''.join(random.choices(string.ascii_uppercase, k=256)),
+         'test1234', 'test1234', True, 400]
     ])
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
@@ -218,11 +264,12 @@ class ApiTest(unittest.TestCase):
         matrix_registration.config.config = Config(GOOD_CONFIG)
 
         matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-        test_token = matrix_registration.tokens.tokens.new(expire=None,
+        test_token = matrix_registration.tokens.tokens.new(ex_date=None,
                                                            one_time=True)
         # replace matrix with in config set hs
         domain = urlparse(matrix_registration.config.config.server_location).hostname
-        username = username.replace("matrix.org", domain)
+        if username:
+            username = username.replace("matrix.org", domain)
 
         if not token:
             test_token.name = ""
@@ -243,7 +290,7 @@ class ApiTest(unittest.TestCase):
         matrix_registration.config.config = Config(BAD_CONFIG)
 
         matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-        test_token = matrix_registration.tokens.tokens.new(expire=None,
+        test_token = matrix_registration.tokens.tokens.new(ex_date=None,
                                                            one_time=True)
         rv = self.app.post('/register', data=dict(
             username='username',
@@ -274,11 +321,13 @@ class ConfigTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             matrix_registration.config.config = Config(bad_config_path)
 
-        matrix_registration.config.config = Config(good_config_path)
         self.assertIsNotNone(matrix_registration.config.config)
         with self.assertRaises(SystemExit) as cm:
             matrix_registration.config.config.update(bad_config_path)
 
+
+if "logging" in sys.argv:
+    logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
     unittest.main()
