@@ -12,45 +12,59 @@ from urllib.parse import urlparse
 from flask import Flask, abort, jsonify, request
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
+
 # Local imports...
 from .matrix_api import create_account
 from . import config
 from . import tokens
 
-
 app = Flask(__name__)
 logger = logging.getLogger(__name__)
 
 
+re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$")
 
 
 def validate_token(form, token):
     tokens.tokens.load()
     if not tokens.tokens.valid(token.data):
-        raise validators.ValidationError('this token is not valid')
+        raise validators.ValidationError('Token is invalid')
 
 
 def validate_username(form, username):
     domain = urlparse(config.config.server_location).hostname
-    re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:" +
-                         re.escape(domain) +
-                         ")?$")
-    if not re_mxid.match(username.data):
-        raise validators.ValidationError('this username is not valid')
+    re_mxid = r"^@?[a-zA-Z_\-=\.\/0-9]+(:" + \
+              re.escape(domain) + \
+              r")?$"
+    err = "Username doesn't follow pattern: '%s'" % re_mxid
+    if not re.search(re_mxid, username.data):
+        raise validators.ValidationError(err)
+
+
+def validate_password(form, password):
+    min_length = config.config.password['min_length']
+    err = 'Password should be between %s and 255 chars long' % min_length
+    if len(password.data) < min_length or len(password.data) > 255:
+        raise validators.ValidationError(err)
 
 
 class RegistrationForm(Form):
     username = StringField('Username', [
         validators.Length(min=1, max=200),
+        # validators.Regexp(re_mxid)
         validate_username
     ])
     password = PasswordField('New Password', [
-        validators.Length(min=1 if not config.config else config.config.password.min_length),
+        # validators.Length(min=8),
+        validate_password,
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords must match')
     ])
     confirm = PasswordField('Repeat Password')
-    token = StringField('Token', [validate_token])
+    token = StringField('Token', [
+        validators.Regexp(r"^([A-Z][a-z]+)+$"),
+        validate_token
+    ])
 
 
 @app.route('/register', methods=['POST'])
