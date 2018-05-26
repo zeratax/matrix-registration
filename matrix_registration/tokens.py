@@ -1,5 +1,6 @@
 # Standard library imports...
 from datetime import datetime
+import logging
 import os
 import random
 import sqlite3
@@ -13,6 +14,9 @@ from .constants import WORD_LIST_PATH
 
 sqlite3.register_adapter(bool, int)
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
+
+
+logger = logging.getLogger(__name__)
 
 
 def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
@@ -60,11 +64,13 @@ class Token(object):
 
 class Tokens():
     def __init__(self):
+        logger.info('connecting to %s' % config.config.db)
         self.conn = sqlite3.connect(config.config.db)
         self.c = self.conn.cursor()
         self.tokens = []
 
         # Create table
+        logger.debug('creating table')
         self.c.execute('''CREATE TABLE IF NOT EXISTS tokens
                           (name TEXT UNIQUE, expire TEXT, one_time BOOLEAN)''')
         self.conn.commit()

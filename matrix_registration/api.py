@@ -1,6 +1,7 @@
 # Standard library imports...
 import hashlib
 import hmac
+import logging
 import yaml
 from requests import exceptions
 import re
@@ -18,6 +19,9 @@ from . import tokens
 
 
 app = Flask(__name__)
+logger = logging.getLogger(__name__)
+
+
 
 
 def validate_token(form, token):
@@ -51,49 +55,51 @@ class RegistrationForm(Form):
 
 @app.route('/register', methods=['POST'])
 def register():
-    app.logger.debug('an account registration was requested...')
+    logger.debug('an account registration started...')
     form = RegistrationForm(request.form)
+    logger.debug('validating request data...')
     if form.validate():
+        logger.debug('request valid')
         tokens.tokens.use(form.token.data)
         username = form.username.data.rsplit(":")[0].split("@")[-1]
-        app.logger.debug('creating account %s...' % username)
+        logger.debug('creating account %s...' % username)
         try:
             account_data = create_account(form.username.data,
                                           form.password.data,
                                           config.config.server_location,
                                           config.config.shared_secret)
-        except ConnectionError as e:
-            app.logger.error('no HS at SERVER_LOCATION',
-                             exc_info=True)
+        except exceptions.ConnectionError as e:
+            logger.error('no HS at SERVER_LOCATION',
+                         exc_info=True)
             abort(500)
-        except HTTPError as e:
+        except exceptions.HTTPError as e:
             resp = e.response
             error = resp.json()
             status_code = resp.status_code
             if status_code == 400:
-                app.logger.debug('malformed user registration data')
+                logger.debug('malformed user registration data')
                 return jsonify(errcode=error['errcode'],
                                error=error['error'],
                                status_code=400)
             elif status_code == 404:
-                app.logger.error('no HS found at SERVER_LOCATION')
+                logger.error('no HS found at SERVER_LOCATION')
             elif status_code == 403:
-                app.logger.error('wrong registration secret')
+                logger.error('wrong registration secret')
             else:
-                app.logger.error('failure communicating with HS',
-                                 exc_info=True)
+                logger.error('failure communicating with HS',
+                             exc_info=True)
             abort(500)
         if not account_data:
-            app.logger.error('no account data was returned')
+            logger.error('no account data was returned')
             abort(500)
-        app.logger.debug('account creation succeded!')
+        logger.debug('account creation succeded!')
         return jsonify(access_token=account_data['access_token'],
                        device_id=account_data['device_id'],
                        home_server=account_data['home_server'],
                        user_id=account_data['user_id'],
                        status_code=200)
     else:
-        app.logger.debug('account creation failed!')
+        logger.debug('account creation failed!')
         for fieldName, errorMessages in form.errors.items():
             for err in errorMessages:
                 print()  # return error to user

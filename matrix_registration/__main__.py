@@ -2,6 +2,7 @@
 import argparse
 import sys
 import logging
+import logging.config
 
 # Local imports...
 from . import config
