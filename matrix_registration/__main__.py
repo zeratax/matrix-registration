@@ -22,6 +22,10 @@ parser.add_argument('-e', '--expiration-date', type=str, default=None,
                     help='expiration date for token')
 parser.add_argument('-d', '--disable', type=str, default=None,
                     help='disable token')
+parser.add_argument('-i', '--info', type=str, default=None,
+                    help='get information of token')
+parser.add_argument('-l', '--list', action='store_true',
+                    help='list tokens')
 args = parser.parse_args()
 
 config.config = config.Config(args.config)
@@ -41,6 +45,13 @@ elif args.mode == 'token':
             print("token has been disabled")
         else:
             print("token was already disabled")
+    if args.info:
+        try:
+            print(tokens.tokens.info(args.info))
+        except KeyError:
+            print("token does not exist")
+    elif args.list:
+        print(tokens.tokens)
     else:
         token = tokens.tokens.new(ex_date=args.expiration_date,
                                   one_time=args.one_time)
