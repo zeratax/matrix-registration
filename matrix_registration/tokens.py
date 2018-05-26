@@ -29,35 +29,44 @@ def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
 
 
 class Token(object):
-    def __init__(self, name=False, expire=None, one_time=False):
-        if not expire or expire == "None":
-            self.expire = None
+    def __init__(self, name=False, ex_date=None, one_time=False, used=0):
+        if not ex_date or ex_date == "None":
+            self.ex_date = None
         else:
-            self.expire = parser.parse(expire)
-        self.one_time = one_time
+            self.ex_date = parser.parse(ex_date)
         if name:
             self.name = name
         else:
             self.name = random_readable_string()
-        self.used = 0
+        self.one_time = one_time
+        self.used = used
 
-    def is_expired(self):
+    def __repr__(self):
+        return ("name: '{}', " +
+                "used: '{}', " +
+                "expiration date: '{}', " +
+                "valid: '{}'").format(self.name,
+                                      self.used,
+                                      self.ex_date,
+                                      self.valid())
+
+    def valid(self):
         expired = False
-        if self.expire:
-            expired = self.expire < datetime.now()
-        used = self.one_time and self.used >= 1
+        if self.ex_date:
+            expired = self.ex_date < datetime.now()
+        used = bool(self.one_time and self.used > 0)
 
-        return expired or used
+        return (not expired) and (not used)
 
     def use(self):
-        if not self.is_expired():
+        if self.valid():
             self.used += 1
             return True
         return False
 
     def disable(self):
-        if not self.is_expired():
-            self.expire = datetime(1, 1, 1)
+        if self.valid():
+            self.ex_date = datetime(1, 1, 1)
             return True
         return False
 
@@ -69,55 +78,84 @@ class Tokens():
         self.c = self.conn.cursor()
         self.tokens = []
 
-        # Create table
         logger.debug('creating table')
         self.c.execute('''CREATE TABLE IF NOT EXISTS tokens
-                          (name TEXT UNIQUE, expire TEXT, one_time BOOLEAN)''')
+                          (name TEXT UNIQUE,
+                          ex_date TEXT,
+                          one_time BOOLEAN,
+                          used INT)''')
         self.conn.commit()
 
         self.load()
 
+    def update(self, token):
+        sql = "UPDATE tokens SET used=?, ex_date=? WHERE name=?"
+        self.c.execute(sql, (token.used, str(token.ex_date), token.name))
+        self.conn.commit()
+
     def load(self):
+        logger.debug('loading tokens from db...')
         self.tokens = []
         # Get tokens
         self.c.execute('SELECT * FROM tokens')
         for token in self.c.fetchall():
+            logger.debug(token)
             self.tokens.append(Token(name=token[0],
-                                     expire=str(token[1]),
-                                     one_time=token[2]))
+                                     ex_date=str(token[1]),
+                                     one_time=token[2],
+                                     used=token[3]))
+        logger.debug('token loaded!')
 
-    def valid(self, token_name):
-        # self.c.execute('SELECT * FROM tokens WHERE name = {}'.format(token))
-        # self.load()
+    def get_token(self, token_name):
+        logger.debug("getting token by name: %s" % token_name)
         for token in self.tokens:
             if token.name == token_name:
-                return not token.is_expired()
+                    return token
+        return False
+
+    def valid(self, token_name):
+        logger.debug("checking if '%s' is valid" % token_name)
+        token = self.get_token(token_name)
+        if token:
+            return token.valid()
         return False
 
     def use(self, token_name):
-        for token in self.tokens:
-            if token.name == token_name:
-                if token.use():
-                    return True
-                else:
-                    break
+        logger.debug("using token: %s" % token_name)
+        token = self.get_token(token_name)
+        if token:
+            if token.use():
+                self.update(token)
+                return True
         return False
 
     def disable(self, token_name):
-        for token in self.tokens:
-            if token.name == token_name:
-                if token.disable():
-                    return True
-                else:
-                    break
+        logger.debug("disabling token: %s" % token_name)
+        token = self.get_token(token_name)
+        if token:
+            if token.disable():
+                self.update(token)
+                return True
+            self.update(token)
         return False
 
-    def new(self, expire=None, one_time=False):
-        token = Token(expire=expire, one_time=one_time)
-        sql = '''INSERT INTO tokens (name, expire, one_time)
-                     VALUES (?, ?, ?)'''
+    def __repr__(self):
+        result = ""
+        for token in self.tokens:
+            result += "%s\n" % token
+        return result
 
-        self.c.execute(sql, (token.name, token.expire, token.one_time))
+    def new(self, ex_date=None, one_time=False):
+        logger.debug(("creating new token, with options: one_time: {}," +
+                     "ex_dates: {}").format(one_time, ex_date))
+        token = Token(ex_date=ex_date, one_time=one_time)
+        sql = '''INSERT INTO tokens (name, ex_date, one_time, used)
+                     VALUES (?, ?, ?, ?)'''
+
+        self.c.execute(sql, (token.name,
+                             str(token.ex_date),
+                             token.one_time,
+                             token.used))
         self.tokens.append(token)
         self.conn.commit()
 
