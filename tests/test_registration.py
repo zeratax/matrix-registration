@@ -3,6 +3,7 @@ from datetime import date
 import logging
 import json
 import os
+import yaml
 import random
 import re
 import string
@@ -315,15 +316,18 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(matrix_registration.config.config.server_location,
                          BAD_CONFIG['server_location'])
 
-    def test_config_wrong_path(self):
+    def test_config_path(self):
         bad_config_path = "x"
         good_config_path = "tests/test_config.yaml"
         with self.assertRaises(SystemExit) as cm:
             matrix_registration.config.config = Config(bad_config_path)
 
+        with open(good_config_path, 'w') as outfile:
+            yaml.dump(GOOD_CONFIG, outfile, default_flow_style=False)
+
+        matrix_registration.config.config = Config(good_config_path)
         self.assertIsNotNone(matrix_registration.config.config)
-        with self.assertRaises(SystemExit) as cm:
-            matrix_registration.config.config.update(bad_config_path)
+        os.remove(good_config_path)
 
 
 if "logging" in sys.argv:
