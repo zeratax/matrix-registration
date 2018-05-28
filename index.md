@@ -15,7 +15,7 @@ perform a [curl](https://github.com/ZerataX/matrix-registration/wiki/curl) again
 curl -H "Authorization: shared_secret demopagesecret" \
      -H "Content-Type: application/json" \
      -D "{'one_time': true, 'ex_date': '24.12.2020'}" \
-     http://localhost:5000/token/
+     http://dmnd.sh/test-token/
 ```
 
 ### Support or Contact
