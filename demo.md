@@ -1,5 +1,5 @@
 <section style="display:flex;justify-content:center;align-items:center;">
-    <form action="localhost:5000/register">
+    <form action="https://dmnd.sh:5000/register">
       <label for="username"> Enter your username:</label><br>
       <input id="username" name="username" type="text"
       required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:matrix\.org)?$"
