@@ -23,7 +23,7 @@
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
-      
+
     function sendData(formData) {
         var XHR = new XMLHttpRequest();
 
@@ -37,17 +37,17 @@
         XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         XHR.send(formData);
     }
-    
-    
+
+
     // set token input to "?token=" query parameter
     document.getElementById('token').value = getParameterByName("token");
-    
+
     // html5 validators
     var username = document.getElementById("username");
     var password = document.getElementById("password");
     var confirm_password = document.getElementById("confirm_password");
     var token = document.getElementById("token");
-    
+
     username.addEventListener("input", function (event) {
       if (username.validity.typeMismatch) {
         username.setCustomValidity("format: @username:matrix.org");
@@ -55,7 +55,7 @@
         username.setCustomValidity("");
       }
     });
-    
+
     token.addEventListener("input", function (event) {
       if (token.validity.typeMismatch) {
         token.setCustomValidity("case-sensitive, e.g: SardineImpactReport");
@@ -63,7 +63,7 @@
         token.setCustomValidity("");
       }
     });
-    
+
     password.addEventListener("input", function (event) {
       if (password.validity.typeMismatch) {
         password.setCustomValidity("atleast 8 characters long");
@@ -71,7 +71,7 @@
         password.setCustomValidity("");
       }
     });
-    
+
     function validatePassword(){
       if(password.value != confirm_password.value) {
         confirm_password.setCustomValidity("passwords don't match");
@@ -79,19 +79,18 @@
         confirm_password.setCustomValidity("");
       }
     }
-    
+
     password.onchange = validatePassword;
     confirm_password.onkeyup = validatePassword;
-    
-    
+
+
     function getForm(id) {
       var button = document.getElementById(id);
       while(button && (button = button.parentNode)&&(button.nodeName !== 'FORM')){}
-      
-      return button;
-      
+
+      return button;     
     }
-    
+
     var form = getForm('register'),
     handler = function(ev){
       ev = ev || window.event;
@@ -111,6 +110,6 @@
       else if(form.attachEvent) {
            form.attachEvent('onsubmit', handler);   
       }
-         
+
     }
 </script>
