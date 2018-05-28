@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Matrix Registration</title>
+  <style>
+    input {
+      width: 100%;
+    }
+    input:invalid {
+      border: 2px dashed red;
+    }
+
+    input:valid {
+      border: 2px solid black;
+    }
+  </style>
+</head>
+
+<body>
+  <section style="display:flex;justify-content:center;align-items:center;">
+    <form action="https://dmnd.sh/test-register">
+      <label for="username"> Enter your username:</label><br>
+      <input id="username" name="username" type="text"
+      required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:dmnd\.sh)?$"
+      required minlength="1" maxlength="200">
+      <br>
+      <label for="password">Enter your password:</label><br>
+      <input id="password" name="password" type="password"
+      required minlength="8" maxlength="128">
+      <br>
+      <label for="confirm_password">Repeat your password:</label><br>
+      <input id="confirm_password" name="confirm" type="password"
+      required>
+      <br>
+      <label for="token">Enter your invite token:</label><br>
+      <input id="token" name="token" type="text"
+      required pattern="^([A-Z][a-z]+)+$">
+      <br><br>
+      <input type="submit" value="register">
+    </form>
+  </section>
+  <script>
+    // see https://stackoverflow.com/a/901144/3779427
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    // set token input to "?token=" query parameter
+    document.getElementById('token').value = getParameterByName("token");
+
+    // html5 validators
+    var username = document.getElementById("username");
+    var password = document.getElementById("password");
+    var confirm_password = document.getElementById("confirm_password");
+    var token = document.getElementById("token");
+
+    username.addEventListener("input", function (event) {
+      if (username.validity.typeMismatch) {
+        username.setCustomValidity("format: @username:dmnd.sh");
+      } else {
+        username.setCustomValidity("");
+      }
+    });
+
+    token.addEventListener("input", function (event) {
+      if (token.validity.typeMismatch) {
+        token.setCustomValidity("case-sensitive, e.g: SardineImpactReport");
+      } else {
+        token.setCustomValidity("");
+      }
+    });
+
+    password.addEventListener("input", function (event) {
+      if (password.validity.typeMismatch) {
+        password.setCustomValidity("atleast 8 characters long");
+      } else {
+        password.setCustomValidity("");
+      }
+    });
+
+    function validatePassword(){
+      if(password.value != confirm_password.value) {
+        confirm_password.setCustomValidity("passwords don't match");
+      } else {
+        confirm_password.setCustomValidity("");
+      }
+    }
+
+    password.onchange = validatePassword;
+    confirm_password.onkeyup = validatePassword;
+  </script>
+</body>
+</html>
