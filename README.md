@@ -5,7 +5,7 @@ a simple python application to have a token based matrix registration
 
 if you like me encountered the situation where you wanted to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user this project should be your solution.
 
-wwith this project you can just quickly generate tokens and share tthem with your friends to allow them to register to your hs.
+with this project you can just quickly generate tokens and share tthem with your friends to allow them to register to your hs.
 
 ## setup
 ```
@@ -16,27 +16,7 @@ wwith this project you can just quickly generate tokens and share tthem with you
 
 ## usage
 ```
-usage: python -m matrix_registration [-h] [-c <path>] [-o]
-                                     [-e EXPIRATION_DATE] [-d DISABLE]
-                                     [-i INFO] [-l]
-                                     {api,token}
-
-a token based matrix registration app
-
-positional arguments:
-  {api,token}           start as api server or generate new token
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c <path>, --config <path>
-                        the path to your config file
-  -o, --one-time        one time use token
-  -e EXPIRATION_DATE, --expiration-date EXPIRATION_DATE
-                        expiration date for token
-  -d DISABLE, --disable DISABLE
-                        disable token
-  -i INFO, --info INFO  get information of token
-  -l, --list            list tokens
+python -m matrix_registration -h
 ```
 
 if you've started the api server and generated a token you can register an account with curl, e.g.:

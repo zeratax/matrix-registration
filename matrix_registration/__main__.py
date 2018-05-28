@@ -39,6 +39,7 @@ def status_token(args):
         #                  default=str))
         print(tokens.tokens)
 
+
 parser = argparse.ArgumentParser(
     description='a token based matrix registration app',
     prog='python -m matrix_registration')
@@ -76,4 +77,5 @@ parser_s.set_defaults(func=status_token)
 
 args = parser.parse_args()
 logger.debug('called with args: %s' % args)
-args.func(args)
+if 'func' in args:
+    args.func(args)
