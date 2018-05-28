@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration)
+[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration) [![Matrix Chat](https://img.shields.io/badge/chat-%23matrix--registration%3Admnd.sh-brightgreen.svg)](https://matrix.to/#/#matrix-registration:dmnd.sh)
 # matrix-registration
 
 a simple python application to have a token based matrix registration
@@ -25,7 +25,7 @@ curl -X POST \
      -F 'username=test' \
      -F 'password=verysecure' \
      -F 'confirm=verysecure' \
-     -F "token=DoubleWizardSki" \
+     -F 'token=DoubleWizardSki' \
      http://localhost:5000/register
 ```
 or a simple html form, see the sample [resources/example.html](resources/example.html)

@@ -11,7 +11,7 @@
     input:valid {
       border: 2px solid black;
     }
-    input[type="submit"] {
+    input {
       width: 100%;
     }
   </style>
@@ -19,7 +19,7 @@
 
 <body>
   <section style="display:flex;justify-content:center;align-items:center;">
-    <form action="localhost:5000/register">
+    <form action="localhost:5000/register" method="post">
       <label for="username"> Enter your username:</label><br>
       <input id="username" name="username" type="text"
       required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:matrix\.org)?$"
