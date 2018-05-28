@@ -1,23 +1,3 @@
-Choose an Email ?
-_____
-
-Choose a password
-******
-
-Describe why you want to register
-____
-_____
-
-Memes
-good/bad
-
-Which of these features will you need?
-[+] simplicity
-[-] Don't know
-[-] complete
-
-[ok]
-
 <section style="display:flex;justify-content:center;align-items:center;">
     <form action="localhost:5000/register">
       <label for="username"> Enter your username:</label><br>
@@ -40,9 +20,6 @@ Which of these features will you need?
     </form>
   </section>
 
-
-  
-  
 <script>
   // see https://stackoverflow.com/a/901144/3779427
   function getParameterByName(name, url) {
