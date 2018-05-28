@@ -2,15 +2,14 @@
 
 a simple python application to have a token based matrix registration
 
-if you like me encountered the situation where you wanted to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user this project should be your solution.
+if you like me encountered the situation where you want to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user yourself, this project should be the solution.
 
-with this project you can just quickly generate tokens and share them with your friends to allow them to register to your homeserver.
-
+with this project you can just quickly generate tokens on the fly and share them with your friends to allow them to register to your homeserver.
 ### Examples
 
-To try the project out you can play around with the [demo page](./demo.html) for an implemented example page using the demo api or
+To try the project out you can play around with the [demo page](./demo.html) for an implemented example registration page using the demo api or
 
-perform a [curl](https://github.com/ZerataX/matrix-registration/wiki/curl) against the demo api, e.g.:
+perform a [curl](https://github.com/ZerataX/matrix-registration/wiki/api#curl) against the demo api, e.g.:
 ```bash
 curl -H "Authorization: shared_secret demopagesecret" \
      -H "Content-Type: application/json" \
