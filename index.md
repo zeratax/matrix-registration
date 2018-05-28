@@ -1,35 +1,23 @@
-## Welcome to GitHub Pages
+## matrix-registration
 
-Check the [demo](/demo) [page](/demo.html)[.](/demo.md)
+a simple python application to have a token based matrix registration
 
-### Markdown
+if you like me encountered the situation where you wanted to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user this project should be your solution.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+with this project you can just quickly generate tokens and share tthem with your friends to allow them to register to your hs.
 
-```markdown
-Syntax highlighted code block
+### Examples
 
-# Header 1
-## Header 2
-### Header 3
+To try the project out you can play around with the [demo page](/demo.html) for an implemented example page using the demo api or
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+perform a [curl](https://github.com/ZerataX/matrix-registration/wiki/curl) against the demo api, e.g.:
+```bash
+curl -H "Authorization: shared_secret demopagesecret" \
+     -H "Content-Type: application/json" \
+     -D "{'one_time': true, 'ex_date': '24.12.2020'}" \
+     http://localhost:5000/token/
 ```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/ZerataX/matrix-registration/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
 
 ### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+Having trouble with the application? Check out the [wiki page](https://github.com/ZerataX/matrix-registration/wiki/) or join [#matrix-registration:dmnd.sh](https://matrix.to/#/#matrix-registration:dmnd.sh) and we’ll help you sort it out.
