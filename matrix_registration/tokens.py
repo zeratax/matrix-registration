@@ -1,4 +1,5 @@
 # Standard library imports...
+import ast
 from datetime import datetime
 import logging
 import os
@@ -44,7 +45,7 @@ class Token(object):
     def __repr__(self):
         return ("name: '{}', " +
                 "used: '{}', " +
-                "expiration date: '{}', " +
+                "expiration_date: '{}', " +
                 "valid: '{}'").format(self.name,
                                       self.used,
                                       self.ex_date,
@@ -142,8 +143,8 @@ class Tokens():
     def __repr__(self):
         result = ""
         for token in self.tokens:
-            result += "%s\n" % token
-        return result
+            result += "%s,\n" % token
+        return result[:-1]
 
     def new(self, ex_date=None, one_time=False):
         logger.debug(("creating new token, with options: one_time: {}," +
