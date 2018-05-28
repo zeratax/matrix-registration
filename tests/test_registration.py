@@ -1,11 +1,15 @@
 # Standard library imports...
 from datetime import date
+import hashlib
+import hmac
 import logging
+import logging.config
 import json
 import os
 import yaml
 import random
 import re
+from requests import exceptions
 import string
 import sys
 import unittest
@@ -26,53 +30,83 @@ from matrix_registration.config import Config
 logger = logging.getLogger(__name__)
 api = matrix_registration.api
 
+LOGGING = {
+    "version": 1,
+    "root": {
+        "level": "NOTSET",
+        "handlers": [
+            "console"
+        ]
+    },
+    "formatters": {
+        "precise": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "NOTSET",
+            "formatter": "precise",
+            "stream": "ext://sys.stdout"
+        }
+    }
+}
+
 GOOD_CONFIG = {
-    'server_location': 'https://test.tld',
+    'server_location': 'https://righths.org',
     'shared_secret': 'coolsharesecret',
     'db': 'tests/db.sqlite',
     'port': 5000,
     # password requirements
     'password': {
-      'min_length': 8
-     },
-    'logger': {
-       'level': 'info',
-       'format': '[%(asctime)s] [%(levelname)s@%(name)s] %(message)s',
-       'file': 'reg.log'
-     }
+        'min_length': 8
+    },
+    'logging': LOGGING
 }
 
-BAD_CONFIG = {
+BAD_CONFIG1 = {
     'server_location': 'https://wronghs.org',
+    'shared_secret': 'coolsharesecret',
+    'db': 'tests/db.sqlite',
+    'port': 1000,
+    # password requirements
+    'password': {
+        'min_length': 3
+    },
+    'logging': LOGGING
+}
+
+BAD_CONFIG2 = {
+    'server_location': 'https://righths.org',
     'shared_secret': 'wrongsecret',
     'db': 'tests/db.sqlite',
     'port': 1000,
     # password requirements
     'password': {
-      'min_length': 3
-     },
-    'logger': {
-       'level': 'info',
-       'format': '[%(asctime)s] [%(levelname)s@%(name)s] %(message)s',
-       'file': 'reg.log'
-     }
+        'min_length': 3
+    },
+    'logger': LOGGING
 }
 
+usernames = []
+logging.config.dictConfig(LOGGING)
 
 def mock_new_user(username):
     access_token = ''.join(random.choices(string.ascii_lowercase +
                                           string.digits, k=256))
     device_id = ''.join(random.choices(string.ascii_uppercase, k=8))
     home_server = matrix_registration.config.config.server_location
-    user = username.rsplit(":")[0].split("@")[-1]
-    user_id = "@{}:{}".format(user, home_server)
+    username = username.rsplit(":")[0].split("@")[-1]
+    user_id = "@{}:{}".format(username, home_server)
+    usernames.append(username)
 
     user = {
-            'access_token': access_token,
-            'device_id': device_id,
-            'home_server': home_server,
-            'user_id': user_id
-            }
+        'access_token': access_token,
+        'device_id': device_id,
+        'home_server': home_server,
+        'user_id': user_id
+    }
     return user
 
 
@@ -86,15 +120,45 @@ def mocked_requests_post(*args, **kwargs):
             return self.json_data
 
         def raise_for_status(self):
-            return self.status_code
+            if self.status_code == 200:
+                return self.status_code
+            else:
+                raise exceptions.HTTPError(response=self)
 
     # print(args[0])
     # print(matrix_registration.config.config.server_location)
-    if args[0] == '%s/_matrix/client/api/v1/register' % "https://wronghs.org":
-        return MockResponse(None, 404)
-    elif args[0] == '%s/_matrix/client/api/v1/register' % matrix_registration.config.config.server_location:
+    domain = urlparse(GOOD_CONFIG['server_location']).hostname
+    re_mxid = r"^@?[a-zA-Z_\-=\.\/0-9]+(:" + \
+              re.escape(domain) + \
+              r")?$"
+    location = '_matrix/client/api/v1/register'
+    if args[0] == '%s/%s' % (GOOD_CONFIG['server_location'], location):
         if kwargs:
             req = kwargs['json']
+            mac = hmac.new(
+                key=str.encode(GOOD_CONFIG['shared_secret']),
+                digestmod=hashlib.sha1,
+            )
+
+            mac.update(req['user'].encode())
+            mac.update(b'\x00')
+            mac.update(req['password'].encode())
+            mac.update(b'\x00')
+            mac.update(b'admin' if req['admin'] else b'notadmin')
+            mac = mac.hexdigest()
+            if not re.search(re_mxid, req['user']):
+                return MockResponse({"'errcode': 'M_INVALID_USERNAME",
+                                     "'error': 'User ID can only contain" +
+                                     "characters a-z, 0-9, or '=_-./'"},
+                                    400)
+            if req['user'].rsplit(":")[0].split("@")[-1] in usernames:
+                return MockResponse({'errcode': 'M_USER_IN_USE',
+                                     'error': 'User ID already taken.'},
+                                    400)
+            if req['mac'] != mac:
+                return MockResponse({'errcode': 'M_UNKNOWN',
+                                     'error': 'HMAC incorrect'},
+                                    403)
             return MockResponse(mock_new_user(req['user']), 200)
     return MockResponse(None, 404)
 
@@ -243,17 +307,17 @@ class ApiTest(unittest.TestCase):
         os.remove(matrix_registration.config.config.db)
 
     @parameterized.expand([
-        ['test', 'test1234', 'test1234', True, 200],
+        ['test1', 'test1234', 'test1234', True, 200],
         [None, 'test1234', 'test1234', True, 400],
-        ['test', None, 'test1234', True, 400],
-        ['test', 'test1234', None, True, 400],
-        ['test', 'test1234', 'test1234', False, 400],
-        ['@test:matrix.org', 'test1234', 'test1234', True, 200],
-        ['@test:wronghs.org', 'test1234', 'test1234', True, 400],
-        ['test', 'test1234', 'tet1234', True, 400],
-        ['teüst', 'test1234', 'test1234', True, 400],
-        ['@test@matrix.org', 'test1234', 'test1234', True, 400],
-        ['test@matrix.org', 'test1234', 'test1234', True, 400],
+        ['test2', None, 'test1234', True, 400],
+        ['test3', 'test1234', None, True, 400],
+        ['test4', 'test1234', 'test1234', False, 400],
+        ['@test5:matrix.org', 'test1234', 'test1234', True, 200],
+        ['@test6:wronghs.org', 'test1234', 'test1234', True, 400],
+        ['test7', 'test1234', 'tet1234', True, 400],
+        ['teüst8', 'test1234', 'test1234', True, 400],
+        ['@test9@matrix.org', 'test1234', 'test1234', True, 400],
+        ['test11@matrix.org', 'test1234', 'test1234', True, 400],
         ['', 'test1234', 'test1234', True, 400],
         [''.join(random.choices(string.ascii_uppercase, k=256)),
          'test1234', 'test1234', True, 400]
@@ -288,7 +352,23 @@ class ApiTest(unittest.TestCase):
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
     def test_register_wrong_hs(self, mock_get):
-        matrix_registration.config.config = Config(BAD_CONFIG)
+        matrix_registration.config.config = Config(BAD_CONFIG1)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(ex_date=None,
+                                                           one_time=True)
+        rv = self.app.post('/register', data=dict(
+            username='username',
+            password='password',
+            confirm='password',
+            token=test_token.name
+        ))
+        self.assertEqual(rv.status_code, 500)
+
+    @patch('matrix_registration.matrix_api.requests.post',
+           side_effect=mocked_requests_post)
+    def test_register_wrong_secret(self, mock_get):
+        matrix_registration.config.config = Config(BAD_CONFIG2)
 
         matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
         test_token = matrix_registration.tokens.tokens.new(ex_date=None,
@@ -310,17 +390,17 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(matrix_registration.config.config.server_location,
                          GOOD_CONFIG['server_location'])
 
-        matrix_registration.config.config.update(BAD_CONFIG)
+        matrix_registration.config.config.update(BAD_CONFIG1)
         self.assertEqual(matrix_registration.config.config.port,
-                         BAD_CONFIG['port'])
+                         BAD_CONFIG1['port'])
         self.assertEqual(matrix_registration.config.config.server_location,
-                         BAD_CONFIG['server_location'])
+                         BAD_CONFIG1['server_location'])
 
     def test_config_path(self):
-        bad_config_path = "x"
+        BAD_CONFIG1_path = "x"
         good_config_path = "tests/test_config.yaml"
         with self.assertRaises(SystemExit) as cm:
-            matrix_registration.config.config = Config(bad_config_path)
+            matrix_registration.config.config = Config(BAD_CONFIG1_path)
 
         with open(good_config_path, 'w') as outfile:
             yaml.dump(GOOD_CONFIG, outfile, default_flow_style=False)
