@@ -3,9 +3,9 @@
 
 a simple python application to have a token based matrix registration
 
-if you like me encountered the situation where you wanted to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user this project should be your solution.
+if you like me encountered the situation where you want to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user yourself, this project should be the solution.
 
-with this project you can just quickly generate tokens and share tthem with your friends to allow them to register to your hs.
+with this project you can just quickly generate tokens on the fly and share them with your friends to allow them to register to your homeserver.
 
 ## setup
 ```
@@ -34,6 +34,8 @@ the html page looks for the query paramater `token` and sets the token input fie
 `http://localhost:5000/register?token=DoubleWizardSki`
 
 easying the registration even further
+
+For more info check the [wiki](https://github.com/ZerataX/matrix-registration/wiki)
 
 ### nginx reverse-proxy
 an example nginx setup to expose the html form and the api endpoint on the same URL, based on whether a POST or GET request was made.

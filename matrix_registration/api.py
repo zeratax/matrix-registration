@@ -12,7 +12,6 @@ from urllib.parse import urlparse
 from flask import Flask, abort, jsonify, request, make_response
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
-
 # Local imports...
 from .matrix_api import create_account
 from . import config
@@ -26,12 +25,41 @@ re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$")
 
 
 def validate_token(form, token):
+    """
+    validates token
+
+    Parameters
+    ----------
+    arg1 : Form object
+    arg2 : str
+        token name, e.g. "DoubleWizardSki"
+
+    Raises
+    -------
+    ValidationError
+        Token is invalid
+
+    """
     tokens.tokens.load()
     if not tokens.tokens.valid(token.data):
         raise validators.ValidationError('Token is invalid')
 
 
 def validate_username(form, username):
+    """
+    validates username
+
+    Parameters
+    ----------
+    arg1 : Form object
+    arg2 : str
+        username name, e.g: "@user:matrix.org" or "user"
+        https://github.com/matrix-org/matrix-doc/blob/master/specification/appendices/identifier_grammar.rst#user-identifiers
+    Raises
+    -------
+    ValidationError
+        Username doesn't follow mxid requirements
+    """
     domain = urlparse(config.config.server_location).hostname
     re_mxid = r"^@?[a-zA-Z_\-=\.\/0-9]+(:" + \
               re.escape(domain) + \
@@ -42,6 +70,19 @@ def validate_username(form, username):
 
 
 def validate_password(form, password):
+    """
+    validates username
+
+    Parameters
+    ----------
+    arg1 : Form object
+    arg2 : str
+        password
+    Raises
+    -------
+    ValidationError
+        Password doesn't follow length requirements
+    """
     min_length = config.config.password['min_length']
     err = 'Password should be between %s and 255 chars long' % min_length
     if len(password.data) < min_length or len(password.data) > 255:
@@ -49,6 +90,11 @@ def validate_password(form, password):
 
 
 class RegistrationForm(Form):
+    """
+    Registration Form
+
+    validates user account registration requests
+    """
     username = StringField('Username', [
         validators.Length(min=1, max=200),
         # validators.Regexp(re_mxid)
@@ -69,30 +115,42 @@ class RegistrationForm(Form):
 
 @app.route('/register', methods=['POST'])
 def register():
+    """
+    main user account registration endpoint
+
+    to register an account you need to send a
+    application/x-www-form-urlencoded request with
+      - username
+      - password
+      - confirm
+      - token
+    as described in the RegistrationForm
+    """
     logger.debug('an account registration started...')
     form = RegistrationForm(request.form)
     logger.debug('validating request data...')
     if form.validate():
         logger.debug('request valid')
         tokens.tokens.use(form.token.data)
+        # remove sigil and the domain from the username
         username = form.username.data.rsplit(":")[0].split("@")[-1]
         logger.debug('creating account %s...' % username)
+        # send account creation request to the hs
         try:
             account_data = create_account(form.username.data,
                                           form.password.data,
                                           config.config.server_location,
                                           config.config.shared_secret)
         except exceptions.ConnectionError as e:
-            logger.error('can not connect to SERVER_LOCATION',
+            logger.error('can not connect to server_location',
                          exc_info=True)
             abort(500)
         except exceptions.HTTPError as e:
             resp = e.response
             error = resp.json()
             status_code = resp.status_code
-            print(status_code)
             if status_code == 404:
-                logger.error('no HS found at SERVER_LOCATION')
+                logger.error('no HS found at to server_location')
             elif status_code == 403:
                 logger.error('wrong registration secret')
             else:

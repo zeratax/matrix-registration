@@ -58,7 +58,6 @@ GOOD_CONFIG = {
     'shared_secret': 'coolsharesecret',
     'db': 'tests/db.sqlite',
     'port': 5000,
-    # password requirements
     'password': {
         'min_length': 8
     },
@@ -70,7 +69,6 @@ BAD_CONFIG1 = {
     'shared_secret': 'coolsharesecret',
     'db': 'tests/db.sqlite',
     'port': 1000,
-    # password requirements
     'password': {
         'min_length': 3
     },
@@ -322,6 +320,7 @@ class ApiTest(unittest.TestCase):
         [''.join(random.choices(string.ascii_uppercase, k=256)),
          'test1234', 'test1234', True, 400]
     ])
+    # check form validators
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
     def test_register(self, username, password, confirm, token,
