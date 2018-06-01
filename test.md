@@ -46,3 +46,27 @@ $ curl -X POST \
        https://dmnd.sh/test-token
 name: 'JargonGingerYankee', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True'%
 ```
+```shell
+$ curl -X POST \
+       -H "Authorization: SharedSecret demopagesecret" \
+       -H "Content-Type: application/json" \
+       -d '{"one_time": true}' \
+       https://dmnd.sh/test-token
+name: 'JargonGingerYankee', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True'%
+```
+```console
+$ curl -X POST \
+       -H "Authorization: SharedSecret demopagesecret" \
+       -H "Content-Type: application/json" \
+       -d '{"one_time": true}' \
+       https://dmnd.sh/test-token
+name: 'JargonGingerYankee', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True'%
+```
+```sh
+$ curl -X POST \
+       -H "Authorization: SharedSecret demopagesecret" \
+       -H "Content-Type: application/json" \
+       -d '{"one_time": true}' \
+       https://dmnd.sh/test-token
+name: 'JargonGingerYankee', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True'%
+```
