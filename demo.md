@@ -4,7 +4,7 @@ On this page you can try out the registration process for my homeserver [dmnd.sh
 No actual account will be created.
 
 
-<form action="https://dmnd.sh/test-register" method="post">
+<form id="registration" action="https://dmnd.sh/test-register" method="post">
   <label for="username"> Enter your username:</label><br>
   <input id="username" name="username" type="text" required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:dmnd\.sh)?$" required minlength="1" maxlength="200">
   <br>
