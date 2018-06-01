@@ -7,7 +7,7 @@ If you like me encountered the situation where you want to invite your friends t
 With this project you can just quickly generate tokens on the fly and share them with your friends to allow them to register to your homeserver.
 ### Example Usage
   - Create a new one time usable token directly with python:
-```
+```console
 $ python -m matrix_registration gen -o
 JargonGingerYankee
 ```
@@ -30,10 +30,10 @@ To try the project out you can play around with the [demo page](./demo.html) for
 
 perform a [cURL](https://github.com/ZerataX/matrix-registration/wiki/api#curl) against the demo api, e.g.:
 ```console
-curl -H "Authorization: SharedSecret demopagesecret" \
-     -H "Content-Type: application/json" \
-     -D '{"one_time": true, "ex_date": "24.12.2020"}' \
-     https://dmnd.sh/test-token
+$ curl -H "Authorization: SharedSecret demopagesecret" \
+       -H "Content-Type: application/json" \
+       -D '{"one_time": true, "ex_date": "24.12.2020"}' \
+       https://dmnd.sh/test-token
 ```
 
 ### Support or Contact

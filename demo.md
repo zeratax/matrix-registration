@@ -32,8 +32,8 @@ You can get a token with a simple cURL request: [https://github.com/ZerataX/matr
 Just use the endpoints `/test-token` and `/test-register` and the SharedSecret `demopagesecret`.
 E.g. to list all tokens:
 ```console
-curl -H "Authorization: SharedSecret demopagesecret" \
-     https://dmnd.sh/test-token
+$ curl -H "Authorization: SharedSecret demopagesecret" \
+       https://dmnd.sh/test-token
 ```
 
 This page is based on [https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html](https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html)
