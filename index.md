@@ -12,7 +12,7 @@ $ python -m matrix_registration gen -o
 JargonGingerYankee
 ```
   - or make use of the api:
-```
+```console
 $ curl -X POST \
        -H "Authorization: SharedSecret demopagesecret" \
        -H "Content-Type: application/json" \
@@ -29,7 +29,7 @@ name: 'JargonGingerYankee', used: '0', one_time: 'True', expiration_date: 'None'
 To try the project out you can play around with the [demo page](./demo.html) for an implemented example registration page using the demo api or
 
 perform a [cURL](https://github.com/ZerataX/matrix-registration/wiki/api#curl) against the demo api, e.g.:
-```bash
+```console
 curl -H "Authorization: SharedSecret demopagesecret" \
      -H "Content-Type: application/json" \
      -D '{"one_time": true, "ex_date": "24.12.2020"}' \
