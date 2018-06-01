@@ -1,7 +1,7 @@
 <section style="display:flex;justify-content:center;align-items:center;">
-    <form action="https://dmnd.sh:5000/test-register" method="Post">
+    <form action="https://dmnd.sh/test-register" method="post">
         <label for="username"> Enter your username:</label><br>
-        <input id="username" name="username" type="text" required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:matrix\.org)?$" required minlength="1" maxlength="200">
+        <input id="username" name="username" type="text" required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:dmnd\.sh)?$" required minlength="1" maxlength="200">
         <label for="password">Enter your password:</label><br>
         <input id="password" name="password" type="password" required minlength="8" maxlength="128">
         <label for="confirm_password">Repeat your password:</label><br>
@@ -24,21 +24,6 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    function sendData(formData) {
-        var XHR = new XMLHttpRequest();
-
-        XHR.addEventListener('load', function(event) {
-          alert('Yeah! Data sent and response loaded.');
-        });
-        XHR.addEventListener('error', function(event) {
-          alert('Oops! Something goes wrong.');
-        });
-        XHR.open('POST', 'https://dmnd.sh/register-test');
-        XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        XHR.send(formData);
-    }
-
-
     // set token input to "?token=" query parameter
     document.getElementById('token').value = getParameterByName("token");
 
@@ -50,7 +35,7 @@
 
     username.addEventListener("input", function (event) {
       if (username.validity.typeMismatch) {
-        username.setCustomValidity("format: @username:matrix.org");
+        username.setCustomValidity("format: @username:dmnd.sh");
       } else {
         username.setCustomValidity("");
       }
@@ -83,6 +68,27 @@
     password.onchange = validatePassword;
     confirm_password.onkeyup = validatePassword;
 
+    /*
+    instead of just a simple form http post, we can also use
+    make use of some javascript magic to get a more visually pleasing
+    feedback.
+    since we just overwrite the submit button we don't hinder any functionality
+    for users without javascript
+    */
+
+    function sendData(formData) {
+        var XHR = new XMLHttpRequest();
+
+        XHR.addEventListener('load', function(event) {
+          alert('Yeah! Data sent and response loaded.');
+        });
+        XHR.addEventListener('error', function(event) {
+          alert('Oops! Something goes wrong.');
+        });
+        XHR.open('POST', 'https://dmnd.sh/test-register');
+        XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        XHR.send(formData);
+    }
 
     function getForm(id) {
       var button = document.getElementById(id);
@@ -100,7 +106,6 @@
       else { //IE old
           ev.returnValue = false;    
       }
-      alert('Custom logic goes here!'); 
       sendData(form);
     };
     if(form) {

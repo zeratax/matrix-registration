@@ -11,10 +11,10 @@ To try the project out you can play around with the [demo page](./demo.html) for
 
 perform a [curl](https://github.com/ZerataX/matrix-registration/wiki/api#curl) against the demo api, e.g.:
 ```bash
-curl -H "Authorization: shared_secret demopagesecret" \
+curl -H "Authorization: SharedSecret demopagesecret" \
      -H "Content-Type: application/json" \
-     -D "{'one_time': true, 'ex_date': '24.12.2020'}" \
-     http://dmnd.sh/test-token/
+     -D '{"one_time": true, "ex_date": "24.12.2020"}' \
+     https://dmnd.sh/test-token
 ```
 
 ### Support or Contact
