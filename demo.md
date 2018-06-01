@@ -109,6 +109,7 @@
 
     XHR.addEventListener('load', function(event) {
       alert('Yeah! Data sent and response loaded.');
+      alert(xhr.responseText);
     });
     XHR.addEventListener('error', function(event) {
       alert('Oops! Something goes wrong.');
