@@ -1,4 +1,4 @@
-__version__ = "0.2+dev"
+__version__ = "0.3+dev"
 from . import api
 from . import tokens
 from . import config
