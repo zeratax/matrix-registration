@@ -28,12 +28,12 @@ location /register {
 }
 ```
 ## usage
-```
+```bash
 python -m matrix_registration -h
 ```
 
 if you've started the api server and generated a token you can register an account with curl, e.g.:
-```console
+```bash
 curl -X POST \
      -F 'username=test' \
      -F 'password=verysecure' \
