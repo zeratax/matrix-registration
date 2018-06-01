@@ -1,17 +1,17 @@
 ## matrix-registration
 
-a simple python application to have a token based matrix registration
+A simple python application to have a token based matrix registration
 
-if you like me encountered the situation where you want to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user yourself, this project should be the solution.
+If you like me encountered the situation where you want to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user yourself, this project should be the solution.
 
-with this project you can just quickly generate tokens on the fly and share them with your friends to allow them to register to your homeserver.
+With this project you can just quickly generate tokens on the fly and share them with your friends to allow them to register to your homeserver.
 ### Example Usage
-create a new one time usable  token with:
+  - Create a new one time usable token directly with python:
 ```
 $ python -m matrix_registration gen -o
 JargonGingerYankee
 ```
-or
+  - or make use of the api:
 ```
 $ curl -X POST \
        -H "Authorization: SharedSecret demopagesecret" \
@@ -20,7 +20,7 @@ $ curl -X POST \
        https://dmnd.sh/test-token
 name: 'JargonGingerYankee', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True'%
 ```
-share an invite link to your registration page, with your friend:
+  - now  you can share an invite link to your registration page, with your friends:
 [https://zeratax.github.io/matrix-registration/demo.html?token=JargonGingerYankee](https://zeratax.github.io/matrix-registration/demo.html?token=JargonGingerYankee)
 
 
@@ -28,7 +28,7 @@ share an invite link to your registration page, with your friend:
 
 To try the project out you can play around with the [demo page](./demo.html) for an implemented example registration page using the demo api or
 
-perform a [curl](https://github.com/ZerataX/matrix-registration/wiki/api#curl) against the demo api, e.g.:
+perform a [cURL](https://github.com/ZerataX/matrix-registration/wiki/api#curl) against the demo api, e.g.:
 ```bash
 curl -H "Authorization: SharedSecret demopagesecret" \
      -H "Content-Type: application/json" \
