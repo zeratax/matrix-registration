@@ -12,7 +12,9 @@ with this project you can just quickly generate tokens on the fly and share them
   virtualenv -p /usr/bin/python3.6 .
   source ./bin/activate
   pip install -r requirements.txt
+  cp config.sample.yaml config.yaml
 ```
+and edit config.yaml
 
 ## usage
 ```
