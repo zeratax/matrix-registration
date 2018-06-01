@@ -19,10 +19,14 @@ No actual account will be created.
   <br><br>
   <input id="register" type="submit" value="register">
 </form>
+<div class="language-json highlighter-rouge">
+<div class="highlight">
 <pre class="highlight">
   <code id="response">
  </code>
 </pre>
+</div>
+</div>
 <br>
 You can get a token with a simple cURL request: [https://github.com/ZerataX/matrix-registration/wiki/api#curl](https://github.com/ZerataX/matrix-registration/wiki/api#curl)
 Just use the endpoints `/test-token` and `/test-registration` and the SharedSecret `demopagesecret`.

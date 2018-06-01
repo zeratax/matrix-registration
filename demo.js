@@ -67,17 +67,17 @@ function syntaxHighlight(json) {
     }
     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-        var cls = 'pl-c1'; // number
+        var cls = 'mi'; // number
         if (/^"/.test(match)) {
             if (/:$/.test(match)) {
-                cls = 'pl-s'; // key
+                cls = 'nt'; // key
             } else {
-                cls = 'pl-s'; //string
+                cls = 's2'; //string
             }
         } else if (/true|false/.test(match)) {
-            cls = 'pl-c1'; // boolean
+            cls = 'kc'; // boolean
         } else if (/null/.test(match)) {
-            cls = 'pl-c1'; // boolean
+            cls = 'kc'; // boolean
         }
         return '<span class="' + cls + '">' + match + '</span>';
     });
