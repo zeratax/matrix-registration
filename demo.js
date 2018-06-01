@@ -87,14 +87,14 @@ function createCORSRequest(method, url) {
 }
 
 function sendData(formData) {
-  var XHR = createCORSRequest('POST', https://dmnd.sh/test-register);
+  var XHR = createCORSRequest('POST', 'https://dmnd.sh/test-register');
   if (!XHR) {
     throw new Error('CORS not supported');
   }
 
   XHR.addEventListener('load', function(event) {
     alert('Yeah! Data sent and response loaded.');
-    alert(xhr.responseText);
+    alert(XHR.responseText);
   });
   XHR.addEventListener('error', function(event) {
     alert('Oops! Something goes wrong.');
@@ -122,7 +122,7 @@ var form = getForm('register'),
   };
 if (form) {
   if (form.addEventListener) {
-    form.addEventListener('submit', handler, false)
+    form.addEventListener('submit', handler, false);
   } else if (form.attachEvent) {
     form.attachEvent('onsubmit', handler);
   }
