@@ -16,13 +16,24 @@ with this project you can just quickly generate tokens on the fly and share them
 ```
 and edit config.yaml
 
+### nginx reverse-proxy
+an example nginx setup to expose the html form and the api endpoint on the same URL, based on whether a POST or GET request was made.
+```nginx
+location /register {
+    alias resources/example.html;
+
+    if ($request_method = POST ) {
+        proxy_pass http://localhost:5000;
+    }
+}
+```
 ## usage
 ```
 python -m matrix_registration -h
 ```
 
 if you've started the api server and generated a token you can register an account with curl, e.g.:
-```bash
+```console
 curl -X POST \
      -F 'username=test' \
      -F 'password=verysecure' \
@@ -33,20 +44,7 @@ curl -X POST \
 or a simple html form, see the sample [resources/example.html](resources/example.html)
 
 the html page looks for the query paramater `token` and sets the token input field to it's value. this would allow you to directly share links with the token included, e.g.:
-`http://localhost:5000/register?token=DoubleWizardSki`
+`https://homeserver.tld/register?token=DoubleWizardSki`
 
-easying the registration even further
 
 For more info check the [wiki](https://github.com/ZerataX/matrix-registration/wiki)
-
-### nginx reverse-proxy
-an example nginx setup to expose the html form and the api endpoint on the same URL, based on whether a POST or GET request was made.
-```
-location /register {
-    alias resources/example.html;
-
-    if ($request_method = POST ) {
-        proxy_pass http://localhost:5000;
-    }
-}
-```
