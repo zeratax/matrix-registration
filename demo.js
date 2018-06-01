@@ -61,70 +61,35 @@ since we just overwrite the submit button we don't hinder any functionality
 for users without javascript
 */
 
-function createCORSRequest(method, url) {
+function sendData() {
+    var XHR = new XMLHttpRequest();
 
-  var xhr = new XMLHttpRequest();
-  if ("withCredentials" in xhr) {
+    // Bind the FormData object and the form element
+    var FD = new FormData(form);
 
-    // Check if the XMLHttpRequest object has a "withCredentials" property.
-    // "withCredentials" only exists on XMLHTTPRequest2 objects.
-    xhr.open(method, url, true);
+    // Define what happens on successful data submission
+    XHR.addEventListener("load", function(event) {
+      alert(event.target.responseText);
+    });
 
-  } else if (typeof XDomainRequest != "undefined") {
+    // Define what happens in case of error
+    XHR.addEventListener("error", function(event) {
+      alert('Oops! Something went wrong.');
+    });
 
-    // Otherwise, check if XDomainRequest.
-    // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-    xhr = new XDomainRequest();
-    xhr.open(method, url);
+    // Set up our request
+    XHR.open("POST", "https://dmnd.sh/test-register");
 
-  } else {
-
-    // Otherwise, CORS is not supported by the browser.
-    xhr = null;
-
-  }
-  return xhr;
-}
-
-function sendData(formData) {
-  var XHR = createCORSRequest('POST', 'https://dmnd.sh/test-register');
-  if (!XHR) {
-    throw new Error('CORS not supported');
+    // The data sent is what the user provided in the form
+    XHR.send(FD);
   }
 
-  XHR.addEventListener('load', function(event) {
-    alert(XHR.responseText);
+  // Access the form element...
+  var form = document.getElementById("registration");
+
+  // ...and take over its submit event.
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    sendData();
   });
-  XHR.addEventListener('error', function(event) {
-    alert('could not send registration form');
-  });
-  XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  console.log(formData);
-  XHR.send(formData);
-}
-
-function getForm(id) {
-  var button = document.getElementById(id);
-  while (button && (button = button.parentNode) && (button.nodeName !== 'FORM')) {}
-
-  return button;
-}
-
-var form = getForm('register'),
-  handler = function(ev) {
-    ev = ev || window.event;
-    if (ev.preventDefault) { //w3c browsers
-      ev.preventDefault();
-    } else { //IE old
-      ev.returnValue = false;
-    }
-    sendData(form);
-  };
-if (form) {
-  if (form.addEventListener) {
-    form.addEventListener('submit', handler, false);
-  } else if (form.attachEvent) {
-    form.attachEvent('onsubmit', handler);
-  }
-
-}
