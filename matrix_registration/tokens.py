@@ -45,9 +45,11 @@ class Token(object):
     def __repr__(self):
         return ("name: '{}', " +
                 "used: '{}', " +
+                "one_time: '{}', "
                 "expiration_date: '{}', " +
                 "valid: '{}'").format(self.name,
                                       self.used,
+                                      self.one_time,
                                       self.ex_date,
                                       self.valid())
 
@@ -75,7 +77,7 @@ class Token(object):
 class Tokens():
     def __init__(self):
         logger.info('connecting to %s' % config.config.db)
-        self.conn = sqlite3.connect(config.config.db)
+        self.conn = sqlite3.connect(config.config.db, check_same_thread=False)
         self.c = self.conn.cursor()
         self.tokens = []
 
@@ -144,7 +146,7 @@ class Tokens():
         result = ""
         for token in self.tokens:
             result += "%s,\n" % token
-        return result[:-1]
+        return result[:-2]
 
     def new(self, ex_date=None, one_time=False):
         logger.debug(("creating new token, with options: one_time: {}," +

@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 
 # Third-party imports...
 from flask import Flask, abort, jsonify, request, make_response
+from flask_httpauth import HTTPTokenAuth
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
 # Local imports...
@@ -18,6 +19,7 @@ from . import config
 from . import tokens
 
 app = Flask(__name__)
+auth = HTTPTokenAuth(scheme='SharedSecret')
 logger = logging.getLogger(__name__)
 
 
@@ -113,6 +115,11 @@ class RegistrationForm(Form):
     ])
 
 
+@auth.verify_token
+def verify_token(token):
+    return token == config.config.shared_secret
+
+
 @app.route('/register', methods=['POST'])
 def register():
     """
@@ -169,3 +176,43 @@ def register():
         # for fieldName, errorMessages in form.errors.items():
         #     for err in errorMessages:
         #         # return error to user
+
+
+# TODO: - ADJUST RETURN STATEMENTS
+#       - DOCUMENTATION
+@app.route('/token', methods=['GET', 'POST'])
+@auth.login_required
+def token():
+    tokens.tokens.load()
+
+    data = False
+    one_time = False
+    ex_date = None
+    if request.method == 'GET':
+        return str(tokens.tokens)
+    elif request.method == 'POST':
+        data = request.get_json()
+        if data:
+            if 'ex_date' in data:
+                ex_date = data['ex_date']
+            if 'one_time' in data:
+                one_time = data['one_time']
+        return str(tokens.tokens.new(ex_date=ex_date,
+                                     one_time=one_time))
+    abort(400)
+
+
+@app.route('/token/<token>', methods=['GET', 'PUT'])
+@auth.login_required
+def token_status(token):
+    tokens.tokens.load()
+    data = False
+    if request.method == 'GET':
+        return str(tokens.tokens.get_token(token))
+    elif request.method == 'PUT':
+        data = request.get_json(force=True)
+        if data:
+            if data['disable'] and tokens.tokens.disable(token):
+                return "{} disabled".format(token)
+            return "{} does not exist or is already disabled".format(token)
+    abort(400)

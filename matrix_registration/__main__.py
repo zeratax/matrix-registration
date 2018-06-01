@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_api(args):
-    app.run(host='0.0.0.0', port=config.config.PORT)
+    app.run(host='0.0.0.0', port=config.config.port)
 
 
 def generate_token(args):
