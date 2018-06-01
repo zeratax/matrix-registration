@@ -93,13 +93,13 @@ function sendData(formData) {
   }
 
   XHR.addEventListener('load', function(event) {
-    alert('Yeah! Data sent and response loaded.');
     alert(XHR.responseText);
   });
   XHR.addEventListener('error', function(event) {
-    alert('Oops! Something goes wrong.');
+    alert('could not send registration form');
   });
   XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  console.log(formData);
   XHR.send(formData);
 }
 
