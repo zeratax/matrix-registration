@@ -69,7 +69,9 @@ function sendData() {
 
     // Define what happens on successful data submission
     XHR.addEventListener("load", function(event) {
-      alert(XHR.responseText);
+      var response = XHR.responseText
+      document.getElementById("response").innerHTML = response;
+      consonle.log(response);
     });
 
     // Define what happens in case of error
