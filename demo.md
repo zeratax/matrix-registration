@@ -24,7 +24,7 @@ No actual account will be created.
  </code>
 </pre>
 <br>
-You can get a token with a simple cURL request: https://github.com/ZerataX/matrix-registration/wiki/api#curl
+You can get a token with a simple cURL request: [https://github.com/ZerataX/matrix-registration/wiki/api#curl](https://github.com/ZerataX/matrix-registration/wiki/api#curl)
 Just use the endpoints `/test-token` and `/test-registration` and the SharedSecret `demopagesecret`.
 E.g. to list all tokens:
 ```bash
@@ -32,6 +32,6 @@ curl -H "Authorization: SharedSecret demopagesecret" \
      https://dmnd.sh/test-token
 ```
 
-This page is based on https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html
+This page is based on [https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html](https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html)
 
  <script src="demo.js"></script>
