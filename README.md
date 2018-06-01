@@ -8,11 +8,15 @@ if you like me encountered the situation where you want to invite your friends t
 with this project you can just quickly generate tokens on the fly and share them with your friends to allow them to register to your homeserver.
 
 ## setup
-```
-  virtualenv -p /usr/bin/python3.6 .
-  source ./bin/activate
-  pip install -r requirements.txt
-  cp config.sample.yaml config.yaml
+```bash
+git clone https://github.com/ZerataX/matrix-registration.git
+cd matrix-registration
+
+virtualenv -p /usr/bin/python3.6 .
+source ./bin/activate
+pip install -r requirements.txt
+
+cp config.sample.yaml config.yaml
 ```
 and edit config.yaml
 
