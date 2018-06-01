@@ -5,7 +5,26 @@ a simple python application to have a token based matrix registration
 if you like me encountered the situation where you want to invite your friends to your homeserver, but neither wanted to open up public registration nor create accounts for every individual user yourself, this project should be the solution.
 
 with this project you can just quickly generate tokens on the fly and share them with your friends to allow them to register to your homeserver.
-### Examples
+### Example Usage
+create a new one time usable  token with:
+```
+$ python -m matrix_registration gen -o
+JargonGingerYankee
+```
+or
+```
+$ curl -X POST \
+       -H "Authorization: SharedSecret demopagesecret" \
+       -H "Content-Type: application/json" \
+       -d '{"one_time": true}'
+       https://dmnd.sh/test-token
+name: 'JargonGingerYankee', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True'%
+```
+share an invite link to your registration page, with your friend:
+https://zeratax.github.io/matrix-registration/demo.html?token=JargonGingerYankee
+
+
+### Demo
 
 To try the project out you can play around with the [demo page](./demo.html) for an implemented example registration page using the demo api or
 
