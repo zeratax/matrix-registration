@@ -91,9 +91,9 @@ function sendData() {
 
     // Define what happens on successful data submission
     XHR.addEventListener("load", function(event) {
-      var response = XHR.responseText;
-      console.log(response);
+      var response = JSON.parse(XHR.responseText);
       var str = JSON.stringify(response, null, 4);
+      console.log(response);
       document.getElementById("response").innerHTML = syntaxHighlight(str);
     });
 
