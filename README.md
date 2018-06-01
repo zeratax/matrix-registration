@@ -45,7 +45,7 @@ an example nginx setup to expose the html form and the api endpoint on the same 
 location /register {
     alias resources/example.html;
 
-    limit_except POST {
+    if ($request_method = POST ) {
         proxy_pass http://localhost:5000;
     }
 }
