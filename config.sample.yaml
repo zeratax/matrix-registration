@@ -2,6 +2,7 @@ server_location: 'https://matrix.org'
 shared_secret: 'RegistrationSharedSecret'
 db: 'db.sqlite3'
 port: 5000
+rate_limit: ["100 per day", "10 per minute"]
 logging:
   version: 1
   root:

@@ -18,7 +18,9 @@ from .matrix_api import create_account
 from . import config
 from . import tokens
 
+
 app = Flask(__name__)
+
 auth = HTTPTokenAuth(scheme='SharedSecret')
 logger = logging.getLogger(__name__)
 

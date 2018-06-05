@@ -1,11 +1,15 @@
-# Standard library imports...
+# standard library imports...
 import argparse
 import json
 import sys
 import logging
 import logging.config
 
-# Local imports...
+# third party imports...
+from flask_limiter import Limiter
+from flask_limiter.util import get_ipaddr
+
+# local imports...
 from . import config
 from . import tokens
 from .api import app
@@ -19,6 +23,11 @@ logger = logging.getLogger(__name__)
 
 
 def run_api(args):
+    limiter = Limiter(
+        app,
+        key_func=get_ipaddr,
+        default_limits=[config.config.rate_limit]
+    )
     app.run(host='0.0.0.0', port=config.config.port)
 
 
