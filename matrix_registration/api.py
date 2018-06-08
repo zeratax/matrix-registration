@@ -159,9 +159,14 @@ def register():
             error = resp.json()
             status_code = resp.status_code
             if status_code == 404:
-                logger.error('no HS found at to server_location')
+                logger.error('no HS found at server_location')
             elif status_code == 403:
                 logger.error('wrong registration secret')
+            elif status_code == 400:
+                # most likely this should only be triggered if a userid
+                # is already in use
+                logger.error(error)
+                make_response(jsonify(error), 400)
             else:
                 logger.error('failure communicating with HS',
                              exc_info=True)
