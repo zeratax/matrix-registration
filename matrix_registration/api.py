@@ -165,8 +165,7 @@ def register():
             elif status_code == 400:
                 # most likely this should only be triggered if a userid
                 # is already in use
-                logger.error(error)
-                make_response(jsonify(error), 400)
+                return make_response(jsonify(error), 400)
             else:
                 logger.error('failure communicating with HS',
                              exc_info=True)
@@ -179,7 +178,9 @@ def register():
                        status_code=200)
     else:
         logger.debug('account creation failed!')
-        return make_response(jsonify(form.errors), 400)
+        resp = {"errcode": "MR_BAD_USER_REQUEST",
+                "error": form.errors}
+        return make_response(jsonify(resp), 400)
         # for fieldName, errorMessages in form.errors.items():
         #     for err in errorMessages:
         #         # return error to user
