@@ -26,7 +26,7 @@ def run_api(args):
     limiter = Limiter(
         app,
         key_func=get_ipaddr,
-        default_limits=[config.config.rate_limit]
+        default_limits=config.config.rate_limit
     )
     app.run(host='0.0.0.0', port=config.config.port)
 
