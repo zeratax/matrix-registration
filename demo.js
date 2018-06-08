@@ -53,6 +53,18 @@ function validatePassword() {
 password.onchange = validatePassword;
 confirm_password.onkeyup = validatePassword;
 
+toggle = false;
+function toggleValidate() {
+    if (toggle) {
+      toggle = false;
+      document.getElementById("registration").setAttribute("novalidate", "novalidate")
+    } else {
+      toggle = true;
+      document.getElementById("registration").removeAttribute("novalidate")
+    }
+    console.log("form will not be validated")
+}
+
 /*
 instead of just a simple form http post, we can also use
 make use of some javascript magic to get a more visually pleasing
@@ -117,4 +129,4 @@ function sendData() {
     event.preventDefault();
 
     sendData();
-  });
+});

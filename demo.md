@@ -19,11 +19,12 @@ No actual account will be created.
   <br><br>
   <input id="register" type="submit" value="register">
 </form>
+<button onclick="toggleValidate()">Toggle Form Validation</button>
 <div class="language-json highlighter-rouge">
 <div class="highlight">
 <pre class="highlight">
-  <code id="response">
- </code>
+<code id="response">
+</code>
 </pre>
 </div>
 </div>
