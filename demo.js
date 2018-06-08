@@ -58,7 +58,7 @@ confirm_password.onkeyup = validatePassword;
 var form = document.getElementById("registration");
 
 function toggleValidate() {
-    if (form.hasAttribute("novalidate");) {
+    if (form.hasAttribute("novalidate")) {
       document.getElementById("registration").removeAttribute("novalidate")
     } else {
       document.getElementById("registration").setAttribute("novalidate", "novalidate")
