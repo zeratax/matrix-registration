@@ -50,17 +50,18 @@ function validatePassword() {
   }
 }
 
+
+
 password.onchange = validatePassword;
 confirm_password.onkeyup = validatePassword;
 
-toggle = false;
+var form = document.getElementById("registration");
+
 function toggleValidate() {
-    if (toggle) {
-      toggle = false;
-      document.getElementById("registration").setAttribute("novalidate", "novalidate")
-    } else {
-      toggle = true;
+    if (form.hasAttribute("novalidate");) {
       document.getElementById("registration").removeAttribute("novalidate")
+    } else {
+      document.getElementById("registration").setAttribute("novalidate", "novalidate")
     }
     console.log("form will not be validated")
 }
@@ -121,10 +122,7 @@ function sendData() {
     XHR.send(FD);
   }
 
-  // Access the form element...
-  var form = document.getElementById("registration");
-
-  // ...and take over its submit event.
+  // take over its submit event.
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
