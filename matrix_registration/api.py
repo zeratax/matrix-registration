@@ -25,7 +25,7 @@ auth = HTTPTokenAuth(scheme='SharedSecret')
 logger = logging.getLogger(__name__)
 
 
-re_mxid = re.compile(r"^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$")
+re_mxid = re.compile(r'^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$')
 
 
 def validate_token(form, token):
@@ -36,7 +36,7 @@ def validate_token(form, token):
     ----------
     arg1 : Form object
     arg2 : str
-        token name, e.g. "DoubleWizardSki"
+        token name, e.g. 'DoubleWizardSki'
 
     Raises
     -------
@@ -57,7 +57,7 @@ def validate_username(form, username):
     ----------
     arg1 : Form object
     arg2 : str
-        username name, e.g: "@user:matrix.org" or "user"
+        username name, e.g: '@user:matrix.org' or 'user'
         https://github.com/matrix-org/matrix-doc/blob/master/specification/appendices/identifier_grammar.rst#user-identifiers
     Raises
     -------
@@ -65,9 +65,9 @@ def validate_username(form, username):
         Username doesn't follow mxid requirements
     """
     domain = urlparse(config.config.server_location).hostname
-    re_mxid = r"^@?[a-zA-Z_\-=\.\/0-9]+(:" + \
+    re_mxid = r'^@?[a-zA-Z_\-=\.\/0-9]+(:' + \
               re.escape(domain) + \
-              r")?$"
+              r')?$'
     err = "Username doesn't follow pattern: '%s'" % re_mxid
     if not re.search(re_mxid, username.data):
         raise validators.ValidationError(err)
@@ -112,7 +112,7 @@ class RegistrationForm(Form):
     ])
     confirm = PasswordField('Repeat Password')
     token = StringField('Token', [
-        validators.Regexp(r"^([A-Z][a-z]+)+$"),
+        validators.Regexp(r'^([A-Z][a-z]+)+$'),
         validate_token
     ])
 
@@ -142,7 +142,7 @@ def register():
         logger.debug('request valid')
         tokens.tokens.use(form.token.data)
         # remove sigil and the domain from the username
-        username = form.username.data.rsplit(":")[0].split("@")[-1]
+        username = form.username.data.rsplit(':')[0].split('@')[-1]
         logger.debug('creating account %s...' % username)
         # send account creation request to the hs
         try:
@@ -174,11 +174,12 @@ def register():
         return jsonify(access_token=account_data['access_token'],
                        home_server=account_data['home_server'],
                        user_id=account_data['user_id'],
+                       status='success',
                        status_code=200)
     else:
         logger.debug('account creation failed!')
-        resp = {"errcode": "MR_BAD_USER_REQUEST",
-                "error": form.errors}
+        resp = {'errcode': 'MR_BAD_USER_REQUEST',
+                'error': form.errors}
         return make_response(jsonify(resp), 400)
         # for fieldName, errorMessages in form.errors.items():
         #     for err in errorMessages:
@@ -220,6 +221,6 @@ def token_status(token):
         data = request.get_json(force=True)
         if data:
             if data['disable'] and tokens.tokens.disable(token):
-                return "{} disabled".format(token)
-            return "{} does not exist or is already disabled".format(token)
+                return '{} disabled'.format(token)
+            return '{} does not exist or is already disabled'.format(token)
     abort(400)
