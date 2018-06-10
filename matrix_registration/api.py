@@ -172,7 +172,6 @@ def register():
             abort(500)
         logger.debug('account creation succeded!')
         return jsonify(access_token=account_data['access_token'],
-                       device_id=account_data['device_id'],
                        home_server=account_data['home_server'],
                        user_id=account_data['user_id'],
                        status_code=200)
