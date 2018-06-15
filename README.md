@@ -1,3 +1,5 @@
+<img src="resources/logo.png" width="300">
+
 [![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration) [![Matrix Chat](https://img.shields.io/badge/chat-%23matrix--registration%3Admnd.sh-brightgreen.svg)](https://matrix.to/#/#matrix-registration:dmnd.sh)
 # matrix-registration
 
@@ -48,7 +50,7 @@ curl -X POST \
 or a simple html form, see the sample [resources/example.html](resources/example.html)
 
 the html page looks for the query paramater `token` and sets the token input field to it's value. this would allow you to directly share links with the token included, e.g.:
-`https://homeserver.tld/register?token=DoubleWizardSki`
+`https://homeserver.tld/register.html?token=DoubleWizardSki`
 
 
 For more info check the [wiki](https://github.com/ZerataX/matrix-registration/wiki)
