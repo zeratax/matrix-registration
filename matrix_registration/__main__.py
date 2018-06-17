@@ -8,6 +8,7 @@ import logging.config
 # third party imports...
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
+from flask_cors import CORS
 
 # local imports...
 from . import config
@@ -28,6 +29,8 @@ def run_api(args):
         key_func=get_ipaddr,
         default_limits=config.config.rate_limit
     )
+    if config.config.allow_cors:
+      CORS(app)
     app.run(host='0.0.0.0', port=config.config.port)
 
 

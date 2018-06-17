@@ -4,6 +4,7 @@ click==6.7
 coverage==4.5.1
 docopt==0.6.2
 Flask==1.0.2
+Flask-Cors==3.0.6
 Flask-HTTPAuth==3.2.3
 Flask-Limiter==1.0.1
 idna==2.6

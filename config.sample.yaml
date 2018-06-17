@@ -3,6 +3,7 @@ shared_secret: 'RegistrationSharedSecret'
 db: 'db.sqlite3'
 port: 5000
 rate_limit: ["100 per day", "10 per minute"]
+allow_cors: false
 logging:
   version: 1
   root:
