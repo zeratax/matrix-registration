@@ -140,7 +140,6 @@ def register():
     logger.debug('validating request data...')
     if form.validate():
         logger.debug('request valid')
-        tokens.tokens.use(form.token.data)
         # remove sigil and the domain from the username
         username = form.username.data.rsplit(':')[0].split('@')[-1]
         logger.debug('creating account %s...' % username)
@@ -171,6 +170,7 @@ def register():
                              exc_info=True)
             abort(500)
         logger.debug('account creation succeded!')
+        tokens.tokens.use(form.token.data)
         return jsonify(access_token=account_data['access_token'],
                        home_server=account_data['home_server'],
                        user_id=account_data['user_id'],
