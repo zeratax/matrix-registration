@@ -10,11 +10,15 @@ logger = logging.getLogger(__name__)
 
 def create_account(user, password, server_location, shared_secret,
                    admin=False):
+    nonce = _get_nonce(server_location)
+
     mac = hmac.new(
         key=str.encode(shared_secret),
         digestmod=hashlib.sha1,
     )
 
+    mac.update(nonce.encode())
+    mac.update(b'\x00')
     mac.update(user.encode())
     mac.update(b'\x00')
     mac.update(password.encode())
@@ -24,16 +28,21 @@ def create_account(user, password, server_location, shared_secret,
     mac = mac.hexdigest()
 
     data = {
-        'user': user,
+        'nonce': nonce,
+        'username': user,
         'password': password,
-        'mac': mac,
-        'type': 'org.matrix.login.shared_secret',
         'admin': admin,
+        'mac': mac,
     }
 
     server_location = server_location.rstrip('/')
 
-    r = requests.post('%s/_matrix/client/api/v1/register' % (server_location),
+    r = requests.post('%s/_matrix/client/r0/admin/register' % (server_location),
                       json=data)
     r.raise_for_status()
     return r.json()
+
+def _get_nonce(server_location):
+    r = requests.get('%s/_matrix/client/r0/admin/register' % (server_location))
+    r.raise_for_status()
+    return r.json()['nonce']
