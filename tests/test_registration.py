@@ -80,7 +80,6 @@ BAD_CONFIG2 = {
     'shared_secret': 'wrongsecret',
     'db': 'tests/db.sqlite',
     'port': 1000,
-    # password requirements
     'password': {
         'min_length': 3
     },
@@ -88,6 +87,7 @@ BAD_CONFIG2 = {
 }
 
 usernames = []
+nonces = []
 logging.config.dictConfig(LOGGING)
 
 def mock_new_user(username):
@@ -107,6 +107,12 @@ def mock_new_user(username):
     }
     return user
 
+
+def mocked__get_nonce(server_location):
+    nonce = ''.join(random.choices(string.ascii_lowercase +
+                                   string.digits, k=129))
+    nonces.append(nonce)
+    return nonce
 
 def mocked_requests_post(*args, **kwargs):
     class MockResponse:
@@ -129,27 +135,35 @@ def mocked_requests_post(*args, **kwargs):
     re_mxid = r"^@?[a-zA-Z_\-=\.\/0-9]+(:" + \
               re.escape(domain) + \
               r")?$"
-    location = '_matrix/client/api/v1/register'
+    location = '_matrix/client/r0/admin/register'
+
     if args[0] == '%s/%s' % (GOOD_CONFIG['server_location'], location):
         if kwargs:
             req = kwargs['json']
+            if not req['nonce'] in nonces:
+                return MockResponse({"'errcode': 'M_UNKOWN",
+                                     "'error': 'unrecognised nonce'"},
+                                    400)
+
             mac = hmac.new(
                 key=str.encode(GOOD_CONFIG['shared_secret']),
                 digestmod=hashlib.sha1,
             )
 
-            mac.update(req['user'].encode())
+            mac.update(req['nonce'].encode())
+            mac.update(b'\x00')
+            mac.update(req['username'].encode())
             mac.update(b'\x00')
             mac.update(req['password'].encode())
             mac.update(b'\x00')
             mac.update(b'admin' if req['admin'] else b'notadmin')
             mac = mac.hexdigest()
-            if not re.search(re_mxid, req['user']):
+            if not re.search(re_mxid, req['username']):
                 return MockResponse({"'errcode': 'M_INVALID_USERNAME",
                                      "'error': 'User ID can only contain" +
                                      "characters a-z, 0-9, or '=_-./'"},
                                     400)
-            if req['user'].rsplit(":")[0].split("@")[-1] in usernames:
+            if req['username'].rsplit(":")[0].split("@")[-1] in usernames:
                 return MockResponse({'errcode': 'M_USER_IN_USE',
                                      'error': 'User ID already taken.'},
                                     400)
@@ -157,7 +171,7 @@ def mocked_requests_post(*args, **kwargs):
                 return MockResponse({'errcode': 'M_UNKNOWN',
                                      'error': 'HMAC incorrect'},
                                     403)
-            return MockResponse(mock_new_user(req['user']), 200)
+            return MockResponse(mock_new_user(req['username']), 200)
     return MockResponse(None, 404)
 
 
@@ -321,10 +335,12 @@ class ApiTest(unittest.TestCase):
          'test1234', 'test1234', True, 400]
     ])
     # check form validators
+    @patch('matrix_registration.matrix_api._get_nonce',
+           side_effect=mocked__get_nonce)
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
     def test_register(self, username, password, confirm, token,
-                      status, mock_get):
+                      status, mock_get, mock_nonce):
         matrix_registration.config.config = Config(GOOD_CONFIG)
 
         matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
@@ -348,9 +364,11 @@ class ApiTest(unittest.TestCase):
             # print(account_data)
         self.assertEqual(rv.status_code, status)
 
+    @patch('matrix_registration.matrix_api._get_nonce',
+       side_effect=mocked__get_nonce)
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
-    def test_register_wrong_hs(self, mock_get):
+    def test_register_wrong_hs(self, mock_get, mock_nonce):
         matrix_registration.config.config = Config(BAD_CONFIG1)
 
         matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
@@ -364,9 +382,11 @@ class ApiTest(unittest.TestCase):
         ))
         self.assertEqual(rv.status_code, 500)
 
+    @patch('matrix_registration.matrix_api._get_nonce',
+           side_effect=mocked__get_nonce)
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
-    def test_register_wrong_secret(self, mock_get):
+    def test_register_wrong_secret(self, mock_get, mock_nonce):
         matrix_registration.config.config = Config(BAD_CONFIG2)
 
         matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
@@ -407,6 +427,9 @@ class ConfigTest(unittest.TestCase):
         matrix_registration.config.config = Config(good_config_path)
         self.assertIsNotNone(matrix_registration.config.config)
         os.remove(good_config_path)
+
+# TODO: - tests for /token/<token>
+#       - a nonce is only valid for 60s
 
 
 if "logging" in sys.argv:
