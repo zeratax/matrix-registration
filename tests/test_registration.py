@@ -428,7 +428,8 @@ class ConfigTest(unittest.TestCase):
         self.assertIsNotNone(matrix_registration.config.config)
         os.remove(good_config_path)
 
-# TODO: tests for /token/<token>
+# TODO: - tests for /token/<token>
+#       - a nonce is only valid for 60s
 
 
 if "logging" in sys.argv:

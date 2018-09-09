@@ -3,6 +3,6 @@ from . import api
 from . import tokens
 from . import config
 
-# TODO: pip update
-        pypy
+# TODO: - pip update
+#       - pypy
 
