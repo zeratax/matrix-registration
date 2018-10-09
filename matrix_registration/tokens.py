@@ -79,7 +79,7 @@ class Tokens():
         logger.info('connecting to %s' % config.config.db)
         self.conn = sqlite3.connect(config.config.db, check_same_thread=False)
         self.c = self.conn.cursor()
-        self.tokens = []
+        self.tokens = {}
 
         logger.debug('creating table')
         self.c.execute('''CREATE TABLE IF NOT EXISTS tokens
@@ -98,27 +98,30 @@ class Tokens():
 
     def load(self):
         logger.debug('loading tokens from db...')
-        self.tokens = []
+        self.tokens = {}
         # Get tokens
         self.c.execute('SELECT * FROM tokens')
         for token in self.c.fetchall():
             logger.debug(token)
-            self.tokens.append(Token(name=token[0],
-                                     ex_date=str(token[1]),
-                                     one_time=token[2],
-                                     used=token[3]))
+            # token[0]=name
+            self.tokens[token[0]] = Token(name=token[0],
+                                          ex_date=str(token[1]),
+                                          one_time=token[2],
+                                          used=token[3])
         logger.debug('token loaded!')
 
     def get_token(self, token_name):
         logger.debug("getting token by name: %s" % token_name)
-        for token in self.tokens:
-            if token.name == token_name:
-                    return token
-        return False
+        try:
+            token = self.tokens[token_name]
+        except KeyError:
+            return False
+        return token
 
     def valid(self, token_name):
         logger.debug("checking if '%s' is valid" % token_name)
         token = self.get_token(token_name)
+        # if token exists
         if token:
             return token.valid()
         return False
@@ -144,8 +147,8 @@ class Tokens():
 
     def __repr__(self):
         result = ""
-        for token in self.tokens:
-            result += "%s,\n" % token
+        for tokens_key in self.tokens:
+            result += "%s,\n" % self.tokens[tokens_key]
         return result[:-2]
 
     def new(self, ex_date=None, one_time=False):
@@ -159,7 +162,7 @@ class Tokens():
                              str(token.ex_date),
                              token.one_time,
                              token.used))
-        self.tokens.append(token)
+        self.tokens[token.name] = token
         self.conn.commit()
 
         return token
