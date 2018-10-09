@@ -191,15 +191,18 @@ class TokensTest(unittest.TestCase):
     def test_tokens_empty(self):
         test_tokens = matrix_registration.tokens.Tokens()
 
+        # no token should exist at this point
         self.assertFalse(test_tokens.valid(""))
         test_token = test_tokens.new()
 
+        # no empty token should have been created
         self.assertFalse(test_tokens.valid(""))
 
     def test_tokens_disable(self):
         test_tokens = matrix_registration.tokens.Tokens()
         test_token = test_tokens.new()
 
+        # new tokens should be valid first, invalid after disabling it
         self.assertTrue(test_token.valid())
         self.assertTrue(test_token.disable())
         self.assertFalse(test_token.valid())
@@ -219,19 +222,24 @@ class TokensTest(unittest.TestCase):
 
     def test_tokens_load(self):
         test_tokens = matrix_registration.tokens.Tokens()
+
         test_token = test_tokens.new()
         test_token2 = test_tokens.new()
+        test_token3 = test_tokens.new(one_time=True)
+        test_token4 = test_tokens.new(ex_date="2111-01-01")
+        test_token5 = test_tokens.new(ex_date="1999-01-01")
 
         test_tokens.disable(test_token2.name)
-
-        test_token3 = test_tokens.new(one_time=True)
-
         test_tokens.use(test_token3.name)
-
-        test_token4 = test_tokens.new(ex_date="2111-01-01")
         test_tokens.use(test_token4.name)
 
         test_tokens.load()
+
+        # token1: valid, unused, no expiration date
+        # token2: invalid, unused, no expiration date
+        # token3: used once, one-time, now invalid
+        # token4: valid, used once, expiration date
+        # token5: invalid, expiration date
 
         self.assertEqual(test_token.name,
                          test_tokens.get_token(test_token.name).name)
@@ -247,6 +255,8 @@ class TokensTest(unittest.TestCase):
                          test_tokens.get_token(test_token4.name).used)
         self.assertEqual(test_token4.ex_date,
                          test_tokens.get_token(test_token4.name).ex_date)
+        self.assertEqual(test_token5.valid(),
+                         test_tokens.get_token(test_token5.name).valid())
 
     @parameterized.expand([
         [None, False],
@@ -308,6 +318,30 @@ class TokensTest(unittest.TestCase):
             mock_date.now.return_value = parser.parse('2200-01-12')
             self.assertEqual(test_tokens.valid(test_token.name), valid)
 
+
+    def test_token_repr(self):
+        test_tokens = matrix_registration.tokens.Tokens()
+
+        test_token1 = test_tokens.new()
+        test_token2 = test_tokens.new()
+        test_token3 = test_tokens.new()
+        test_token4 = test_tokens.new()
+        test_token5 = test_tokens.new()
+
+        print(type(test_tokens.tokens))
+        test_tokens.tokens[test_token1.name] = matrix_registration.tokens.Token('CamillaTopicFlame')
+        test_tokens.tokens[test_token2.name] = matrix_registration.tokens.Token('MasterKermitMorning', one_time=True)
+        test_tokens.tokens[test_token3.name] = matrix_registration.tokens.Token('MadamBernardTaxi', ex_date='02.01.2200')
+        test_tokens.tokens[test_token4.name] = matrix_registration.tokens.Token('MysticBridgeEducate', ex_date='28.01.2200')
+        test_tokens.tokens[test_token5.name] = matrix_registration.tokens.Token('ArmaniFlowerWater', used=5)
+
+        expected_answer = ("name: 'CamillaTopicFlame', used: '0', one_time: 'False', expiration_date: 'None', valid: 'True',\n"
+                           "name: 'MasterKermitMorning', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True',\n"
+                           "name: 'MadamBernardTaxi', used: '0', one_time: 'False', expiration_date: '2200-02-01 00:00:00', valid: 'True',\n"
+                           "name: 'MysticBridgeEducate', used: '0', one_time: 'False', expiration_date: '2200-01-28 00:00:00', valid: 'True',\n"
+                           "name: 'ArmaniFlowerWater', used: '5', one_time: 'False', expiration_date: 'None', valid: 'True'")
+        
+        self.assertEqual(str(test_tokens), expected_answer)
 
 class ApiTest(unittest.TestCase):
     def setUp(self):
