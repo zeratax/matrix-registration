@@ -328,7 +328,6 @@ class TokensTest(unittest.TestCase):
         test_token4 = test_tokens.new()
         test_token5 = test_tokens.new()
 
-        print(type(test_tokens.tokens))
         test_tokens.tokens[test_token1.name] = matrix_registration.tokens.Token('CamillaTopicFlame')
         test_tokens.tokens[test_token2.name] = matrix_registration.tokens.Token('MasterKermitMorning', one_time=True)
         test_tokens.tokens[test_token3.name] = matrix_registration.tokens.Token('MadamBernardTaxi', ex_date='02.01.2200')
