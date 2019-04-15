@@ -1,6 +1,6 @@
 <img src="resources/logo.png" width="300">
 
-[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration)![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matrix-registration.svg) [![PyPI](https://img.shields.io/pypi/v/matrix-registration.svg)](https://pypi.org/project/matrix-registration/) [![Matrix Chat](https://img.shields.io/badge/chat-%23matrix--registration%3Admnd.sh-brightgreen.svg)](https://matrix.to/#/#matrix-registration:dmnd.sh)
+[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matrix-registration.svg) [![PyPI](https://img.shields.io/pypi/v/matrix-registration.svg)](https://pypi.org/project/matrix-registration/) [![Matrix Chat](https://img.shields.io/badge/chat-%23matrix--registration%3Admnd.sh-brightgreen.svg)](https://matrix.to/#/#matrix-registration:dmnd.sh)
 # matrix-registration
 
 a simple python application to have a token based matrix registration
@@ -29,10 +29,10 @@ location /register {
 
 ## usage
 ```bash
-python -m matrix_registration api
+python -m matrix_registration -h
 ```
 
-if you've started the api server and generated a token you can register an account with a simple post request, e.g.:
+if you've [started the api server](https://github.com/ZerataX/matrix-registration/wiki/daemon) and [generated](https://github.com/ZerataX/matrix-registration/wiki/api#creating-a-new-token) a token you can register an account with a simple post request, e.g.:
 ```bash
 curl -X POST \
      -F 'username=test' \
