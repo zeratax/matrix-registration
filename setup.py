@@ -33,7 +33,9 @@ setuptools.setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/zeratax/matrix-registration",
-    packages=setuptools.find_packages(),
+    packages=['matrix_registration'],
+    package_data={'matrix_registration': ['*.txt']},
+    include_package_data=True,
     python_requires='~=3.6',
 
     install_requires=[
@@ -59,8 +61,5 @@ setuptools.setup(
         [console_scripts]
         matrix_registration=matrix_registration.__main__:main
     """,
-    test_suite="tests.test_registration",
-    data_files=[
-        ("config", ["config.sample.yaml"]),
-    ],
+    test_suite="tests.test_registration"
 )

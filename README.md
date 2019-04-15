@@ -1,6 +1,6 @@
 <img src="resources/logo.png" width="300">
 
-[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration) [![Matrix Chat](https://img.shields.io/badge/chat-%23matrix--registration%3Admnd.sh-brightgreen.svg)](https://matrix.to/#/#matrix-registration:dmnd.sh)
+[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration)![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matrix-registration.svg) [![PyPI](https://img.shields.io/pypi/v/matrix-registration.svg)](https://pypi.org/project/matrix-registration/) [![Matrix Chat](https://img.shields.io/badge/chat-%23matrix--registration%3Admnd.sh-brightgreen.svg)](https://matrix.to/#/#matrix-registration:dmnd.sh)
 # matrix-registration
 
 a simple python application to have a token based matrix registration
@@ -11,16 +11,9 @@ with this project you can just quickly generate tokens on the fly and share them
 
 ## setup
 ```bash
-git clone https://github.com/ZerataX/matrix-registration.git
-cd matrix-registration
-
-virtualenv -p /usr/bin/python3.6 .
-source ./bin/activate
-python setup.py install
-
-cp config.sample.yaml config.yaml
+pip3 install matrix_registration
 ```
-and edit config.yaml
+Then download [config.sample.yaml](config.sample.yaml) and save a modified version to `config.yaml` in the folder that you want to execute matrix-registration.
 
 ### nginx reverse-proxy
 an example nginx setup to expose the html form and the api endpoint on the same URL, based on whether a POST or GET request was made.
@@ -33,12 +26,13 @@ location /register {
     }
 }
 ```
+
 ## usage
 ```bash
-python -m matrix_registration -h
+python -m matrix_registration api
 ```
 
-if you've started the api server and generated a token you can register an account with curl, e.g.:
+if you've started the api server and generated a token you can register an account with a simple post request, e.g.:
 ```bash
 curl -X POST \
      -F 'username=test' \
