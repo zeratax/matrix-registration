@@ -1,8 +1,6 @@
-__version__ = "0.4+dev"
+__version__ = "0.5"
 from . import api
 from . import tokens
 from . import config
 
-# TODO: - pip update
-#       - pypy
-
+name = "matrix_registration"

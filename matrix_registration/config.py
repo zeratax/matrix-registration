@@ -26,7 +26,7 @@ class Config:
             logger.debug('from file...')
             try:
                 with open(self.data, 'r') as stream:
-                    dictionary = yaml.load(stream)
+                    dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
             except IOError as e:
                 sys.exit(e)
 
