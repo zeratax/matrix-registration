@@ -16,7 +16,7 @@ cd matrix-registration
 
 virtualenv -p /usr/bin/python3.6 .
 source ./bin/activate
-pip install -r requirements.txt
+python setup.py install
 
 cp config.sample.yaml config.yaml
 ```
