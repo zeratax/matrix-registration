@@ -4,7 +4,9 @@ about: Create a report to help us improve
 title: ''
 labels: bug
 assignees: ''
+
 ---
+
 <!-- Please report security issues by email to security@zera.tax -->
 
 <!-- This is a bug report template. By following the instructions below and
