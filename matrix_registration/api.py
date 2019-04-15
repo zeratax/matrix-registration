@@ -9,7 +9,7 @@ import sys
 from urllib.parse import urlparse
 
 # Third-party imports...
-from flask import Flask, abort, jsonify, request, make_response
+from flask import Flask, abort, jsonify, request, make_response, render_template
 from flask_httpauth import HTTPTokenAuth
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
@@ -122,7 +122,7 @@ def verify_token(token):
     return token == config.config.shared_secret
 
 
-@app.route('/register', methods=['POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     """
     main user account registration endpoint
@@ -135,55 +135,63 @@ def register():
       - token
     as described in the RegistrationForm
     """
-    logger.debug('an account registration started...')
-    form = RegistrationForm(request.form)
-    logger.debug('validating request data...')
-    if form.validate():
-        logger.debug('request valid')
-        # remove sigil and the domain from the username
-        username = form.username.data.rsplit(':')[0].split('@')[-1]
-        logger.debug('creating account %s...' % username)
-        # send account creation request to the hs
-        try:
-            account_data = create_account(form.username.data,
-                                          form.password.data,
-                                          config.config.server_location,
-                                          config.config.shared_secret)
-        except exceptions.ConnectionError as e:
-            logger.error('can not connect to server_location',
-                         exc_info=True)
-            abort(500)
-        except exceptions.HTTPError as e:
-            resp = e.response
-            error = resp.json()
-            status_code = resp.status_code
-            if status_code == 404:
-                logger.error('no HS found at server_location')
-            elif status_code == 403:
-                logger.error('wrong registration secret')
-            elif status_code == 400:
-                # most likely this should only be triggered if a userid
-                # is already in use
-                return make_response(jsonify(error), 400)
-            else:
-                logger.error('failure communicating with HS',
-                             exc_info=True)
-            abort(500)
-        logger.debug('account creation succeded!')
-        tokens.tokens.use(form.token.data)
-        return jsonify(access_token=account_data['access_token'],
-                       home_server=account_data['home_server'],
-                       user_id=account_data['user_id'],
-                       status='success',
-                       status_code=200)
+    if request.method == 'POST':
+        logger.debug('an account registration started...')
+        form = RegistrationForm(request.form)
+        logger.debug('validating request data...')
+        if form.validate():
+            logger.debug('request valid')
+            # remove sigil and the domain from the username
+            username = form.username.data.rsplit(':')[0].split('@')[-1]
+            logger.debug('creating account %s...' % username)
+            # send account creation request to the hs
+            try:
+                account_data = create_account(form.username.data,
+                                            form.password.data,
+                                            config.config.server_location,
+                                            config.config.shared_secret)
+            except exceptions.ConnectionError as e:
+                logger.error('can not connect to server_location',
+                            exc_info=True)
+                abort(500)
+            except exceptions.HTTPError as e:
+                resp = e.response
+                error = resp.json()
+                status_code = resp.status_code
+                if status_code == 404:
+                    logger.error('no HS found at server_location')
+                elif status_code == 403:
+                    logger.error('wrong registration secret')
+                elif status_code == 400:
+                    # most likely this should only be triggered if a userid
+                    # is already in use
+                    return make_response(jsonify(error), 400)
+                else:
+                    logger.error('failure communicating with HS',
+                                exc_info=True)
+                abort(500)
+            logger.debug('account creation succeded!')
+            tokens.tokens.use(form.token.data)
+            return jsonify(access_token=account_data['access_token'],
+                        home_server=account_data['home_server'],
+                        user_id=account_data['user_id'],
+                        status='success',
+                        status_code=200)
+        else:
+            logger.debug('account creation failed!')
+            resp = {'errcode': 'MR_BAD_USER_REQUEST',
+                    'error': form.errors}
+            return make_response(jsonify(resp), 400)
+            # for fieldName, errorMessages in form.errors.items():
+            #     for err in errorMessages:
+            #         # return error to user
     else:
-        logger.debug('account creation failed!')
-        resp = {'errcode': 'MR_BAD_USER_REQUEST',
-                'error': form.errors}
-        return make_response(jsonify(resp), 400)
-        # for fieldName, errorMessages in form.errors.items():
-        #     for err in errorMessages:
-        #         # return error to user
+        server_name =  config.config.server_name
+        pw_length = config.config.password['min_length']
+        return render_template('register.html',
+                               server_name=server_name,
+                               server_name_cap=server_name.capitalize(),
+                               pw_length=pw_length)
 
 
 # TODO: - ADJUST RETURN STATEMENTS

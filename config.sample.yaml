@@ -1,4 +1,5 @@
 server_location: 'https://matrix.org'
+server_name: 'matrix.org'
 shared_secret: 'RegistrationSharedSecret'
 db: 'db.sqlite3'
 port: 5000
