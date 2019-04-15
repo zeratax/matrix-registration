@@ -19,7 +19,10 @@ virtualenv -p /usr/bin/python3.6 .
 source ./bin/activate
 
 python setup.py develop
+cp config.sample.yaml config.yaml
 ```
+
+and edit config.yaml
 
 You can run tests by executing the following command in the project root
 ```bash
