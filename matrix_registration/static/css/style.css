@@ -13,8 +13,6 @@ body {
 h1 {
 	font-size: 1.3em;
 	color: white;
-	transition: all 0.5s ease;
-	transform: translate(0%, 0%);
 }
 
 p {
@@ -166,9 +164,9 @@ label {
 	background-image: url("https://danbooru.donmai.us/data/__ghostblade_drawn_by_wlop__692c387c46f293fba2fad31738bca59c.png");
 	background-attachment: fixed;
 	filter: blur(10px);
-	background-size: cover;
+  background-size: cover;
+  transition: background-image 0.5s ease;
 	z-index: 1;
-	transition: background-image 0.5s ease;
 }
 
 .widget {
@@ -176,7 +174,7 @@ label {
 	left: 50%;
 	top: 50%;
 	margin-left: -15em;
-	margin-top: -20em;
+  margin-top: -20em;
 	border: 0px solid;
 	border-color: rgb(237, 243, 255);
 	border-radius: 5px;
@@ -200,6 +198,30 @@ label {
 	background-size: cover;
 	opacity: 0.20;
 	content: "";
+}
+
+@media only screen and (max-width: 500px) {
+  /* For mobile phones: */
+
+  .widget {
+    margin-top: -45vh;
+    margin-left: -45vw;
+    width: 90vw;
+    min-width: 15em;
+  }
+}
+
+@media only screen and (max-height: 768px) {
+  body {
+    overflow-y: visible;
+  }
+  .background {
+    filter: none;
+  }
+  .info {
+    margin-top: 0;
+    position: static;
+  }
 }
 
 .center {
