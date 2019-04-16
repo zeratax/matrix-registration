@@ -19,6 +19,7 @@ body {
   height: 100%;
   background: inherit;
   z-index: -1;
+  transform: scale(1.03);
   filter: blur(10px);
 }
 
@@ -218,10 +219,14 @@ label {
   }
   .blur:before {
     filter: none;
+    transform: none;
+    padding-bottom: 50em;
   }
   .info {
-    margin-top: 0;
-    position: static;
+    bottom: -10em;
+  }
+  .widget {
+    margin-top: -40vh;
   }
 }
 
