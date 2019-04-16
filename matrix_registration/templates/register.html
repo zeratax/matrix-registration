@@ -17,51 +17,56 @@
         <form action="/register" method="post">
           <div class="group">
             <input id="username" name="username" type="text" placeholder=" "
-            required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name }}\.org)?$"
+            required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$"
             required minlength="1" maxlength="200">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="username"> Enter your username:</label>
+            <label for="username">Username</label>
           </div>
           <div class="group">
             <input id="password" name="password" type="password" placeholder=" "
             required minlength="{{ pw_length }}" maxlength="128">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="password">Enter your password:</label>
+            <label for="password">Password</label>
           </div>
           <div class="group">
             <input id="confirm_password" name="confirm" type="password" placeholder=" "
             required>
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="confirm_password">Repeat your password:</label>
+            <label for="confirm_password">Confirm</label>
           </div>
           <div class="group">
             <input id="token" name="token" type="text" placeholder=" "
             required pattern="^([A-Z][a-z]+)+$">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="token">Enter your invite token:</label>
+            <label for="token">Token</label>
           </div>
           <div class="btn-box">
-            <input class="btn btn-submit" type="submit" value="submit">
+            <input class="btn btn-submit" type="submit" value="register">
           </div>
         </form>
       </div>
     </div>
     <div class="info">
-      <p>Source: 
-        <a href="https://danbooru.donmai.us/posts/2735908"  target="_blank">
-          https://danbooru.donmai.us/posts/2735908
+      <p>Cover photo by: <a href="https://www.patreon.com/wlop" target="_blank">WLOP</a>,<br>
+        Source:
+        <a href="https://www.deviantart.com/wlop/art/Princess-526191774"  target="_blank">
+          https://www.deviantart.com/wlop/art/Princess-526191774
         </a>
-         <br>
-        Translation: Kanji
       </p>
     </div>
   
   <script>
     // all javascript here is optional, the registration form works fine without
+    /* 
+    What this script does:
+      - confirm password validator needs javascript, otherwise always valid as long as not empty
+      - set token with ?token query parameter
+      - set custom validity messages
+    */ 
 
     // see https://stackoverflow.com/a/901144/3779427
     function getParameterByName(name, url) {
@@ -85,7 +90,7 @@
 
     username.addEventListener("input", function (event) {
       if (username.validity.typeMismatch) {
-        username.setCustomValidity("format: @username:{{ server_name }}.org");
+        username.setCustomValidity("format: @username:{{ server_name }}");
       } else {
         username.setCustomValidity("");
       }

@@ -142,6 +142,7 @@ label {
 
 
 .info {
+	z-index: 2;
 	position: absolute;
 	bottom: 1vh;
 	right: 1vw;

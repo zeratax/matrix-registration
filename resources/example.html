@@ -19,11 +19,13 @@
 
 <body>
   <section style="display:flex;justify-content:center;align-items:center;">
+    <!-- make sure to adjust port here -->
     <form action="localhost:5000/register" method="post">
       <label for="username"> Enter your username:</label><br>
       <input id="username" name="username" type="text"
-      required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:matrix\.org)?$"
+      required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:matrix\.org)?$" 
       required minlength="1" maxlength="200">
+      <!-- change to your homeserver -->
       <br>
       <label for="password">Enter your password:</label><br>
       <input id="password" name="password" type="password"
