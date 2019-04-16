@@ -36,7 +36,7 @@ setuptools.setup(
     packages=['matrix_registration'],
     package_data={'matrix_registration': ['*.txt']},
     include_package_data=True,
-    python_requires='~=3.6',
+    python_requires='~=3',
 
     install_requires=[
         "Flask>=1.0.2",
@@ -55,8 +55,7 @@ setuptools.setup(
         "Development Status :: 4 - Beta",
         "Topic :: Communications :: Chat",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7"
+        "Programming Language :: Python :: 3",
     ],
     entry_points="""
         [console_scripts]
