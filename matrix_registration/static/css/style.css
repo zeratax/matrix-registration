@@ -6,8 +6,20 @@ body {
 }
 
 body {
-	background-color: black;
+  background-image: url("https://danbooru.donmai.us/data/__ghostblade_drawn_by_wlop__692c387c46f293fba2fad31738bca59c.png");
+  background-size: cover;
+  background-attachment: fixed;
 	overflow: hidden;
+}
+
+.blur:before {
+  content: "";
+  position: absolute;
+  width : 100%;
+  height: 100%;
+  background: inherit;
+  z-index: -1;
+  filter: blur(10px);
 }
 
 h1 {
@@ -138,7 +150,6 @@ label {
   margin: 50px 0;
 }
 
-
 .info {
 	z-index: 2;
 	position: absolute;
@@ -157,16 +168,6 @@ label {
 
 .info a {
 	color: cyan;
-}
-
-.background {
-	height: 100vh;
-	background-image: url("https://danbooru.donmai.us/data/__ghostblade_drawn_by_wlop__692c387c46f293fba2fad31738bca59c.png");
-	background-attachment: fixed;
-	filter: blur(10px);
-  background-size: cover;
-  transition: background-image 0.5s ease;
-	z-index: 1;
 }
 
 .widget {
@@ -204,7 +205,7 @@ label {
   /* For mobile phones: */
 
   .widget {
-    margin-top: -45vh;
+    margin-top: -38vh;
     margin-left: -45vw;
     width: 90vw;
     min-width: 15em;
@@ -215,7 +216,7 @@ label {
   body {
     overflow-y: visible;
   }
-  .background {
+  .blur:before {
     filter: none;
   }
   .info {
