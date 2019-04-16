@@ -1,11 +1,13 @@
 language: python
 python:
-  - "3.6"
-install:
- - python setup.py install
- - pip install coveralls
-
-script: coverage run setup.py test
+    - "3"
+    - "3.4"
+    - "3.5"
+    - "3.6"
+    - "3.7"
+    - "3.8"
+install: pip install tox-travis
+script: tox
 
 after_success:
     coveralls
