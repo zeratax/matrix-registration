@@ -36,7 +36,7 @@ setuptools.setup(
     packages=['matrix_registration'],
     package_data={'matrix_registration': ['*.txt']},
     include_package_data=True,
-    python_requires='~=3',
+    python_requires='~=3.4',
 
     install_requires=[
         "Flask>=1.0.2",
