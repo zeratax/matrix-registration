@@ -56,6 +56,7 @@ setuptools.setup(
         "Topic :: Communications :: Chat",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7"
     ],
     entry_points="""
         [console_scripts]
