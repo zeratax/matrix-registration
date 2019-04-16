@@ -6,7 +6,7 @@ body {
 }
 
 body {
-  background-image: url("https://danbooru.donmai.us/data/__ghostblade_drawn_by_wlop__692c387c46f293fba2fad31738bca59c.png");
+  background-image: url("/static/images/valley.jpg");
   background-size: cover;
   background-attachment: fixed;
 	overflow: hidden;
@@ -194,7 +194,7 @@ label {
 	z-index: -1;
 	width: 100%;
 	height: 100%;
-	background-image: url("https://danbooru.donmai.us/data/__ghostblade_drawn_by_wlop__692c387c46f293fba2fad31738bca59c.png");
+	background-image: url("/static/images/valley.jpg");
 	background-attachment: fixed;
 	background-size: cover;
 	opacity: 0.20;
