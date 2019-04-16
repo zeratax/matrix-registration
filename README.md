@@ -18,7 +18,7 @@ Then download the [config.sample.yaml](config.sample.yaml) and save a modified v
 ### nginx reverse-proxy
 an example nginx setup to expose the html form and the api endpoint on the same URL, based on whether a POST or GET request was made.
 ```nginx
-location /register {
+location / {
         proxy_pass http://localhost:5000;
 }
 ```

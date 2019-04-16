@@ -190,7 +190,6 @@ def register():
         pw_length = config.config.password['min_length']
         return render_template('register.html',
                                server_name=server_name,
-                               server_name_cap=server_name.capitalize(),
                                pw_length=pw_length)
 
 

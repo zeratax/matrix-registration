@@ -2,44 +2,64 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>{{ server_name_cap }} Registration</title>
-  <style>
-    input:invalid {
-      border: 2px dashed red;
-    }
-
-    input:valid {
-      border: 2px solid black;
-    }
-    input {
-      width: 100%;
-    }
-  </style>
+  <title>{{ server_name }} Registration</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet"> 
 </head>
 
 <body>
-  <section style="display:flex;justify-content:center;align-items:center;">
-    <form action="localhost:5000/register" method="post">
-      <label for="username"> Enter your username:</label><br>
-      <input id="username" name="username" type="text"
-      required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name }}\.org)?$"
-      required minlength="1" maxlength="200">
-      <br>
-      <label for="password">Enter your password:</label><br>
-      <input id="password" name="password" type="password"
-      required minlength="{{ pw_length }}" maxlength="128">
-      <br>
-      <label for="confirm_password">Repeat your password:</label><br>
-      <input id="confirm_password" name="confirm" type="password"
-      required>
-      <br>
-      <label for="token">Enter your invite token:</label><br>
-      <input id="token" name="token" type="text"
-      required pattern="^([A-Z][a-z]+)+$">
-      <br><br>
-      <input type="submit" value="register">
-    </form>
-  </section>
+    <div class="background"></div>
+    <div class="widget">
+      <div class="center">    
+        <h1>{{ server_name }} Registration</h1>
+        <p>the registration requires a secret token<br>
+           registration does not require an email, just a username and a password that's longer than {{ pw_length }} characters.</p>
+        <form action="/register" method="post">
+          <div class="group">
+            <input id="username" name="username" type="text" placeholder=" "
+            required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name }}\.org)?$"
+            required minlength="1" maxlength="200">
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label for="username"> Enter your username:</label>
+          </div>
+          <div class="group">
+            <input id="password" name="password" type="password" placeholder=" "
+            required minlength="{{ pw_length }}" maxlength="128">
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label for="password">Enter your password:</label>
+          </div>
+          <div class="group">
+            <input id="confirm_password" name="confirm" type="password" placeholder=" "
+            required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label for="confirm_password">Repeat your password:</label>
+          </div>
+          <div class="group">
+            <input id="token" name="token" type="text" placeholder=" "
+            required pattern="^([A-Z][a-z]+)+$">
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label for="token">Enter your invite token:</label>
+          </div>
+          <div class="btn-box">
+            <input class="btn btn-submit" type="submit" value="submit">
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="info">
+      <p>Source: 
+        <a href="https://danbooru.donmai.us/posts/2735908"  target="_blank">
+          https://danbooru.donmai.us/posts/2735908
+        </a>
+         <br>
+        Translation: Kanji
+      </p>
+    </div>
+  
   <script>
     // all javascript here is optional, the registration form works fine without
 
