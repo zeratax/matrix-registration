@@ -1,12 +1,14 @@
 language: python
 python:
-    - "3"
-    - "3.4"
-    - "3.5"
-    - "3.6"
-    - "3.7"
-    - "3.8"
-install: pip install tox-travis
+  - "3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
+install: 
+  - pip install tox-travis
+  - pip install coveralls
 script: tox
 
 after_success:
