@@ -1,45 +1,48 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width; initial-scale=1.0;" />  
+  <meta name="viewport" content="width=device-width; initial-scale=1.0;" />
   <title>{{ server_name }} registration</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 </head>
 
 <body class="blur">
-    <div class="widget">
-      <div class="center">    
+  <article class="widget">
+    <div class="center">
+      <header>
         <h1>{{ server_name }} registration</h1>
         <p>the registration requires a secret token<br>
-           registration does not require an email, just a username and a password that's longer than {{ pw_length }} characters.</p>
+          registration does not require an email, just a username and a password that's longer than {{ pw_length }}
+          characters.</p>
+      </header>
+      <section>
         <form action="/register" method="post">
           <div class="group">
-            <input id="username" name="username" type="text" placeholder=" "
-            required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$"
-            required minlength="1" maxlength="200">
+            <input id="username" name="username" type="text" placeholder=" " required
+              pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" required minlength="1"
+              maxlength="200">
             <span class="highlight"></span>
             <span class="bar"></span>
             <label for="username">Username</label>
           </div>
           <div class="group">
-            <input id="password" name="password" type="password" placeholder=" "
-            required minlength="{{ pw_length }}" maxlength="128">
+            <input id="password" name="password" type="password" placeholder=" " required minlength="{{ pw_length }}"
+              maxlength="128">
             <span class="highlight"></span>
             <span class="bar"></span>
             <label for="password">Password</label>
           </div>
           <div class="group">
-            <input id="confirm_password" name="confirm" type="password" placeholder=" "
-            required>
+            <input id="confirm_password" name="confirm" type="password" placeholder=" " required>
             <span class="highlight"></span>
             <span class="bar"></span>
             <label for="confirm_password">Confirm</label>
           </div>
           <div class="group">
-            <input id="token" name="token" type="text" placeholder=" "
-            required pattern="^([A-Z][a-z]+)+$">
+            <input id="token" name="token" type="text" placeholder=" " required pattern="^([A-Z][a-z]+)+$">
             <span class="highlight"></span>
             <span class="bar"></span>
             <label for="token">Token</label>
@@ -48,14 +51,16 @@
             <input class="btn btn-submit" type="submit" value="register">
           </div>
         </form>
-      </div>
+      </section>
     </div>
-    <div class="info">
-      <p>Cover photo by: <a href="https://www.flickr.com/golan" target="_blank">Jesús Roncero</a>,<br>
-        used under the terms of <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC-BY-SA 4.0</a>. No warranties are given.
-      </p>
-    </div>
-  
+  </article>
+  <footer class="info">
+    <p>Cover photo by: <a href="https://www.flickr.com/golan" target="_blank">Jesús Roncero</a>,<br>
+      used under the terms of <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC-BY-SA
+        4.0</a>. No warranties are given.
+    </p>
+  </footer>
+
   <script>
     // all javascript here is optional, the registration form works fine without
     /* 
@@ -63,17 +68,17 @@
       - confirm password validator needs javascript, otherwise always valid as long as not empty
       - set token with ?token query parameter
       - set custom validity messages
-    */ 
+    */
 
     // see https://stackoverflow.com/a/901144/3779427
     function getParameterByName(name, url) {
-        if (!url) url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, "\\$&");
+      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
     // set token input to "?token=" query parameter
@@ -109,8 +114,8 @@
       }
     });
 
-    function validatePassword(){
-      if(password.value != confirm_password.value) {
+    function validatePassword() {
+      if (password.value != confirm_password.value) {
         confirm_password.setCustomValidity("passwords don't match");
       } else {
         confirm_password.setCustomValidity("");
@@ -121,4 +126,5 @@
     confirm_password.onkeyup = validatePassword;
   </script>
 </body>
+
 </html>
