@@ -68,7 +68,6 @@ class Config:
         # recusively set dictionary to class properties
         for k, v in dictionary.items():
             setattr(self, k, v)
-        self.set_location()
         logger.debug('config set!')
         # self.x = namedtuple('config',
         #                     dictionary.keys())(*dictionary.values())
@@ -90,13 +89,11 @@ class Config:
             if not dictionary[key].strip():
                 dictionary[key] = temp
         # write to config file
-        self.set_location()
-        with open(self.CONFIG_PATH + CONFIG_NAME, 'w') as stream:
+        new_config_path = self.CONFIG_PATH + CONFIG_NAME
+        relative_path = os.path.relpath(self.CONFIG_PATH + CONFIG_NAME)
+        with open(new_config_path, 'w') as stream:
             yaml.dump(dictionary, stream, default_flow_style=False)
-            print("config file written to '%s'" % self.location)
-
-    def set_location(self):
-        self.location = os.path.relpath(self.CONFIG_PATH + CONFIG_NAME)
+            print("config file written to '%s'" % relative_path)
 
 
 config = None

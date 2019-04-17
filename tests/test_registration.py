@@ -90,6 +90,7 @@ usernames = []
 nonces = []
 logging.config.dictConfig(LOGGING)
 
+
 def mock_new_user(username):
     access_token = ''.join(random.choices(string.ascii_lowercase +
                                           string.digits, k=256))
@@ -113,6 +114,7 @@ def mocked__get_nonce(server_location):
                                    string.digits, k=129))
     nonces.append(nonce)
     return nonce
+
 
 def mocked_requests_post(*args, **kwargs):
     class MockResponse:
@@ -449,11 +451,9 @@ class ConfigTest(unittest.TestCase):
                          BAD_CONFIG1['server_location'])
 
     def test_config_path(self):
-        BAD_CONFIG1_path = "x"
+        # BAD_CONFIG1_path = "x"
         good_config_path = "tests/test_config.yaml"
-        with self.assertRaises(SystemExit) as cm:
-            matrix_registration.config.config = Config(BAD_CONFIG1_path)
-
+        
         with open(good_config_path, 'w') as outfile:
             yaml.dump(GOOD_CONFIG, outfile, default_flow_style=False)
 
