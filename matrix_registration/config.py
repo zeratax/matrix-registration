@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 class Config:
     def __init__(self, data):
         self.data = data
-        self.options = None
         self.CONFIG_PATH = None
+        self.location = None
         self.load()
 
     def load(self):
@@ -68,6 +68,7 @@ class Config:
         # recusively set dictionary to class properties
         for k, v in dictionary.items():
             setattr(self, k, v)
+        self.set_location()
         logger.debug('config set!')
         # self.x = namedtuple('config',
         #                     dictionary.keys())(*dictionary.values())
@@ -75,7 +76,8 @@ class Config:
     def update(self, data):
         logger.debug('updating config...')
         self.data = data
-        self.options = None
+        self.CONFIG_PATH = None
+        self.location = None
         self.load()
         logger.debug('config updated!')
 
@@ -88,11 +90,13 @@ class Config:
             if not dictionary[key].strip():
                 dictionary[key] = temp
         # write to config file
-        new_config_path = self.CONFIG_PATH + 'config.yaml'
-        relative_path = os.path.relpath(new_config_path)
-        with open(new_config_path, 'w') as stream:
+        self.set_location()
+        with open(self.CONFIG_PATH + CONFIG_NAME, 'w') as stream:
             yaml.dump(dictionary, stream, default_flow_style=False)
-            print("config file written to '%s'" % relative_path)
+            print("config file written to '%s'" % self.location)
+
+    def set_location(self):
+        self.location = os.path.relpath(self.CONFIG_PATH + CONFIG_NAME)
 
 
 config = None
