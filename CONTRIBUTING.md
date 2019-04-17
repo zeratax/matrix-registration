@@ -1,9 +1,14 @@
 # CONTRIBUTING
 ## Code of Conduct
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 ## How Can I Contribute?
 ### Issues
+Filling issues is a great and easy way to help find bugs and get new features implemented.
 #### Bugs
+If you're reporting a security issue, please email me at security@zera.tax, otherwise
+if you're reporting a bug, please fill out this [form](https://github.com/ZerataX/matrix-registration/issues/new?labels=bug&template=bug_report.md).
 #### Feature Requests
+If you have an idea for a new feature or an enhancement, please fill out this [form](https://github.com/ZerataX/matrix-registration/issues/new?labels=enhancement&template=feature_request.md).
 
 ### Pull Requests
 
