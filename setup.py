@@ -3,8 +3,6 @@ import codecs
 import os
 import re
 import setuptools
-import sys
-import glob
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -51,7 +49,8 @@ setuptools.setup(
         "WTForms>=2.2.1"
     ],
     tests_require=[
-        "parameterized==0.7.0"
+        "parameterized==0.7.0",
+        "flake8==3.7.7"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

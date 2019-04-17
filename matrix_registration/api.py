@@ -1,11 +1,7 @@
 # Standard library imports...
-import hashlib
-import hmac
 import logging
-import yaml
 from requests import exceptions
 import re
-import sys
 from urllib.parse import urlparse
 
 # Third-party imports...
@@ -20,7 +16,6 @@ from flask import (
 from flask_httpauth import HTTPTokenAuth
 from wtforms import (
     Form,
-    BooleanField,
     StringField,
     PasswordField,
     validators
@@ -167,7 +162,7 @@ def register():
                                               form.password.data,
                                               config.config.server_location,
                                               config.config.shared_secret)
-            except exceptions.ConnectionError as e:
+            except exceptions.ConnectionError:
                 logger.error('can not connect to %s' % config.config.server_location,
                              exc_info=True)
                 abort(500)
