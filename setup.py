@@ -34,7 +34,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/zeratax/matrix-registration",
     packages=['matrix_registration'],
-    package_data={'matrix_registration': ['*.txt']},
+    package_data={'matrix_registration': ['*.txt', '*.html', '*.css', '*.jpg']},
     include_package_data=True,
     python_requires='~=3.6',
 
