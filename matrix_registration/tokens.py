@@ -1,8 +1,6 @@
 # Standard library imports...
-import ast
 from datetime import datetime
 import logging
-import os
 import random
 import sqlite3
 

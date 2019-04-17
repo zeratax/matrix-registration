@@ -19,6 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 class Config:
+    """
+    Config
+
+    loads a dict or a yaml file to be accessible by all files in the module
+    """
     def __init__(self, data):
         self.data = data
         self.CONFIG_PATH = None
@@ -26,6 +31,9 @@ class Config:
         self.load()
 
     def load(self):
+        """
+        loads the dict/the yaml file and recusively set dictionary to class propertiess
+        """
         logger.debug('loading config...')
         dictionary = None
         config_exists = True
@@ -35,29 +43,30 @@ class Config:
         else:
             logger.debug('from file...')
             # check work dir and all other pip install locations for config
-            if os.path.isfile(self.data):
-                self.CONFIG_PATH = ""
-            elif os.path.isfile(CONFIG_PATH1 + CONFIG_NAME):
-                self.CONFIG_PATH = CONFIG_PATH1
-            elif os.path.isfile(CONFIG_PATH2 + CONFIG_NAME):
-                self.CONFIG_PATH = CONFIG_PATH2
-            elif os.path.isfile(CONFIG_PATH3 + CONFIG_NAME):
-                self.CONFIG_PATH = CONFIG_PATH3
-            else:
-                config_exists = False
-            if not config_exists:
-                # get config from config sample
-                if os.path.isfile(CONFIG_PATH1 + CONFIG_SAMPLE_NAME):
+            if not os.path.isfile(self.data):
+                # provided file not found checking typical installation dirs
+                if os.path.isfile(CONFIG_PATH1 + CONFIG_NAME):
                     self.CONFIG_PATH = CONFIG_PATH1
-                elif os.path.isfile(CONFIG_PATH2 + CONFIG_SAMPLE_NAME):
+                elif os.path.isfile(CONFIG_PATH2 + CONFIG_NAME):
                     self.CONFIG_PATH = CONFIG_PATH2
-                elif os.path.isfile(CONFIG_PATH3 + CONFIG_SAMPLE_NAME):
+                elif os.path.isfile(CONFIG_PATH3 + CONFIG_NAME):
                     self.CONFIG_PATH = CONFIG_PATH3
                 else:
-                    sys.exit("could not find any configuration file!")
-                self.data = self.CONFIG_PATH + CONFIG_SAMPLE_NAME
-            else:
-                self.data = self.CONFIG_PATH + CONFIG_NAME
+                    config_exists = False
+                if not config_exists:
+                    # no config exists, use sample config instead
+                    # check typical installation dirs for sample configs
+                    if os.path.isfile(CONFIG_PATH1 + CONFIG_SAMPLE_NAME):
+                        self.CONFIG_PATH = CONFIG_PATH1
+                    elif os.path.isfile(CONFIG_PATH2 + CONFIG_SAMPLE_NAME):
+                        self.CONFIG_PATH = CONFIG_PATH2
+                    elif os.path.isfile(CONFIG_PATH3 + CONFIG_SAMPLE_NAME):
+                        self.CONFIG_PATH = CONFIG_PATH3
+                    else:
+                        sys.exit("could not find any configuration file!")
+                    self.data = os.path.join(self.CONFIG_PATH, CONFIG_SAMPLE_NAME)
+                else:
+                    self.data = os.path.join(self.CONFIG_PATH, CONFIG_NAME)
             try:
                 with open(self.data, 'r') as stream:
                     dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
@@ -75,6 +84,13 @@ class Config:
         #                     dictionary.keys())(*dictionary.values())
 
     def update(self, data):
+        """
+        resets all options and loads the new config
+
+        Parameters
+        ----------
+        arg1 : dict or path to config file
+        """
         logger.debug('updating config...')
         self.data = data
         self.CONFIG_PATH = None
@@ -83,6 +99,14 @@ class Config:
         logger.debug('config updated!')
 
     def read_config(self, dictionary):
+        """
+        asks the user how to set the essential options
+        
+        Parameters
+        ----------
+        arg1 : dict
+            with sample values
+        """
         # important keys that need to be changed
         keys = ['server_location', 'server_name', 'shared_secret', 'port']
         for key in keys:
