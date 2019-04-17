@@ -3,6 +3,8 @@
 *.conf
 !config.sample.yaml
 !tests/test_config.yaml
+# vscode
+.vscode/
 # nose
 man/
 # Byte-compiled / optimized / DLL files

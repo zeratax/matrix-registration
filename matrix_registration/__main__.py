@@ -30,7 +30,7 @@ def run_api(args):
         default_limits=config.config.rate_limit
     )
     if config.config.allow_cors:
-      CORS(app)
+        CORS(app)
     app.run(host='0.0.0.0', port=config.config.port)
 
 

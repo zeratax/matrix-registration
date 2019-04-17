@@ -9,9 +9,22 @@ import sys
 from urllib.parse import urlparse
 
 # Third-party imports...
-from flask import Flask, abort, jsonify, request, make_response, render_template
+from flask import (
+    Flask,
+    abort,
+    jsonify,
+    request,
+    make_response,
+    render_template
+)
 from flask_httpauth import HTTPTokenAuth
-from wtforms import Form, BooleanField, StringField, PasswordField, validators
+from wtforms import (
+    Form,
+    BooleanField,
+    StringField,
+    PasswordField,
+    validators
+)
 
 # Local imports...
 from .matrix_api import create_account
@@ -65,6 +78,10 @@ def validate_username(form, username):
         Username doesn't follow mxid requirements
     """
     domain = urlparse(config.config.server_location).hostname
+    if not domain:
+        logger.error("server_location '%s' does not match the RFC 1808" %
+                     config.config.server_location)
+        abort(500)
     re_mxid = r'^@?[a-zA-Z_\-=\.\/0-9]+(:' + \
               re.escape(domain) + \
               r')?$'
@@ -147,36 +164,38 @@ def register():
             # send account creation request to the hs
             try:
                 account_data = create_account(form.username.data,
-                                            form.password.data,
-                                            config.config.server_location,
-                                            config.config.shared_secret)
+                                              form.password.data,
+                                              config.config.server_location,
+                                              config.config.shared_secret)
             except exceptions.ConnectionError as e:
-                logger.error('can not connect to server_location',
-                            exc_info=True)
+                logger.error('can not connect to %s' % config.config.server_location,
+                             exc_info=True)
                 abort(500)
             except exceptions.HTTPError as e:
                 resp = e.response
                 error = resp.json()
                 status_code = resp.status_code
                 if status_code == 404:
-                    logger.error('no HS found at server_location')
+                    logger.error('no HS found at %s' %
+                                 config.config.server_location)
                 elif status_code == 403:
-                    logger.error('wrong registration secret')
+                    logger.error(
+                        'wrong shared registration secret or not enabled')
                 elif status_code == 400:
                     # most likely this should only be triggered if a userid
                     # is already in use
                     return make_response(jsonify(error), 400)
                 else:
                     logger.error('failure communicating with HS',
-                                exc_info=True)
+                                 exc_info=True)
                 abort(500)
             logger.debug('account creation succeded!')
             tokens.tokens.use(form.token.data)
             return jsonify(access_token=account_data['access_token'],
-                        home_server=account_data['home_server'],
-                        user_id=account_data['user_id'],
-                        status='success',
-                        status_code=200)
+                           home_server=account_data['home_server'],
+                           user_id=account_data['user_id'],
+                           status='success',
+                           status_code=200)
         else:
             logger.debug('account creation failed!')
             resp = {'errcode': 'MR_BAD_USER_REQUEST',
@@ -186,7 +205,7 @@ def register():
             #     for err in errorMessages:
             #         # return error to user
     else:
-        server_name =  config.config.server_name
+        server_name = config.config.server_name
         pw_length = config.config.password['min_length']
         return render_template('register.html',
                                server_name=server_name,
