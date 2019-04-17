@@ -320,7 +320,6 @@ class TokensTest(unittest.TestCase):
             mock_date.now.return_value = parser.parse('2200-01-12')
             self.assertEqual(test_tokens.valid(test_token.name), valid)
 
-
     def test_token_repr(self):
         test_tokens = matrix_registration.tokens.Tokens()
 
@@ -341,8 +340,9 @@ class TokensTest(unittest.TestCase):
                            "name: 'MadamBernardTaxi', used: '0', one_time: 'False', expiration_date: '2200-02-01 00:00:00', valid: 'True',\n"
                            "name: 'MysticBridgeEducate', used: '0', one_time: 'False', expiration_date: '2200-01-28 00:00:00', valid: 'True',\n"
                            "name: 'ArmaniFlowerWater', used: '5', one_time: 'False', expiration_date: 'None', valid: 'True'")
-        
+
         self.assertEqual(str(test_tokens), expected_answer)
+
 
 class ApiTest(unittest.TestCase):
     def setUp(self):
@@ -400,7 +400,7 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(rv.status_code, status)
 
     @patch('matrix_registration.matrix_api._get_nonce',
-       side_effect=mocked__get_nonce)
+           side_effect=mocked__get_nonce)
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
     def test_register_wrong_hs(self, mock_get, mock_nonce):
@@ -453,7 +453,7 @@ class ConfigTest(unittest.TestCase):
     def test_config_path(self):
         # BAD_CONFIG1_path = "x"
         good_config_path = "tests/test_config.yaml"
-        
+
         with open(good_config_path, 'w') as outfile:
             yaml.dump(GOOD_CONFIG, outfile, default_flow_style=False)
 
