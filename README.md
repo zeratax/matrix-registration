@@ -16,16 +16,15 @@ pip3 install matrix_registration
 Then download the [config.sample.yaml](config.sample.yaml) and save a modified version to `config.yaml` in the folder that you want to execute matrix-registration.
 
 ### nginx reverse-proxy
-an example nginx setup to expose the html form and the api endpoint on the same URL, based on whether a POST or GET request was made.
+an example nginx setup:
 ```nginx
-location /register {
-    alias resources/example.html;
-
-    if ($request_method = POST ) {
+location  ~ ^/(static|register) {
         proxy_pass http://localhost:5000;
-    }
 }
 ```
+
+If you already have a website and want to use your own register page, the [wiki](https://github.com/ZerataX/matrix-registration/wiki/reverse-proxy#advanced) describes a more advanced nginx setup.
+
 
 ## usage
 ```bash

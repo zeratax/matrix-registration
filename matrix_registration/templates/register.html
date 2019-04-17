@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width; initial-scale=1.0;" />
+  <meta property="og:title" content="{{ server_name }} registration">
+  <meta property="og:site_name" content="{{ server_name }}">
+  <meta property="og:type" content="website" />
+  <meta name="og:description" content="registrate an account on {{ server_name }}" />
+  <meta name="og:image" content="{{ url_for('static', filename='images/icon.png') }}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/icon.png') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon32x32.png') }}" sizes="32x32">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+  <meta name="msapplication-TileImage" content="{{ url_for('static', filename='images/tile.png') }}">
+  <meta name="msapplication-TileColor" content="#fff">
+  <title>{{ server_name }} registration</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+</head>
+
+<body class="blur">
+  <article class="widget register">
+    <div class="center">
+      <header>
+        <h1>{{ server_name }} registration</h1>
+        <p>the registration requires a secret token<br>
+          registration does not require an email, just a username and a password that's longer than {{ pw_length }}
+          characters.</p>
+      </header>
+      <section>
+        <form id="registration" action="/register" method="post">
+          <div class="group">
+            <input id="username" name="username" type="text" placeholder=" " required
+              pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" required minlength="1"
+              maxlength="200">
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label for="username">Username</label>
+          </div>
+          <div class="group">
+            <input id="password" name="password" type="password" placeholder=" " required minlength="{{ pw_length }}"
+              maxlength="128">
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label for="password">Password</label>
+          </div>
+          <div class="group">
+            <input id="confirm_password" name="confirm" type="password" placeholder=" " required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label for="confirm_password">Confirm</label>
+          </div>
+          <div class="group">
+            <input id="token" name="token" type="text" placeholder=" " required pattern="^([A-Z][a-z]+)+$">
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label for="token">Token</label>
+          </div>
+          <div class="btn-box">
+            <input class="btn btn-submit" type="submit" value="register">
+          </div>
+        </form>
+      </section>
+    </div>
+  </article>
+  <article id="success" class="widget modal hidden">
+    <div class="center">
+      <header>
+        <h2 id="welcome"></h2>
+      </header>
+      <section>
+        <p>Click here to login in:</p>
+        <h3><a href="{{ riot_instance }}"><img src="static/images/riot.png" height="50px"></a></h3>
+        <p>or choose one of the many other clients here: <a href="https://matrix.org/docs/projects/clients-matrix"
+            a>https://matrix.org/docs/projects/clients-matrix</a></p>
+      </section>
+    </div>
+  </article>
+  <article id="error" class="widget modal hidden">
+    <div class="center">
+      <header>
+        <h2>Error</h2>
+      </header>
+      <section>
+        <p>There was an error while trying to register you.</p>
+        <h3 id="error_message" class="error"></h3>
+        <p id="error_dialog"></p>
+      </section>
+    </div>
+  </article>
+  <footer class="info">
+    <p>Cover photo by: <a href="https://www.flickr.com/golan" target="_blank">Jesús Roncero</a>,<br>
+      used under the terms of <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC-BY-SA
+        4.0</a>. No warranties are given.
+    </p>
+  </footer>
+
+  <script>
+    // all javascript here is optional, the registration form works fine without
+    /* 
+    What this script does:
+      - confirm password validator needs javascript, otherwise always valid as long as not empty
+      - set token with ?token query parameter
+      - set custom validity messages
+    */
+
+    // see https://stackoverflow.com/a/3028037
+    function hideOnClickOutside(element) {
+      const outsideClickListener = event => {
+        if (!element.contains(event.target) && isVisible(
+            element)) {
+          element.classList.add("hidden");
+          removeClickListener()
+        }
+      }
+
+      const removeClickListener = () => {
+        document.removeEventListener("click", outsideClickListener)
+      }
+      document.addEventListener("click", outsideClickListener)
+    }
+
+    const isVisible = elem => !!elem && !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
+
+    // set token input to "?token=" query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    document.getElementById("token").value = urlParams.get("token");
+
+    // html5 validators
+    var username = document.getElementById("username");
+    var password = document.getElementById("password");
+    var confirm_password = document.getElementById("confirm_password");
+    var token = document.getElementById("token");
+
+    username.addEventListener("input", function (event) {
+      if (username.validity.typeMismatch) {
+        username.setCustomValidity("format: @username:{{ server_name }}");
+      } else {
+        username.setCustomValidity("");
+      }
+    });
+
+    token.addEventListener("input", function (event) {
+      if (token.validity.typeMismatch) {
+        token.setCustomValidity("case-sensitive, e.g: SardineImpactReport");
+      } else {
+        token.setCustomValidity("");
+      }
+    });
+
+    password.addEventListener("input", function (event) {
+      if (password.validity.typeMismatch) {
+        password.setCustomValidity("atleast {{ pw_length }} characters long");
+      } else {
+        password.setCustomValidity("");
+      }
+    });
+
+    function validatePassword() {
+      if (password.value != confirm_password.value) {
+        confirm_password.setCustomValidity("passwords don't match");
+      } else {
+        confirm_password.setCustomValidity("");
+      }
+    }
+
+    password.onchange = validatePassword;
+    confirm_password.onkeyup = validatePassword;
+
+    function showError(message, dialog) {
+      document.getElementById("error_message").innerHTML = message;
+      document.getElementById("error_dialog").innerHTML = dialog;
+      let error = document.getElementById("error");
+      error.classList.remove("hidden");
+      hideOnClickOutside(error);
+    }
+
+    // hijack the submit button to display the json response in a neat modal
+    var form = document.getElementById("registration");
+
+    function sendData() {
+      let XHR = new XMLHttpRequest();
+
+      // Bind the FormData object and the form element
+      let FD = new FormData(form);
+
+      // Define what happens on successful data submission
+      XHR.addEventListener("load", function (event) {
+        console.log(XHR.responseText);
+        let response = JSON.parse(XHR.responseText);
+        try {
+          console.log(response);
+        } catch (e) {
+          if (e instanceof SyntaxError) {
+            showError("Internal Server Error!", "Please contact the server admin about this.");
+            return;
+          }
+        }
+        if ("errcode" in response) {
+          if (response["errcode"] == "MR_BAD_USER_REQUEST") {
+            if ("token" in response["error"]) {
+              showError("Token Error", response["error"]["token"][0]);
+            } else if ("password" in response["error"]) {
+              showError("Password Error", response["error"]["password"][0]);
+            } else if ("username" in response["error"]) {
+              showError("Username Error", response["error"]["username"][0]);
+            }
+            return;
+          } else {
+            showError("Homeserver Error", response["error"]);
+          }
+        } else {
+          document.getElementById("welcome").innerHTML = "Welcome " + response['user_id'];
+          document.getElementById("success").classList.remove("hidden");
+        }
+
+      });
+
+      // Define what happens in case of error
+      XHR.addEventListener("error", function (event) {
+        showError("Internal Server Error!", "Please contact the server admin about this.");
+      });
+
+      // Set up our request
+      XHR.open("POST", "/register");
+
+      // The data sent is what the user provided in the form
+      XHR.send(FD);
+    }
+
+    // take over its submit event.
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      sendData();
+    });
+  </script>
+</body>
+
+</html>

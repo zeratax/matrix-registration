@@ -42,6 +42,7 @@ def create_account(user, password, server_location, shared_secret,
     r.raise_for_status()
     return r.json()
 
+
 def _get_nonce(server_location):
     r = requests.get('%s/_matrix/client/r0/admin/register' % (server_location))
     r.raise_for_status()

@@ -3,11 +3,9 @@ import codecs
 import os
 import re
 import setuptools
-import sys
-import glob
-
 
 here = os.path.abspath(os.path.dirname(__file__))
+
 
 def read(*parts):
     with codecs.open(os.path.join(here, *parts), 'r') as fp:
@@ -23,7 +21,6 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
-
 setuptools.setup(
     name='matrix-registration',
     version=find_version("matrix_registration", "__init__.py"),
@@ -34,7 +31,12 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/zeratax/matrix-registration",
     packages=['matrix_registration'],
-    package_data={'matrix_registration': ['*.txt']},
+    package_data={'matrix_registration': ['*.txt',
+                                          'templates/*.html',
+                                          'static/css/*.css',
+                                          'static/images/*.jpg',
+                                          'static/images/*.png',
+                                          'static/images/*.ico']},
     include_package_data=True,
     python_requires='~=3.6',
 
@@ -49,7 +51,8 @@ setuptools.setup(
         "WTForms>=2.2.1"
     ],
     tests_require=[
-        "parameterized==0.7.0"
+        "parameterized==0.7.0",
+        "flake8==3.7.7"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
