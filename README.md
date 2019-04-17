@@ -67,7 +67,7 @@ curl -X POST \
      -F 'token=DoubleWizardSki' \
      http://localhost:5000/register
 ```
-or by visiting http://localhost:5000/register
+or by visiting http://localhost:5000/register?token=DoubleWizardSki
 
 
 ## resources
