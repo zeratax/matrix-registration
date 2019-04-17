@@ -13,7 +13,8 @@ from .constants import (
     CONFIG_PATH2,
     CONFIG_PATH3
 )
-CONFIG_NAME = "config.sample.yaml"
+CONFIG_SAMPLE_NAME = "config.sample.yaml"
+CONFIG_NAME = 'config.yaml'
 logger = logging.getLogger(__name__)
 
 
@@ -33,21 +34,28 @@ class Config:
             dictionary = self.data
         else:
             logger.debug('from file...')
-            if not os.path.isfile(self.data):
+            # check work dir and all other pip install locations for config
+            if os.path.isfile(self.data):
+                self.CONFIG_PATH = ""
+            elif os.path.isfile(CONFIG_PATH1 + CONFIG_NAME):
+                self.CONFIG_PATH = CONFIG_PATH1
+            elif os.path.isfile(CONFIG_PATH2 + CONFIG_NAME):
+                self.CONFIG_PATH = CONFIG_PATH2
+            elif os.path.isfile(CONFIG_PATH3 + CONFIG_NAME):
+                self.CONFIG_PATH = CONFIG_PATH3
+            else:
                 config_exists = False
-
-                if os.path.isfile(CONFIG_PATH1 + CONFIG_NAME):
-                    print(CONFIG_PATH1 + CONFIG_NAME)
+            if not config_exists:
+                # get config from config sample
+                if os.path.isfile(CONFIG_PATH1 + CONFIG_SAMPLE_NAME):
                     self.CONFIG_PATH = CONFIG_PATH1
-                elif os.path.isfile(CONFIG_PATH2 + CONFIG_NAME):
-                    print(CONFIG_PATH2 + CONFIG_NAME)
+                elif os.path.isfile(CONFIG_PATH2 + CONFIG_SAMPLE_NAME):
                     self.CONFIG_PATH = CONFIG_PATH2
-                elif os.path.isfile(CONFIG_PATH3 + CONFIG_NAME):
-                    print(CONFIG_PATH3 + CONFIG_NAME)
+                elif os.path.isfile(CONFIG_PATH3 + CONFIG_SAMPLE_NAME):
                     self.CONFIG_PATH = CONFIG_PATH3
                 else:
                     sys.exit("could not find any configuration file!")
-                self.data = self.CONFIG_PATH + CONFIG_NAME
+            self.data = self.CONFIG_PATH + CONFIG_SAMPLE_NAME
             try:
                 with open(self.data, 'r') as stream:
                     dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
@@ -79,6 +87,7 @@ class Config:
             dictionary[key] = input("enter {}, e.g. {}\n".format(key, temp))
             if not dictionary[key].strip():
                 dictionary[key] = temp
+        # write to config file
         new_config_path = self.CONFIG_PATH + 'config.yaml'
         relative_path = os.path.relpath(new_config_path)
         with open(new_config_path, 'w') as stream:
