@@ -55,7 +55,9 @@ class Config:
                     self.CONFIG_PATH = CONFIG_PATH3
                 else:
                     sys.exit("could not find any configuration file!")
-            self.data = self.CONFIG_PATH + CONFIG_SAMPLE_NAME
+                self.data = self.CONFIG_PATH + CONFIG_SAMPLE_NAME
+            else:
+                self.data = self.CONFIG_PATH + CONFIG_NAME
             try:
                 with open(self.data, 'r') as stream:
                     dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
