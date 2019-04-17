@@ -34,7 +34,9 @@ setuptools.setup(
     package_data={'matrix_registration': ['*.txt',
                                           'templates/*.html',
                                           'static/css/*.css',
-                                          'static/images/*.jpg']},
+                                          'static/images/*.jpg'
+                                          'static/images/*.png'
+                                          'static/images/*.ico']},
     include_package_data=True,
     python_requires='~=3.6',
 
