@@ -66,5 +66,8 @@ setuptools.setup(
         [console_scripts]
         matrix_registration=matrix_registration.__main__:main
     """,
-    test_suite="tests.test_registration"
+    test_suite="tests.test_registration",
+    data_files=[
+        ("config", ["config.sample.yaml"]),
+    ]
 )

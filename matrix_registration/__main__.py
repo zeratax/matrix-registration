@@ -50,6 +50,10 @@ def status_token(args):
         print(tokens.tokens)
 
 
+def config_location(args):
+    print(config.config.location)
+
+
 parser = argparse.ArgumentParser(
     description='a token based matrix registration app',
     prog='python -m matrix_registration')
@@ -84,6 +88,10 @@ parser_s.add_argument('-l', '--list', action='store_true',
 parser_s.add_argument('-d', '--disable', type=str, default=None,
                       help='disable token')
 parser_s.set_defaults(func=status_token)
+
+# config-parser
+parser_c = subparsers.add_parser('config', help='show config location')
+parser_c.set_defaults(func=config_location)
 
 args = parser.parse_args()
 logger.debug('called with args: %s' % args)
