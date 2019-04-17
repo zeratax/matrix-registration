@@ -8,8 +8,12 @@ import sys
 import yaml
 
 # Local imports...
-from .constants import CONFIG_SAMPLE_PATH
-
+from .constants import (
+    CONFIG_PATH1,
+    CONFIG_PATH2,
+    CONFIG_PATH3
+)
+CONFIG_NAME = "config.sample.yaml"
 logger = logging.getLogger(__name__)
 
 
@@ -17,6 +21,7 @@ class Config:
     def __init__(self, data):
         self.data = data
         self.options = None
+        self.CONFIG_PATH = None
         self.load()
 
     def load(self):
@@ -30,7 +35,19 @@ class Config:
             logger.debug('from file...')
             if not os.path.isfile(self.data):
                 config_exists = False
-                self.data = CONFIG_SAMPLE_PATH
+
+                if os.path.isfile(CONFIG_PATH1 + CONFIG_NAME):
+                    print(CONFIG_PATH1 + CONFIG_NAME)
+                    self.CONFIG_PATH = CONFIG_PATH1
+                elif os.path.isfile(CONFIG_PATH2 + CONFIG_NAME):
+                    print(CONFIG_PATH2 + CONFIG_NAME)
+                    self.CONFIG_PATH = CONFIG_PATH2
+                elif os.path.isfile(CONFIG_PATH3 + CONFIG_NAME):
+                    print(CONFIG_PATH3 + CONFIG_NAME)
+                    self.CONFIG_PATH = CONFIG_PATH3
+                else:
+                    sys.exit("could not find any configuration file!")
+                self.data = self.CONFIG_PATH + CONFIG_NAME
             try:
                 with open(self.data, 'r') as stream:
                     dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
@@ -62,9 +79,11 @@ class Config:
             dictionary[key] = input("enter {}, e.g. {}\n".format(key, temp))
             if not dictionary[key].strip():
                 dictionary[key] = temp
-        with open('config.yaml', 'w') as stream:
+        new_config_path = self.CONFIG_PATH + 'config.yaml'
+        relative_path = os.path.relpath(new_config_path)
+        with open(new_config_path, 'w') as stream:
             yaml.dump(dictionary, stream, default_flow_style=False)
-
+            print("config file written to '%s'" % relative_path)
 
 
 config = None
