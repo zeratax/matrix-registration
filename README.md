@@ -16,9 +16,9 @@ pip3 install matrix_registration
 Then download the [config.sample.yaml](config.sample.yaml) and save a modified version to `config.yaml` in the folder that you want to execute matrix-registration.
 
 ### nginx reverse-proxy
-an example nginx setup to expose the html form and the api endpoint on the same URL, based on whether a POST or GET request was made.
+an example nginx setup:
 ```nginx
-location / {
+location  ~ ^/(static|register) {
         proxy_pass http://localhost:5000;
 }
 ```

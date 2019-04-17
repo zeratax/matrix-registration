@@ -204,7 +204,8 @@ def register():
         pw_length = config.config.password['min_length']
         return render_template('register.html',
                                server_name=server_name,
-                               pw_length=pw_length)
+                               pw_length=pw_length,
+                               riot_instance=config.config.riot_instance)
 
 
 # TODO: - ADJUST RETURN STATEMENTS

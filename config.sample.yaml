@@ -1,11 +1,13 @@
 server_location: 'https://matrix.org'
 server_name: 'matrix.org'
 shared_secret: 'RegistrationSharedSecret'
+riot_instance: 'https://riot.im/app/'
 db: 'db.sqlite3'
 port: 5000
 rate_limit: ["100 per day", "10 per minute"]
 allow_cors: false
 logging:
+  disable_existing_loggers: False
   version: 1
   root:
     level: DEBUG
