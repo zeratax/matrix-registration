@@ -320,6 +320,16 @@ class TokensTest(unittest.TestCase):
             mock_date.now.return_value = parser.parse('2200-01-12')
             self.assertEqual(test_tokens.valid(test_token.name), valid)
 
+    @parameterized.expand([
+        ['DoubleWizardSky'],
+        ['null'],
+        ['false'],
+    ])
+    def test_tokens_repr(self, name):
+        test_token1 = matrix_registration.tokens.Token(name=name)
+
+        self.assertEqual(str(test_token1), name)
+
     def test_token_repr(self):
         test_tokens = matrix_registration.tokens.Tokens()
 
@@ -329,17 +339,11 @@ class TokensTest(unittest.TestCase):
         test_token4 = test_tokens.new()
         test_token5 = test_tokens.new()
 
-        test_tokens.tokens[test_token1.name] = matrix_registration.tokens.Token('CamillaTopicFlame')
-        test_tokens.tokens[test_token2.name] = matrix_registration.tokens.Token('MasterKermitMorning', one_time=True)
-        test_tokens.tokens[test_token3.name] = matrix_registration.tokens.Token('MadamBernardTaxi', ex_date='02.01.2200')
-        test_tokens.tokens[test_token4.name] = matrix_registration.tokens.Token('MysticBridgeEducate', ex_date='28.01.2200')
-        test_tokens.tokens[test_token5.name] = matrix_registration.tokens.Token('ArmaniFlowerWater', used=5)
-
-        expected_answer = ("name: 'CamillaTopicFlame', used: '0', one_time: 'False', expiration_date: 'None', valid: 'True',\n"
-                           "name: 'MasterKermitMorning', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True',\n"
-                           "name: 'MadamBernardTaxi', used: '0', one_time: 'False', expiration_date: '2200-02-01 00:00:00', valid: 'True',\n"
-                           "name: 'MysticBridgeEducate', used: '0', one_time: 'False', expiration_date: '2200-01-28 00:00:00', valid: 'True',\n"
-                           "name: 'ArmaniFlowerWater', used: '5', one_time: 'False', expiration_date: 'None', valid: 'True'")
+        expected_answer = ('%s, ' % test_token1.name +
+                           '%s, ' % test_token2.name +
+                           '%s, ' % test_token3.name +
+                           '%s, ' % test_token4.name +
+                           '%s' % test_token5.name)
 
         self.assertEqual(str(test_tokens), expected_answer)
 
@@ -434,6 +438,220 @@ class ApiTest(unittest.TestCase):
             token=test_token.name
         ))
         self.assertEqual(rv.status_code, 500)
+
+    def test_get_tokens(self):
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(ex_date=None,
+                                                           one_time=True)
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.get('/token',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 200)
+        token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
+
+        self.assertEqual(token_data[0]['ex_date'], None)
+        self.assertEqual(token_data[0]['one_time'], True)
+
+    def test_error_get_tokens(self):
+        matrix_registration.config.config = Config(BAD_CONFIG2)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(ex_date=None,
+                                                           one_time=True)
+
+        secret = matrix_registration.config.config.shared_secret
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.get('/token',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 401)
+        token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
+
+        self.assertEqual(token_data['errcode'], 'MR_BAD_SECRET')
+        self.assertEqual(token_data['error'], 'wrong shared secret')
+
+    @parameterized.expand([
+        [None, True, None],
+        ['24.12.2020', False, 'Thu, 24 Dec 2020 00:00:00 GMT'],
+        ['05.12.2200', True, 'Mon, 12 May 2200 00:00:00 GMT'],
+    ])
+    def test_post_token(self, ex_date, one_time, parsed_date):
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(ex_date=None,
+                                                           one_time=True)
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.post('/token',
+                          data=json.dumps(dict(ex_date=ex_date,
+                                               one_time=one_time)),
+                          content_type='application/json',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 200)
+        token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
+        self.assertEqual(token_data['ex_date'], parsed_date)
+        self.assertEqual(token_data['one_time'], one_time)
+        self.assertTrue(token_data['name'] is not None)
+
+    def test_error_post_token(self):
+        matrix_registration.config.config = Config(BAD_CONFIG2)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(ex_date=None,
+                                                           one_time=True)
+
+        secret = matrix_registration.config.config.shared_secret
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.post('/token',
+                           data=json.dumps(dict(ex_date='24.12.2020',
+                                                one_time=False)),
+                           content_type='application/json',
+                           headers=headers)
+
+        self.assertEqual(rv.status_code, 401)
+        token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
+
+        self.assertEqual(token_data['errcode'], 'MR_BAD_SECRET')
+        self.assertEqual(token_data['error'], 'wrong shared secret')
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.post('/token',
+                           data=json.dumps(dict(ex_date='2020-24-12',
+                                                one_time=False)),
+                           content_type='application/json',
+                           headers=headers)
+
+        self.assertEqual(rv.status_code, 400)
+        token_data = json.loads(rv.data.decode('utf8'))
+        self.assertEqual(token_data['errcode'], 'MR_BAD_DATE_FORMAT')
+        self.assertEqual(token_data['error'], "date wasn't DD.MM.YYYY format")
+
+    def test_put_token(self):
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(one_time=True)
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.put('/token/' + test_token.name,
+                          data=json.dumps(dict(disable=True)),
+                          content_type='application/json',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 200)
+        token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
+        self.assertEqual(token_data['valid'], False)
+        self.assertEqual(token_data['one_time'], True)
+        self.assertEqual(token_data['name'], test_token.name)
+
+    def test_error_put_token(self):
+        matrix_registration.config.config = Config(BAD_CONFIG2)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(one_time=True)
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+        rv = self.app.put('/token/' + test_token.name,
+                          data=json.dumps(dict(disable=True)),
+                          content_type='application/json',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 401)
+        token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
+        self.assertEqual(token_data['errcode'], 'MR_BAD_SECRET')
+        self.assertEqual(token_data['error'], 'wrong shared secret')
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.put('/token/' + test_token.name,
+                          data=json.dumps(dict(disable=False)),
+                          content_type='application/json',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 400)
+        token_data = json.loads(rv.data.decode('utf8'))
+        self.assertEqual(token_data['errcode'], 'MR_BAD_USER_REQUEST')
+        self.assertEqual(token_data['error'], 'PUT only allows "disable": true')
+
+        rv = self.app.put('/token/' + "nicememe",
+                          data=json.dumps(dict(disable=True)),
+                          content_type='application/json',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 404)
+        token_data = json.loads(rv.data.decode('utf8'))
+        self.assertEqual(token_data['errcode'], 'MR_TOKEN_NOT_FOUND')
+        self.assertEqual(token_data['error'], 'token does not exist or is already disabled')
+
+
+    @parameterized.expand([
+        [None, True, None],
+        ['24.12.2020', False, 'Thu, 24 Dec 2020 00:00:00 GMT'],
+        ['05.12.2200', True, 'Mon, 12 May 2200 00:00:00 GMT'],
+    ])
+    def test_get_token(self, ex_date, one_time, parsed_date):
+        matrix_registration.config.config = Config(BAD_CONFIG2)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(ex_date=ex_date,
+                                                           one_time=one_time)
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.get('/token/' + test_token.name,
+                          content_type='application/json',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 200)
+        token_data = json.loads(rv.data.decode('utf8'))
+        self.assertEqual(token_data['ex_date'], parsed_date)
+        self.assertEqual(token_data['one_time'], one_time)
+
+    def test_error_get_token(self):
+        matrix_registration.config.config = Config(BAD_CONFIG2)
+
+        matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+        test_token = matrix_registration.tokens.tokens.new(one_time=True)
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        rv = self.app.get('/token/' + 'nice_meme',
+                          content_type='application/json',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 404)
+        token_data = json.loads(rv.data.decode('utf8'))
+        self.assertEqual(token_data['errcode'], 'MR_TOKEN_NOT_FOUND')
+        self.assertEqual(token_data['error'], 'token does not exist')
+
+        matrix_registration.config.config = Config(BAD_CONFIG2)
+
+        secret = matrix_registration.config.config.shared_secret
+        headers = {'Authorization': 'SharedSecret %s' % secret}
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+        rv = self.app.put('/token/' + test_token.name,
+                          data=json.dumps(dict(disable=True)),
+                          content_type='application/json',
+                          headers=headers)
+
+        self.assertEqual(rv.status_code, 401)
+        token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
+        self.assertEqual(token_data['errcode'], 'MR_BAD_SECRET')
+        self.assertEqual(token_data['error'], 'wrong shared secret')
 
 
 class ConfigTest(unittest.TestCase):

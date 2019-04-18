@@ -73,10 +73,6 @@ def validate_username(form, username):
         Username doesn't follow mxid requirements
     """
     domain = urlparse(config.config.server_location).hostname
-    if not domain:
-        logger.error("server_location '%s' does not match the RFC 1808" %
-                     config.config.server_location)
-        abort(500)
     re_mxid = r'^@?[a-zA-Z_\-=\.\/0-9]+(:' + \
               re.escape(domain) + \
               r')?$'
@@ -134,11 +130,19 @@ def verify_token(token):
     return token == config.config.shared_secret
 
 
+@auth.error_handler
+def unauthorized():
+    resp = {
+                'errcode': 'MR_BAD_SECRET',
+                'error': 'wrong shared secret'
+            }
+    return make_response(jsonify(resp), 401)
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """
     main user account registration endpoint
-
     to register an account you need to send a
     application/x-www-form-urlencoded request with
       - username
@@ -208,8 +212,6 @@ def register():
                                riot_instance=config.config.riot_instance)
 
 
-# TODO: - ADJUST RETURN STATEMENTS
-#       - DOCUMENTATION
 @app.route('/token', methods=['GET', 'POST'])
 @auth.login_required
 def token():
@@ -219,7 +221,7 @@ def token():
     one_time = False
     ex_date = None
     if request.method == 'GET':
-        return str(tokens.tokens)
+        return jsonify(tokens.tokens.toList())
     elif request.method == 'POST':
         data = request.get_json()
         if data:
@@ -227,8 +229,16 @@ def token():
                 ex_date = data['ex_date']
             if 'one_time' in data:
                 one_time = data['one_time']
-        return str(tokens.tokens.new(ex_date=ex_date,
-                                     one_time=one_time))
+        try:
+            token = tokens.tokens.new(ex_date=ex_date,
+                                      one_time=one_time)
+        except ValueError:
+            resp = {
+                'errcode': 'MR_BAD_DATE_FORMAT',
+                'error': "date wasn't DD.MM.YYYY format"
+            }
+            return make_response(jsonify(resp), 400)
+        return jsonify(token.toDict())
     abort(400)
 
 
@@ -238,11 +248,29 @@ def token_status(token):
     tokens.tokens.load()
     data = False
     if request.method == 'GET':
-        return str(tokens.tokens.get_token(token))
+        if tokens.tokens.get_token(token):
+            return jsonify(tokens.tokens.get_token(token).toDict())
+        else:
+            resp = {
+                'errcode': 'MR_TOKEN_NOT_FOUND',
+                'error': 'token does not exist'
+            }
+            return make_response(jsonify(resp), 404)
     elif request.method == 'PUT':
         data = request.get_json(force=True)
         if data:
-            if data['disable'] and tokens.tokens.disable(token):
-                return '{} disabled'.format(token)
-            return '{} does not exist or is already disabled'.format(token)
+            if not data['disable']:
+                resp = {
+                    'errcode': 'MR_BAD_USER_REQUEST',
+                    'error': 'PUT only allows "disable": true'
+                }
+                return make_response(jsonify(resp), 400)
+            else:
+                if tokens.tokens.disable(token):
+                    return jsonify(tokens.tokens.get_token(token).toDict())
+            resp = {
+                'errcode': 'MR_TOKEN_NOT_FOUND',
+                'error': 'token does not exist or is already disabled'
+            }
+            return make_response(jsonify(resp), 404)
     abort(400)

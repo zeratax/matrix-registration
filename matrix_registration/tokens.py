@@ -12,7 +12,7 @@ from . import config
 from .constants import WORD_LIST_PATH
 
 sqlite3.register_adapter(bool, int)
-sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
+sqlite3.register_converter('BOOLEAN', lambda v: bool(int(v)))
 
 
 logger = logging.getLogger(__name__)
@@ -21,15 +21,15 @@ logger = logging.getLogger(__name__)
 def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
     with open(wordlist) as f:
         lines = f.read().splitlines()
-        string = ""
-        for n in range(length):
+        string = ''
+        for _ in range(length):
             string += random.choice(lines).title()
     return string
 
 
 class Token(object):
     def __init__(self, name=False, ex_date=None, one_time=False, used=0):
-        if not ex_date or ex_date == "None":
+        if not ex_date or ex_date == 'None':
             self.ex_date = None
         else:
             self.ex_date = parser.parse(ex_date)
@@ -41,15 +41,17 @@ class Token(object):
         self.used = used
 
     def __repr__(self):
-        return ("name: '{}', " +
-                "used: '{}', " +
-                "one_time: '{}', "
-                "expiration_date: '{}', " +
-                "valid: '{}'").format(self.name,
-                                      self.used,
-                                      self.one_time,
-                                      self.ex_date,
-                                      self.valid())
+        return self.name
+
+    def toDict(self):
+        _token = {
+            'name': self.name,
+            'used': self.used,
+            'ex_date': self.ex_date,
+            'one_time': bool(self.one_time),
+            'valid': self.valid()
+        }
+        return _token
 
     def valid(self):
         expired = False
@@ -89,8 +91,20 @@ class Tokens():
 
         self.load()
 
+    def __repr__(self):
+        result = ''
+        for tokens_key in self.tokens:
+            result += '%s, ' % tokens_key
+        return result[:-2]
+
+    def toList(self):
+        _tokens = []
+        for tokens_key in self.tokens:
+            _tokens.append(self.tokens[tokens_key].toDict())
+        return _tokens
+
     def update(self, token):
-        sql = "UPDATE tokens SET used=?, ex_date=? WHERE name=?"
+        sql = 'UPDATE tokens SET used=?, ex_date=? WHERE name=?'
         self.c.execute(sql, (token.used, str(token.ex_date), token.name))
         self.conn.commit()
 
@@ -109,7 +123,7 @@ class Tokens():
         logger.debug('token loaded!')
 
     def get_token(self, token_name):
-        logger.debug("getting token by name: %s" % token_name)
+        logger.debug('getting token by name: %s' % token_name)
         try:
             token = self.tokens[token_name]
         except KeyError:
@@ -117,7 +131,7 @@ class Tokens():
         return token
 
     def valid(self, token_name):
-        logger.debug("checking if '%s' is valid" % token_name)
+        logger.debug('checking if "%s" is valid' % token_name)
         token = self.get_token(token_name)
         # if token exists
         if token:
@@ -125,7 +139,7 @@ class Tokens():
         return False
 
     def use(self, token_name):
-        logger.debug("using token: %s" % token_name)
+        logger.debug('using token: %s' % token_name)
         token = self.get_token(token_name)
         if token:
             if token.use():
@@ -134,7 +148,7 @@ class Tokens():
         return False
 
     def disable(self, token_name):
-        logger.debug("disabling token: %s" % token_name)
+        logger.debug('disabling token: %s' % token_name)
         token = self.get_token(token_name)
         if token:
             if token.disable():
@@ -143,15 +157,9 @@ class Tokens():
             self.update(token)
         return False
 
-    def __repr__(self):
-        result = ""
-        for tokens_key in self.tokens:
-            result += "%s,\n" % self.tokens[tokens_key]
-        return result[:-2]
-
     def new(self, ex_date=None, one_time=False):
-        logger.debug(("creating new token, with options: one_time: {}," +
-                     "ex_dates: {}").format(one_time, ex_date))
+        logger.debug(('creating new token, with options: one_time: {},' +
+                     'ex_dates: {}').format(one_time, ex_date))
         token = Token(ex_date=ex_date, one_time=one_time)
         sql = '''INSERT INTO tokens (name, ex_date, one_time, used)
                      VALUES (?, ?, ?, ?)'''

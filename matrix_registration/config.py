@@ -63,7 +63,7 @@ class Config:
                     elif os.path.isfile(CONFIG_PATH3 + CONFIG_SAMPLE_NAME):
                         self.CONFIG_PATH = CONFIG_PATH3
                     else:
-                        sys.exit("could not find any configuration file!")
+                        sys.exit('could not find any configuration file!')
                     self.data = os.path.join(self.CONFIG_PATH, CONFIG_SAMPLE_NAME)
                 else:
                     self.data = os.path.join(self.CONFIG_PATH, CONFIG_NAME)
@@ -101,7 +101,7 @@ class Config:
     def read_config(self, dictionary):
         """
         asks the user how to set the essential options
-        
+
         Parameters
         ----------
         arg1 : dict
@@ -111,7 +111,7 @@ class Config:
         keys = ['server_location', 'server_name', 'shared_secret', 'port']
         for key in keys:
             temp = dictionary[key]
-            dictionary[key] = input("enter {}, e.g. {}\n".format(key, temp))
+            dictionary[key] = input('enter {}, e.g. {}\n'.format(key, temp))
             if not dictionary[key].strip():
                 dictionary[key] = temp
         # write to config file
@@ -119,7 +119,7 @@ class Config:
         relative_path = os.path.relpath(self.CONFIG_PATH + CONFIG_NAME)
         with open(new_config_path, 'w') as stream:
             yaml.dump(dictionary, stream, default_flow_style=False)
-            print("config file written to '%s'" % relative_path)
+            print('config file written to "%s"' % relative_path)
 
 
 config = None
