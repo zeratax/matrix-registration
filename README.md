@@ -10,6 +10,8 @@ if you like me encountered the situation where you want to invite your friends t
 
 with this project you can just quickly generate tokens on the fly and share them with your friends to allow them to register to your homeserver.
 
+![demonstration](https://matrix.org/_matrix/media/v1/download/dmnd.sh/UKGgpbHRdFXzKywxjjbfHAsI)
+
 ## setup
 
 ```bash
