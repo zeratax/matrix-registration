@@ -4,7 +4,7 @@ On this page you can try out the registration process for my homeserver [dmnd.sh
 No actual account will be created.
 
 
-<form id="registration" action="https://dmnd.sh/test-register" method="post">
+<form id="registration" action="https://chat.dmnd.sh/register" method="post">
   <label for="username"> Enter your username:</label><br>
   <input id="username" name="username" type="text" required pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:dmnd\.sh)?$" required minlength="1" maxlength="200">
   <br>
@@ -30,11 +30,11 @@ No actual account will be created.
 </div>
 <br>
 You can get a token with a simple cURL request: [https://github.com/ZerataX/matrix-registration/wiki/api#curl](https://github.com/ZerataX/matrix-registration/wiki/api#curl)
-Just use the endpoints `/test-token` and `/test-register` and the SharedSecret `demopagesecret`.
+Just use the endpoints `/test` and `/test` and the SharedSecret `demopagesecret`.
 E.g. to list all tokens:
 ```console
 $ curl -H "Authorization: SharedSecret demopagesecret" \
-       https://dmnd.sh/test-token
+       https://chat.dmnd.sh/token
 ```
 
 This page is based on [https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html](https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html)

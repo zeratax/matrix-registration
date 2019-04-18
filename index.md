@@ -16,15 +16,15 @@ JargonGingerYankee
 $ curl -X POST \
        -H "Authorization: SharedSecret demopagesecret" \
        -H "Content-Type: application/json" \
-       -d '{"one_time": true}' \
-       https://dmnd.sh/test-token
-name: 'JargonGingerYankee', used: '0', one_time: 'True', expiration_date: 'None', valid: 'True'%
+       -d '{"ex_date": "12.04.2020"}' \
+       https://chat.dmnd.sh/token
+{"ex_date":"Fri, 04 Dec 2020 00:00:00 GMT","name":"ColorWhiskeyExpand","one_time":false,"used":0,"valid":true}
 ```
   - now  you can share an invite link to your registration page, with your friends:
-[https://zeratax.github.io/matrix-registration/demo.html?token=JargonGingerYankee](https://zeratax.github.io/matrix-registration/demo.html?token=JargonGingerYankee)
+[https://chat.dmnd.sh/register?token=ColorWhiskeyExpand](https://chat.dmnd.sh/register?token=ColorWhiskeyExpand)
 
 
-### Demo
+### Demo/Dev version
 
 To try the project out you can play around with the [demo page](./demo.html) for an implemented example registration page using the demo api or
 
@@ -32,8 +32,8 @@ perform a [cURL](https://github.com/ZerataX/matrix-registration/wiki/api#curl) a
 ```console
 $ curl -H "Authorization: SharedSecret demopagesecret" \
        -H "Content-Type: application/json" \
-       -D '{"one_time": true, "ex_date": "24.12.2020"}' \
-       https://dmnd.sh/test-token
+       -d '{"one_time": true, "ex_date": "24.12.2020"}' \
+       https://chat.dmnd.sh/token
 ```
 
 ### Support or Contact

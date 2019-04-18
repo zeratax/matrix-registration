@@ -116,7 +116,7 @@ function sendData() {
     });
 
     // Set up our request
-    XHR.open("POST", "https://dmnd.sh/test-register");
+    XHR.open("POST", "https://chat.dmnd.sh/register");
 
     // The data sent is what the user provided in the form
     XHR.send(FD);
