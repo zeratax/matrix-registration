@@ -8,8 +8,8 @@ With this project you can just quickly generate tokens on the fly and share them
 ### Example Usage
   - Create a new one time usable token directly with python:
 ```console
-$ python -m matrix_registration gen -o
-JargonGingerYankee
+$ python -m matrix_registration gen -e 12.04.2020
+ColorWhiskeyExpand
 ```
   - or make use of the api:
 ```console
