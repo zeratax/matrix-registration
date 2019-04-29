@@ -19,13 +19,10 @@ with this project you can just quickly generate tokens on the fly and share them
 pip3 install matrix-registration
 python -m matrix_registration
 ```
-__INFO:__ This only asks you for the most important options. 
+__INFO:__ 
+- This only asks you for the most important options. 
 You should definitely take a look at the actual configuration file.
-
-To see where the config is stored execute this:
-```bash
-python -m matrix_registration config
-```
+- The `shared_secret` has to be the same as `registration_shared_secret` in your homeserver.yaml
 
 ### nginx reverse-proxy
 
