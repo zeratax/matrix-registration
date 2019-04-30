@@ -17,14 +17,31 @@ with this project you can just quickly generate tokens on the fly and share them
 
 ```bash
 pip3 install matrix-registration
-python -m matrix_registration
+mkdir /etc/matrix_registration
+cd /etc/matrix_registration
+wget -o config.yaml https://raw.githubusercontent.com/ZerataX/matrix-registration/master/config.sample.yaml
 ```
+
 __INFO:__ 
 - This only asks you for the most important options. 
 You should definitely take a look at the actual configuration file.
 - The `shared_secret` has to be the same as `registration_shared_secret` in your homeserver.yaml
 - If you get `/usr/bin/python: No module named matrix_registration` run `pip3 show matrix-registration`to display what version of python it is installed under. Example: `python3.6 -m matrix_registration`
+- For security reasons the program shound not be run as **root**.
 
+### test if working 
+To test if the config.ymal is pressent and able to produse a token.
+
+*Note Wokring directoy have to contain the config.ymal.*
+
+````
+python3.6 -m matrix_registration gen -o
+````
+This will then generate a output like this:
+````
+matrix_registration.tokens - INFO - connecting to db.sqlite3
+CrimsonMotherChess
+````
 ### nginx reverse-proxy
 
 an example nginx setup:
