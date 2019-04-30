@@ -23,6 +23,7 @@ __INFO:__
 - This only asks you for the most important options. 
 You should definitely take a look at the actual configuration file.
 - The `shared_secret` has to be the same as `registration_shared_secret` in your homeserver.yaml
+- If you get `/usr/bin/python: No module named matrix_registration` run `pip3 show matrix-registration`to display what version of python it is installed under. Example: `python3.6 -m matrix_registration`
 
 ### nginx reverse-proxy
 
