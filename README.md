@@ -17,7 +17,7 @@ with this project you can just quickly generate tokens on the fly and share them
 
 ```bash
 pip3 install matrix-registration
-python -m matrix_registration
+python3 -m matrix_registration
 ```
 __INFO:__ 
 - This only asks you for the most important options. 
