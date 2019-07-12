@@ -41,6 +41,7 @@ setuptools.setup(
     python_requires='~=3.6',
 
     install_requires=[
+        "appdirs==1.4.3",
         "Flask>=1.0.2",
         "flask-cors==3.0.7",
         "flask-httpauth==3.2.4",

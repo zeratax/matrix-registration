@@ -11,8 +11,15 @@ import yaml
 from .constants import (
     CONFIG_PATH1,
     CONFIG_PATH2,
-    CONFIG_PATH3
+    CONFIG_PATH3,
+    CONFIG_PATH4
 )
+CONFIG_PATHS = [
+    CONFIG_PATH1,
+    CONFIG_PATH2,
+    CONFIG_PATH3,
+    CONFIG_PATH4
+]
 CONFIG_SAMPLE_NAME = "config.sample.yaml"
 CONFIG_NAME = 'config.yaml'
 logger = logging.getLogger(__name__)
@@ -36,33 +43,33 @@ class Config:
         """
         logger.debug('loading config...')
         dictionary = None
-        config_exists = True
+        config_default = True
         if type(self.data) is dict:
             logger.debug('from dict...')
             dictionary = self.data
+            config_default = False 
         else:
             logger.debug('from file...')
             # check work dir and all other pip install locations for config
-            if not os.path.isfile(self.data):
+            if os.path.isfile(self.data):
+                config_default = False
+            else:
                 # provided file not found checking typical installation dirs
-                if os.path.isfile(CONFIG_PATH1 + CONFIG_NAME):
-                    self.CONFIG_PATH = CONFIG_PATH1
-                elif os.path.isfile(CONFIG_PATH2 + CONFIG_NAME):
-                    self.CONFIG_PATH = CONFIG_PATH2
-                elif os.path.isfile(CONFIG_PATH3 + CONFIG_NAME):
-                    self.CONFIG_PATH = CONFIG_PATH3
-                else:
-                    config_exists = False
+                config_exists = False
+                for path in CONFIG_PATHS:
+                    if os.path.isfile(path + CONFIG_NAME):
+                        self.CONFIG_PATH = path
+                        config_exists = True
+                        config_default = False
                 if not config_exists:
                     # no config exists, use sample config instead
                     # check typical installation dirs for sample configs
-                    if os.path.isfile(CONFIG_PATH1 + CONFIG_SAMPLE_NAME):
-                        self.CONFIG_PATH = CONFIG_PATH1
-                    elif os.path.isfile(CONFIG_PATH2 + CONFIG_SAMPLE_NAME):
-                        self.CONFIG_PATH = CONFIG_PATH2
-                    elif os.path.isfile(CONFIG_PATH3 + CONFIG_SAMPLE_NAME):
-                        self.CONFIG_PATH = CONFIG_PATH3
-                    else:
+                    for path in CONFIG_PATHS:
+                        if os.path.isfile(path + CONFIG_SAMPLE_NAME):
+                            self.CONFIG_PATH = path
+                            config_exists = True
+                    # check if still no config found
+                    if not config_exists:
                         sys.exit('could not find any configuration file!')
                     self.data = os.path.join(self.CONFIG_PATH, CONFIG_SAMPLE_NAME)
                 else:
@@ -72,7 +79,7 @@ class Config:
                     dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
             except IOError as e:
                 sys.exit(e)
-        if not config_exists:
+        if config_default:
             self.read_config(dictionary)
 
         logger.debug('setting config...')
