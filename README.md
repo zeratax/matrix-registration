@@ -40,21 +40,21 @@ If you already have a website and want to use your own register page, the [wiki]
 
 ```bash
 $ python -m matrix_registration -h
-usage: python -m matrix_registration [-h] {api,gen,status,config} ...
+usage: python -m matrix_registration [-h] [--config-path PATH]
+                                     {api,gen,status} ...
 
 a token based matrix registration app
 
 positional arguments:
-  {api,gen,status,config}
-                        sub-commands. for ex. 'gen -h' for additional help
-    api                 start as api
-    gen                 generate new token. -o onetime, -e expire date
-    status              view status or disable token. -s status, -d disable,
-                        -l list
-    config              show config location
+  {api,gen,status}    sub-commands. for ex. 'gen -h' for additional help
+    api               start as api
+    gen               generate new token. -o onetime, -e expire date
+    status            view status or disable token. -s status, -d disable, -l
+                      list
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help          show this help message and exit
+  --config-path PATH  specifies the config file to be used
 
 ```
 
