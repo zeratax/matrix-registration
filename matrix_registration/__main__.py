@@ -22,7 +22,7 @@ def run_api(args):
     )
     if config.config.allow_cors:
         CORS(app)
-    app.run(host='0.0.0.0', port=config.config.port)
+    app.run(host=config.config.host, port=config.config.port)
 
 
 def generate_token(args):

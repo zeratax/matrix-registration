@@ -39,7 +39,7 @@ class Config:
 
     def load(self):
         """
-        loads the dict/the yaml file and recusively set dictionary to class properties
+        loads the dict/the yaml file and recursively sets dictionary to class properties
         """
         logger.debug('loading config...')
         dictionary = None

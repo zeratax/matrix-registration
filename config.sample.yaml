@@ -3,6 +3,7 @@ server_name: 'matrix.org'
 shared_secret: 'RegistrationSharedSecret'
 riot_instance: 'https://riot.im/app/'
 db: 'db.sqlite3'
+host: 'localhost'
 port: 5000
 rate_limit: ["100 per day", "10 per minute"]
 allow_cors: false
