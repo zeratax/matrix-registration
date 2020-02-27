@@ -28,7 +28,7 @@ def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
 
 
 class Token(object):
-    def __init__(self, name=False, ex_date=None, one_time=False, used=0):
+    def __init__(self, name=False, ex_date=None, max_usage=1, used=0, disabled=False):
         if not ex_date or ex_date == 'None':
             self.ex_date = None
         else:
@@ -37,8 +37,9 @@ class Token(object):
             self.name = name
         else:
             self.name = random_readable_string()
-        self.one_time = one_time
+        self.max_usage = max_usage
         self.used = used
+        self.disabled = disabled
 
     def __repr__(self):
         return self.name
@@ -47,29 +48,30 @@ class Token(object):
         _token = {
             'name': self.name,
             'used': self.used,
-            'ex_date': self.ex_date,
-            'one_time': bool(self.one_time),
-            'valid': self.valid()
+            'expiration_date': self.ex_date,
+            'max_usage': self.max_usage,
+            'active': self.active(),
+            'disabled': bool(self.disabled())
         }
         return _token
 
-    def valid(self):
+    def active(self):
         expired = False
         if self.ex_date:
             expired = self.ex_date < datetime.now()
-        used = bool(self.one_time and self.used > 0)
+        used = bool(self.max_usage and self.used > 0)
 
         return (not expired) and (not used)
 
     def use(self):
-        if self.valid():
+        if self.active() and self.max_usage - self.used > 0:
             self.used += 1
             return True
         return False
 
     def disable(self):
-        if self.valid():
-            self.ex_date = datetime(1, 1, 1)
+        if self.active():
+            self.disabled = True
             return True
         return False
 
@@ -85,8 +87,9 @@ class Tokens():
         self.c.execute('''CREATE TABLE IF NOT EXISTS tokens
                           (name TEXT UNIQUE,
                           ex_date TEXT,
-                          one_time BOOLEAN,
-                          used INT)''')
+                          max_usage INT,
+                          used INT,
+                          disabled BOOL)''')
         self.conn.commit()
 
         self.load()
@@ -104,8 +107,12 @@ class Tokens():
         return _tokens
 
     def update(self, token):
-        sql = 'UPDATE tokens SET used=?, ex_date=? WHERE name=?'
-        self.c.execute(sql, (token.used, str(token.ex_date), token.name))
+        sql = 'UPDATE tokens SET ex_date=?, max_usage=?, used=?, disabled=? WHERE name=?'
+        self.c.execute(sql, (str(token.ex_date),
+                             token.max_usage,
+                             token.used,
+                             token.disabled,
+                             token.name))
         self.conn.commit()
 
     def load(self):
@@ -115,11 +122,11 @@ class Tokens():
         self.c.execute('SELECT * FROM tokens')
         for token in self.c.fetchall():
             logger.debug(token)
-            # token[0]=name
-            self.tokens[token[0]] = Token(name=token[0],
-                                          ex_date=str(token[1]),
-                                          one_time=token[2],
-                                          used=token[3])
+        self.tokens[token[0]] = Token(name=token[0],
+                                      ex_date=str(token[1]),
+                                      max_usage=token[2],
+                                      used=token[3],
+                                      disabled=token[4])
         logger.debug('token loaded!')
 
     def get_token(self, token_name):
@@ -130,12 +137,12 @@ class Tokens():
             return False
         return token
 
-    def valid(self, token_name):
-        logger.debug('checking if "%s" is valid' % token_name)
+    def active(self, token_name):
+        logger.debug('checking if "%s" is active' % token_name)
         token = self.get_token(token_name)
         # if token exists
         if token:
-            return token.valid()
+            return token.active()
         return False
 
     def use(self, token_name):
@@ -157,17 +164,18 @@ class Tokens():
             self.update(token)
         return False
 
-    def new(self, ex_date=None, one_time=False):
-        logger.debug(('creating new token, with options: one_time: {},' +
-                     'ex_dates: {}').format(one_time, ex_date))
-        token = Token(ex_date=ex_date, one_time=one_time)
-        sql = '''INSERT INTO tokens (name, ex_date, one_time, used)
-                     VALUES (?, ?, ?, ?)'''
+    def new(self, ex_date=None, max_usage=1):
+        logger.debug(('creating new token, with options: max_usage: {},' +
+                     'ex_dates: {}').format(max_usage, ex_date))
+        token = Token(ex_date=ex_date, max_usage=max_usage)
+        sql = '''INSERT INTO tokens (name, ex_date, max_usage, used, disabled)
+                     VALUES (?, ?, ?, ?, ?)'''
 
         self.c.execute(sql, (token.name,
                              str(token.ex_date),
-                             token.one_time,
-                             token.used))
+                             token.max_usage,
+                             token.used,
+                             token.disabled))
         self.tokens[token.name] = token
         self.conn.commit()
 

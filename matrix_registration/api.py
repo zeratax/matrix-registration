@@ -218,31 +218,31 @@ def token():
     tokens.tokens.load()
 
     data = False
-    one_time = False
+    max_usage = False
     ex_date = None
     if request.method == 'GET':
         return jsonify(tokens.tokens.toList())
     elif request.method == 'POST':
         data = request.get_json()
         if data:
-            if 'ex_date' in data:
-                ex_date = data['ex_date']
-            if 'one_time' in data:
-                one_time = data['one_time']
+            if 'expiration' in data:
+                ex_date = data['expiration']
+            if 'max_usage' in data:
+                max_usage = data['max_usage']
         try:
             token = tokens.tokens.new(ex_date=ex_date,
-                                      one_time=one_time)
+                                      max_usage=max_usage)
         except ValueError:
             resp = {
                 'errcode': 'MR_BAD_DATE_FORMAT',
-                'error': "date wasn't DD.MM.YYYY format"
+                'error': "date wasn't in DD.MM.YYYY format"
             }
             return make_response(jsonify(resp), 400)
         return jsonify(token.toDict())
     abort(400)
 
 
-@app.route('/token/<token>', methods=['GET', 'PUT'])
+@app.route('/token/<token>', methods=['GET', 'PATCH'])
 @auth.login_required
 def token_status(token):
     tokens.tokens.load()
@@ -256,18 +256,18 @@ def token_status(token):
                 'error': 'token does not exist'
             }
             return make_response(jsonify(resp), 404)
-    elif request.method == 'PUT':
+    elif request.method == 'PATCH':
         data = request.get_json(force=True)
         if data:
-            if not data['disable']:
+            if 'active' not in data and 'name' not in data:
+                if tokens.tokens.update(token, data):
+                    return jsonify(tokens.tokens.get_token(token).toDict())
+            else:
                 resp = {
                     'errcode': 'MR_BAD_USER_REQUEST',
-                    'error': 'PUT only allows "disable": true'
+                    'error': 'you\'re not allowed to change this property'
                 }
                 return make_response(jsonify(resp), 400)
-            else:
-                if tokens.tokens.disable(token):
-                    return jsonify(tokens.tokens.get_token(token).toDict())
             resp = {
                 'errcode': 'MR_TOKEN_NOT_FOUND',
                 'error': 'token does not exist or is already disabled'
