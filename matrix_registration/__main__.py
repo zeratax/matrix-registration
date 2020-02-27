@@ -14,13 +14,6 @@ from . import tokens
 from .api import app
 
 
-config.config = config.Config('config.yaml')
-logging.config.dictConfig(config.config.logging)
-tokens.tokens = tokens.Tokens()
-
-logger = logging.getLogger(__name__)
-
-
 def run_api(args):
     Limiter(
         app,
@@ -29,7 +22,7 @@ def run_api(args):
     )
     if config.config.allow_cors:
         CORS(app)
-    app.run(host='0.0.0.0', port=config.config.port)
+    app.run(host=config.config.host, port=config.config.port)
 
 
 def generate_token(args):
@@ -48,10 +41,14 @@ def status_token(args):
         #                  indent=4,
         #                  default=str))
         print(tokens.tokens)
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description='a token based matrix registration app',
-        prog='python -m matrix_registration')
+    description='a token based matrix registration app',
+    prog='python -m matrix_registration')
+    parser.add_argument('--config-path', default='config.yaml'
+            , help='specifies the config file to be used', metavar='PATH')
 
     # subparser
     subparsers = parser.add_subparsers(
@@ -85,6 +82,13 @@ def main():
     parser_s.set_defaults(func=status_token)
 
     args = parser.parse_args()
+
+    config.config = config.Config(args.config_path)
+    logging.config.dictConfig(config.config.logging)
+    tokens.tokens = tokens.Tokens()
+
+    logger = logging.getLogger(__name__)
+
     logger.debug('called with args: %s' % args)
     if 'func' in args:
         args.func(args)
