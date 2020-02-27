@@ -40,21 +40,21 @@ If you already have a website and want to use your own register page, the [wiki]
 
 ```bash
 $ python -m matrix_registration -h
-usage: python -m matrix_registration [-h] {api,gen,status,config} ...
+usage: python -m matrix_registration [-h] [--config-path PATH]
+                                     {api,gen,status} ...
 
 a token based matrix registration app
 
 positional arguments:
-  {api,gen,status,config}
-                        sub-commands. for ex. 'gen -h' for additional help
-    api                 start as api
-    gen                 generate new token. -o onetime, -e expire date
-    status              view status or disable token. -s status, -d disable,
-                        -l list
-    config              show config location
+  {api,gen,status}    sub-commands. for ex. 'gen -h' for additional help
+    api               start as api
+    gen               generate new token. -o onetime, -e expire date
+    status            view status or disable token. -s status, -d disable, -l
+                      list
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help          show this help message and exit
+  --config-path PATH  specifies the config file to be used
 
 ```
 
@@ -77,5 +77,10 @@ if you want to write your own registration page, you can take a look at the samp
 the html page looks for the query paramater `token` and sets the token input field to it's value. this would allow you to directly share links with the token included, e.g.:
 `https://homeserver.tld/register.html?token=DoubleWizardSki`
 
+### similar projects
+
+  - [matrix-invite](https://gitlab.com/reivilibre/matrix-invite) live at https://librepush.net/matrix/registration/
+  - [matrix-register-bot](https://github.com/krombel/matrix-register-bot) using a bot to review accounts before sending out invite links
+  - [MatrixRegistration](https://gitlab.com/olze/matrixregistration/) similar java project using my webui
 
 For more info check the [wiki](https://github.com/ZerataX/matrix-registration/wiki)
