@@ -71,7 +71,7 @@
       </header>
       <section>
         <p>Click here to login in:</p>
-        <h3><a href="{{ riot_instance }}"><img src="static/images/riot.png" height="50px"></a></h3>
+        <h3><a id="roomTarget" href="{{ riot_instance }}"><img src="static/images/riot.png" height="50px"></a></h3>
         <p>or choose one of the many other clients here: <a href="https://matrix.org/docs/projects/clients-matrix"
             a>https://matrix.org/docs/projects/clients-matrix</a></p>
       </section>
@@ -126,6 +126,16 @@
     // set token input to "?token=" query parameter
     const urlParams = new URLSearchParams(window.location.search);
     document.getElementById("token").value = urlParams.get("token");
+
+	// invite to room?
+	invRoom = urlParams.get("room");
+	if (invRoom) {
+	  // if room starts with a letter or number prepend #
+	  if (invRoom.match(/^[a-zA-Z0-9]/) {
+	    invRoom = "%23" + invRoom;
+	  }
+	  document.getElementById("roomTarget").href = "{{ riot_instance }}#/room/" +
+	  invRoom + "?signurl=no_guest_please" }
 
     // html5 validators
     var username = document.getElementById("username");
