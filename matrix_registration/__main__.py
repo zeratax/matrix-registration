@@ -7,6 +7,7 @@ import logging.config
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
 from flask_cors import CORS
+from waitress import serve
 
 # local imports...
 from . import config
@@ -22,7 +23,7 @@ def run_api(args):
     )
     if config.config.allow_cors:
         CORS(app)
-    app.run(host=config.config.host, port=config.config.port)
+    serve(app, host=config.config.host, port=config.config.port)
 
 
 def generate_token(args):
