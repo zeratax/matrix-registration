@@ -39,22 +39,20 @@ If you already have a website and want to use your own register page, the [wiki]
 ## usage
 
 ```bash
-$ python -m matrix_registration -h
-usage: python -m matrix_registration [-h] [--config-path PATH]
-                                     {api,gen,status} ...
+$ matrix_registration -h
+Usage: matrix_registration [OPTIONS] COMMAND [ARGS]...
 
-a token based matrix registration app
+  a token based matrix registration app
 
-positional arguments:
-  {api,gen,status}    sub-commands. for ex. 'gen -h' for additional help
-    api               start as api
-    gen               generate new token. -o onetime, -e expire date
-    status            view status or disable token. -s status, -d disable, -l
-                      list
+Options:
+  --config-path TEXT  specifies the config file to be used
+  --version           Show the flask version
+  -h, --help          Show this message and exit.
 
-optional arguments:
-  -h, --help          show this help message and exit
-  --config-path PATH  specifies the config file to be used
+Commands:
+  generate  generate new token
+  serve     start api server
+  status    view status or disable
 
 ```
 

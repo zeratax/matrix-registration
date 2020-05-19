@@ -26,9 +26,9 @@ try:
 except ModuleNotFoundError:
     from context import matrix_registration
 from matrix_registration.config import Config
+from matrix_registration.app import create_app
 
 logger = logging.getLogger(__name__)
-api = matrix_registration.api
 
 LOGGING = {
     "version": 1,
@@ -350,8 +350,8 @@ class TokensTest(unittest.TestCase):
 
 class ApiTest(unittest.TestCase):
     def setUp(self):
-        api.app.testing = True
-        self.app = api.app.test_client()
+        app = create_app(testing=True)
+        self.app = app.test_client()
         matrix_registration.config.config = Config(GOOD_CONFIG)
 
     def tearDown(self):

@@ -63,10 +63,11 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8"
     ],
-    entry_points="""
-        [console_scripts]
-        matrix_registration=matrix_registration.__main__:main
-    """,
+    entry_points={
+        'console_scripts': [
+            'matrix_registration=matrix_registration.app:cli'
+        ],
+    },
     test_suite="tests.test_registration",
     data_files=[
         ("config", ["config.sample.yaml"]),

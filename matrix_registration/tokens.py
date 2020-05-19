@@ -31,6 +31,8 @@ class Token(object):
     def __init__(self, name=False, ex_date=None, one_time=False, used=0):
         if not ex_date or ex_date == 'None':
             self.ex_date = None
+        elif isinstance(ex_date, datetime):
+            self.ex_date = ex_date
         else:
             self.ex_date = parser.parse(ex_date)
         if name:
