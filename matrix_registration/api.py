@@ -5,6 +5,7 @@ import re
 from urllib.parse import urlparse
 
 # Third-party imports...
+from dateutil import parser
 from flask import (
     Blueprint,
     abort,
@@ -222,14 +223,14 @@ def token():
         return jsonify(tokens.tokens.toList())
     elif request.method == 'POST':
         data = request.get_json()
-        if data:
-            if 'ex_date' in data:
-                ex_date = data['ex_date']
-            if 'one_time' in data:
-                one_time = data['one_time']
         try:
-            token = tokens.tokens.new(ex_date=ex_date,
-                                      one_time=one_time)
+            if data:
+                if 'ex_date' in data and data['ex_date'] is not None:
+                    ex_date = parser.parse(data['ex_date'])
+                if 'one_time' in data:
+                    one_time = data['one_time']
+                token = tokens.tokens.new(ex_date=ex_date,
+                                          one_time=one_time)
         except ValueError:
             resp = {
                 'errcode': 'MR_BAD_DATE_FORMAT',

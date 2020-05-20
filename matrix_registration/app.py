@@ -11,7 +11,8 @@ from waitress import serve
 
 from . import config
 from . import tokens
-
+from .tokens import db
+import os
 
 def create_app(testing=False):
     app = Flask(__name__)
@@ -26,11 +27,20 @@ def create_app(testing=False):
 
 @click.group(cls=FlaskGroup, add_default_commands=False, create_app=create_app, context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("--config-path", default="config.yaml", help='specifies the config file to be used')
-def cli(config_path):
+@pass_script_info
+def cli(info, config_path):
     """a token based matrix registration app"""
     config.config = config.Config(config_path)
     logging.config.dictConfig(config.config.logging)
-    tokens.tokens = tokens.Tokens()
+    app = info.load_app()
+    with app.app_context():
+        app.config.from_mapping(
+            SQLALCHEMY_DATABASE_URI=config.config.db.format(cwd=f"{os.getcwd()}/"),
+            SQLALCHEMY_TRACK_MODIFICATIONS=False
+        )
+        db.init_app(app)
+        db.create_all()
+        tokens.tokens = tokens.Tokens()
 
 
 @cli.command("serve", help="start api server")

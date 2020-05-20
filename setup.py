@@ -46,10 +46,12 @@ setuptools.setup(
         "flask-cors==3.0.7",
         "flask-httpauth==3.2.4",
         "flask-limiter==1.0.1",
+        "Flask-SQLAlchemy==2.4.1",
         "python-dateutil>=2.7.3",
         "PyYAML>=5.1",
         "requests>=2.21.0",
-        "WTForms>=2.2.1"
+        "WTForms>=2.2.1",
+        "psycopg2==2.8.5"
     ],
     tests_require=[
         "parameterized==0.7.0",
