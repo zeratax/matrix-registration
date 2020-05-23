@@ -1,14 +1,15 @@
 FROM alpine:latest
 
-RUN apk --update add python3 && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm /var/cache/apk/* && \
-    ln -s /usr/bin/python3 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip
-
 COPY . /tmp/
 
-RUN pip install waitress && pip install /tmp && rm -rf /tmp/*
+RUN apk --update add --no-cache python3 postgresql-libs && \
+    apk add --no-cache --virtual .build-deps python3-dev gcc musl-dev postgresql-dev && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    ln -s /usr/bin/pip3 /usr/bin/pip && \
+    pip install waitress && pip install /tmp && \
+    rm -rf /tmp/* && \
+    apk --purge del .build-deps
+
 
 VOLUME ["/data"]
 
