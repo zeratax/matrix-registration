@@ -42,10 +42,11 @@ setuptools.setup(
     install_requires=[
         "appdirs>=1.4.3",
         "Flask>=1.0.2",
+        "Flask-SQLAlchemy>=2.4.1",
         "flask-cors>=3.0.7",
         "flask-httpauth>=3.2.4",
         "flask-limiter>=1.0.1",
-        "psycopg2-binary>=2.8.4"
+        "psycopg2-binary>=2.8.4",
         "python-dateutil>=2.8.1",
         "PyYAML>=5.1",
         "requests>=2.21.0",
