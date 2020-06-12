@@ -37,7 +37,6 @@ setuptools.setup(
                                           'static/images/*.jpg',
                                           'static/images/*.png',
                                           'static/images/*.ico']},
-    include_package_data=True,
     python_requires='~=3.6',
 
     install_requires=[

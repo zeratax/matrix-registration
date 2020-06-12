@@ -1,6 +1,7 @@
 import logging
 import logging.config
 import click
+import json
 
 from flask import Flask
 from flask.cli import FlaskGroup, pass_script_info
@@ -59,7 +60,7 @@ def run_server(info):
 
 @cli.command("generate", help="generate new token")
 @click.option("-o", "--one-time", is_flag=True, help="make token one-time-useable")
-@click.option("-e", "--expires", type=click.DateTime(formats=["%d.%m.%Y"]), default=None, help="expire date: DD.MM.YYYY")
+@click.option("-e", "--expires", type=click.DateTime(formats=["%Y-%m-%d"]), default=None, help='expire date: in ISO-8601 format (YYYY-MM-DD)')
 def generate_token(one_time, expires):
     token = tokens.tokens.new(ex_date=expires, one_time=one_time)
     print(token.name)
@@ -73,6 +74,12 @@ def status_token(status, list, disable):
     if disable:
         print(tokens.tokens.disable(disable))
     if status:
-        print(tokens.tokens.get_token(status))
+        token = tokens.tokens.get_token(status)
+        if token:
+            valid = token.valid if token else False
+            print(f"This token is {'not ' if not valid else ''}valid") 
+            print(json.dumps(token.toDict(), indent=2))
+        else:
+            print('no token with that name')
     if list:
         print(tokens.tokens)

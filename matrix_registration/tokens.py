@@ -46,7 +46,7 @@ class Token(db.Model):
         _token = {
             'name': self.name,
             'used': self.used,
-            'ex_date': self.ex_date,
+            'ex_date': str(self.ex_date) if self.ex_date else None,
             'one_time': bool(self.one_time),
             'valid': self.valid()
         }
@@ -94,7 +94,6 @@ class Tokens():
     def load(self):
         logger.debug('loading tokens from db...')
         self.tokens = {}
-        # Get tokens
         for token in Token.query.all():
             logger.debug(token)
             self.tokens[token.name] = token
@@ -104,7 +103,7 @@ class Tokens():
     def get_token(self, token_name):
         logger.debug('getting token by name: %s' % token_name)
         try:
-            token = self.tokens[token_name]
+            token = Token.query.filter_by(name=token_name).first()
         except KeyError:
             return False
         return token
@@ -112,7 +111,6 @@ class Tokens():
     def valid(self, token_name):
         logger.debug('checking if "%s" is valid' % token_name)
         token = self.get_token(token_name)
-        # if token exists
         if token:
             return token.valid()
         return False

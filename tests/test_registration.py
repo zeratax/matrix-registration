@@ -507,8 +507,8 @@ class ApiTest(unittest.TestCase):
 
     @parameterized.expand([
         [None, True, None],
-        ['24.12.2020', False, 'Thu, 24 Dec 2020 00:00:00 GMT'],
-        ['05.12.2200', True, 'Mon, 12 May 2200 00:00:00 GMT'],
+        ['2020-12-24', False, '2020-12-24 00:00:00'],
+        ['2200-05-12', True, '2200-05-12 00:00:00'],
     ])
     def test_post_token(self, ex_date, one_time, parsed_date):
         matrix_registration.config.config = Config(GOOD_CONFIG)
@@ -566,7 +566,7 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(rv.status_code, 400)
             token_data = json.loads(rv.data.decode('utf8'))
             self.assertEqual(token_data['errcode'], 'MR_BAD_DATE_FORMAT')
-            self.assertEqual(token_data['error'], "date wasn't DD.MM.YYYY format")
+            self.assertEqual(token_data['error'], "date wasn't YYYY-MM-DD format")
 
     def test_put_token(self):
         matrix_registration.config.config = Config(GOOD_CONFIG)
@@ -633,8 +633,8 @@ class ApiTest(unittest.TestCase):
 
     @parameterized.expand([
         [None, True, None],
-        [parser.parse('24.12.2020'), False, 'Thu, 24 Dec 2020 00:00:00 GMT'],
-        [parser.parse('05.12.2200'), True, 'Mon, 12 May 2200 00:00:00 GMT'],
+        [parser.isoparse('2020-12-24'), False, '2020-12-24 00:00:00'],
+        [parser.isoparse('2200-05-12'), True, '2200-05-12 00:00:00'],
     ])
     def test_get_token(self, ex_date, one_time, parsed_date):
         matrix_registration.config.config = Config(BAD_CONFIG2)

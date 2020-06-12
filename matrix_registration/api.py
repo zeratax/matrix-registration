@@ -234,7 +234,7 @@ def token():
         except ValueError:
             resp = {
                 'errcode': 'MR_BAD_DATE_FORMAT',
-                'error': "date wasn't DD.MM.YYYY format"
+                'error': "date wasn't YYYY-MM-DD format"
             }
             return make_response(jsonify(resp), 400)
         return jsonify(token.toDict())

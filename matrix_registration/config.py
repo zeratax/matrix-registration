@@ -12,13 +12,15 @@ from .constants import (
     CONFIG_PATH1,
     CONFIG_PATH2,
     CONFIG_PATH3,
-    CONFIG_PATH4
+    CONFIG_PATH4,
+    CONFIG_PATH5
 )
 CONFIG_PATHS = [
     CONFIG_PATH1,
     CONFIG_PATH2,
     CONFIG_PATH3,
-    CONFIG_PATH4
+    CONFIG_PATH4,
+    CONFIG_PATH5
 ]
 CONFIG_SAMPLE_NAME = "config.sample.yaml"
 CONFIG_NAME = 'config.yaml'
