@@ -5,8 +5,9 @@ import re
 from urllib.parse import urlparse
 
 # Third-party imports...
+from dateutil import parser
 from flask import (
-    Flask,
+    Blueprint,
     abort,
     jsonify,
     request,
@@ -26,12 +27,10 @@ from .matrix_api import create_account
 from . import config
 from . import tokens
 
-
-app = Flask(__name__)
-
 auth = HTTPTokenAuth(scheme='SharedSecret')
 logger = logging.getLogger(__name__)
 
+api = Blueprint("api", __name__)
 
 re_mxid = re.compile(r'^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$')
 
@@ -139,7 +138,7 @@ def unauthorized():
     return make_response(jsonify(resp), 401)
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@api.route('/register', methods=['GET', 'POST'])
 def register():
     """
     main user account registration endpoint
@@ -212,7 +211,7 @@ def register():
                                riot_instance=config.config.riot_instance)
 
 
-@app.route('/token', methods=['GET', 'POST'])
+@api.route('/token', methods=['GET', 'POST'])
 @auth.login_required
 def token():
     tokens.tokens.load()
@@ -224,14 +223,14 @@ def token():
         return jsonify(tokens.tokens.toList())
     elif request.method == 'POST':
         data = request.get_json()
-        if data:
-            if 'ex_date' in data:
-                ex_date = data['ex_date']
-            if 'one_time' in data:
-                one_time = data['one_time']
         try:
-            token = tokens.tokens.new(ex_date=ex_date,
-                                      one_time=one_time)
+            if data:
+                if 'ex_date' in data and data['ex_date'] is not None:
+                    ex_date = parser.parse(data['ex_date'])
+                if 'one_time' in data:
+                    one_time = data['one_time']
+                token = tokens.tokens.new(ex_date=ex_date,
+                                          one_time=one_time)
         except ValueError:
             resp = {
                 'errcode': 'MR_BAD_DATE_FORMAT',
@@ -242,7 +241,7 @@ def token():
     abort(400)
 
 
-@app.route('/token/<token>', methods=['GET', 'PUT'])
+@api.route('/token/<token>', methods=['GET', 'PUT'])
 @auth.login_required
 def token_status(token):
     tokens.tokens.load()

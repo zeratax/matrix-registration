@@ -46,10 +46,12 @@ setuptools.setup(
         "flask-cors==3.0.7",
         "flask-httpauth==3.2.4",
         "flask-limiter==1.0.1",
+        "Flask-SQLAlchemy==2.4.1",
         "python-dateutil>=2.7.3",
         "PyYAML>=5.1",
         "requests>=2.21.0",
-        "WTForms>=2.2.1"
+        "WTForms>=2.2.1",
+        "psycopg2==2.8.5"
     ],
     tests_require=[
         "parameterized==0.7.0",
@@ -63,10 +65,11 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8"
     ],
-    entry_points="""
-        [console_scripts]
-        matrix_registration=matrix_registration.__main__:main
-    """,
+    entry_points={
+        'console_scripts': [
+            'matrix_registration=matrix_registration.app:cli'
+        ],
+    },
     test_suite="tests.test_registration",
     data_files=[
         ("config", ["config.sample.yaml"]),
