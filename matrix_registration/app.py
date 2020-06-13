@@ -72,14 +72,16 @@ def generate_token(one_time, expires):
 @click.option("-d", "--disable", default=None, help="disable token")
 def status_token(status, list, disable):
     if disable:
-        print(tokens.tokens.disable(disable))
+        if tokens.tokens.disable(disable):
+            print("Token disabled")
+        else:
+            print("Token couldn't be disabled")
     if status:
         token = tokens.tokens.get_token(status)
         if token:
-            valid = token.valid if token else False
-            print(f"This token is {'not ' if not valid else ''}valid") 
+            print(f"This token is{' ' if token.valid else ' not '}valid") 
             print(json.dumps(token.toDict(), indent=2))
         else:
-            print('no token with that name')
+            print("No token with that name")
     if list:
         print(tokens.tokens)
