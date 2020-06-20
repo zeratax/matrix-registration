@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 # Standard library imports...
-from datetime import date
 import hashlib
 import hmac
 import logging
@@ -13,7 +13,7 @@ from requests import exceptions
 import string
 import sys
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from urllib.parse import urlparse
 
 # Third-party imports...
@@ -58,6 +58,7 @@ LOGGING = {
 GOOD_CONFIG = {
     'server_location': 'https://righths.org',
     'shared_secret': 'coolsharesecret',
+    'admin_secret': 'coolpassword',
     'db': 'sqlite:///%s/tests/db.sqlite' % (os.getcwd(),),
     'port': 5000,
     'password': {
@@ -66,27 +67,20 @@ GOOD_CONFIG = {
     'logging': LOGGING
 }
 
-BAD_CONFIG1 = {
-    'server_location': 'https://wronghs.org',
-    'shared_secret': 'coolsharesecret',
-    'db': 'sqlite:///%s/tests/db.sqlite' % (os.getcwd(),),
-    'port': 1000,
-    'password': {
-        'min_length': 3
-    },
-    'logging': LOGGING
-}
+BAD_CONFIG1 = dict(  # wrong matrix server location -> 500
+    GOOD_CONFIG.items(),
+    server_location='https://wronghs.org',
+)
 
-BAD_CONFIG2 = {
-    'server_location': 'https://righths.org',
-    'shared_secret': 'wrongsecret',
-    'db': 'sqlite:///%s/tests/db.sqlite' % (os.getcwd(),),
-    'port': 1000,
-    'password': {
-        'min_length': 3
-    },
-    'logger': LOGGING
-}
+BAD_CONFIG2 = dict(  # wrong admin secret password -> 401
+    GOOD_CONFIG.items(),
+    admin_secret='wrongpassword',
+)
+
+BAD_CONFIG3 = dict(  # wrong matrix shared password -> 500
+    GOOD_CONFIG.items(),
+    shared_secret='wrongsecret',
+)
 
 usernames = []
 nonces = []
@@ -454,7 +448,7 @@ class ApiTest(unittest.TestCase):
     @patch('matrix_registration.matrix_api.requests.post',
            side_effect=mocked_requests_post)
     def test_register_wrong_secret(self, mock_get, mock_nonce):
-        matrix_registration.config.config = Config(BAD_CONFIG2)
+        matrix_registration.config.config = Config(BAD_CONFIG3)
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
@@ -476,7 +470,7 @@ class ApiTest(unittest.TestCase):
             test_token = matrix_registration.tokens.tokens.new(ex_date=None,
                                                                one_time=True)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.get('/token', headers=headers)
 
@@ -494,7 +488,7 @@ class ApiTest(unittest.TestCase):
             test_token = matrix_registration.tokens.tokens.new(ex_date=None,
                                                                one_time=True)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             matrix_registration.config.config = Config(GOOD_CONFIG)
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.get('/token', headers=headers)
@@ -518,7 +512,7 @@ class ApiTest(unittest.TestCase):
             test_token = matrix_registration.tokens.tokens.new(ex_date=None,
                                                                one_time=True)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.post('/token',
                                   data=json.dumps(dict(ex_date=ex_date,
@@ -540,7 +534,7 @@ class ApiTest(unittest.TestCase):
             test_token = matrix_registration.tokens.tokens.new(ex_date=None,
                                                                one_time=True)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             matrix_registration.config.config = Config(GOOD_CONFIG)
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.post('/token',
@@ -555,7 +549,7 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(token_data['errcode'], 'MR_BAD_SECRET')
             self.assertEqual(token_data['error'], 'wrong shared secret')
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.post('/token',
                                   data=json.dumps(dict(ex_date='2020-24-12',
@@ -575,7 +569,7 @@ class ApiTest(unittest.TestCase):
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
             test_token = matrix_registration.tokens.tokens.new(one_time=True)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.put('/token/' + test_token.name,
                                  data=json.dumps(dict(disable=True)),
@@ -595,7 +589,7 @@ class ApiTest(unittest.TestCase):
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
             test_token = matrix_registration.tokens.tokens.new(one_time=True)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             matrix_registration.config.config = Config(GOOD_CONFIG)
             rv = self.client.put('/token/' + test_token.name,
@@ -608,7 +602,7 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(token_data['errcode'], 'MR_BAD_SECRET')
             self.assertEqual(token_data['error'], 'wrong shared secret')
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.put('/token/' + test_token.name,
                                  data=json.dumps(dict(disable=False)),
@@ -644,7 +638,7 @@ class ApiTest(unittest.TestCase):
             test_token = matrix_registration.tokens.tokens.new(ex_date=ex_date,
                                                                one_time=one_time)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.get('/token/' + test_token.name,
                                  content_type='application/json',
@@ -661,7 +655,7 @@ class ApiTest(unittest.TestCase):
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
             test_token = matrix_registration.tokens.tokens.new(one_time=True)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             rv = self.client.get('/token/' + 'nice_meme',
                                  content_type='application/json',
@@ -674,7 +668,7 @@ class ApiTest(unittest.TestCase):
 
             matrix_registration.config.config = Config(BAD_CONFIG2)
 
-            secret = matrix_registration.config.config.shared_secret
+            secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             matrix_registration.config.config = Config(GOOD_CONFIG)
             rv = self.client.put('/token/' + test_token.name,
