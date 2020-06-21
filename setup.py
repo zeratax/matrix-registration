@@ -21,6 +21,12 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
+test_requirements = [
+        "parameterized>=0.7.0",
+        "flake8>=3.7.7"
+]
+
+
 setuptools.setup(
     name='matrix-registration',
     version=find_version("matrix_registration", "__init__.py"),
@@ -53,10 +59,10 @@ setuptools.setup(
         "waitress>=1.2.1",
         "WTForms>=2.1"
     ],
-    tests_require=[
-        "parameterized>=0.7.0",
-        "flake8>=3.7.7"
-    ],
+    tests_require=test_requirements,
+    extras_require={
+        "testing": test_requirements,
+        },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Topic :: Communications :: Chat",
@@ -67,7 +73,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'matrix_registration=matrix_registration.app:cli'
+            'matrix-registration=matrix_registration.app:cli'
         ],
     },
     test_suite="tests.test_registration",
