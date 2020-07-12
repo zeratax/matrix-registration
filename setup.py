@@ -61,7 +61,7 @@ setuptools.setup(
     extras_require={
         "postgres":  ["psycopg2-binary>=2.8.4"],
         "testing": test_requirements
-    }
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Topic :: Communications :: Chat",
