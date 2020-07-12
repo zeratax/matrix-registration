@@ -126,7 +126,7 @@ class RegistrationForm(Form):
 
 @auth.verify_token
 def verify_token(token):
-    return token == config.config.shared_secret
+    return token == config.config.admin_secret
 
 
 @auth.error_handler
