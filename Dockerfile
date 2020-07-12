@@ -1,19 +1,32 @@
-FROM alpine:latest
+ARG PYTHON_VERSION=3.7
 
-COPY . /tmp/
+# builder
 
-RUN apk --update add --no-cache python3 postgresql-libs && \
-    apk add --no-cache --virtual .build-deps python3-dev gcc musl-dev postgresql-dev && \
-    ln -s /usr/bin/python3 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip && \
-    pip install waitress && pip install /tmp && \
-    rm -rf /tmp/* && \
-    apk --purge del .build-deps
+FROM docker.io/python:${PYTHON_VERSION}-alpine as builder
 
+
+RUN apk add \
+        build-base \
+		musl-dev \
+		postgresql-dev
+
+COPY README.md setup.py config.sample.yaml /tmp/matrix-registration/
+COPY resources /tmp/matrix-registration/resources/
+COPY matrix_registration /tmp/matrix-registration/matrix_registration/
+
+RUN pip install --prefix="/install" --no-warn-script-location \
+		/tmp/matrix-registration
+
+# Runtime
+FROM docker.io/python:${PYTHON_VERSION}-alpine3.11
+
+RUN apk add --no-cache --virtual .runtime_deps \
+		postgresql-libs
+
+COPY --from=builder /install /usr/local
 
 VOLUME ["/data"]
 
 EXPOSE 5000/tcp
 
-ENTRYPOINT ["/usr/bin/python", "/usr/bin/matrix_registration", "--config-path=/data/config.yaml"]
-
+ENTRYPOINT ["matrix-registration", "--config-path=/data/config.yaml"]
