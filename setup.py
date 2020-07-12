@@ -38,7 +38,6 @@ setuptools.setup(
                                           'static/images/*.png',
                                           'static/images/*.ico']},
     python_requires='~=3.6',
-
     install_requires=[
         "appdirs>=1.4.3",
         "Flask>=1.0.2",
@@ -46,13 +45,15 @@ setuptools.setup(
         "flask-cors>=3.0.7",
         "flask-httpauth>=3.2.4",
         "flask-limiter>=1.0.1",
-        "psycopg2-binary>=2.8.4",
         "python-dateutil>=2.8.1",
         "PyYAML>=5.1",
         "requests>=2.21.0",
         "waitress>=1.2.1",
         "WTForms>=2.1"
     ],
+    extras_require = {
+        'postgres':  ["psycopg2-binary>=2.8.4"]
+    },
     tests_require=[
         "parameterized>=0.7.0",
         "flake8>=3.7.7"
