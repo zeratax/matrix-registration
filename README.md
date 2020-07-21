@@ -17,7 +17,7 @@ with this project you can just quickly generate tokens on the fly and share them
 
 ```bash
 pip3 install matrix-registration
-python3 -m matrix_registration
+matrix-registration
 ```
 __INFO:__ 
 - This only asks you for the most important options. 
@@ -39,8 +39,8 @@ If you already have a website and want to use your own register page, the [wiki]
 ## usage
 
 ```bash
-$ matrix_registration -h
-Usage: matrix_registration [OPTIONS] COMMAND [ARGS]...
+$ matrix-registration -h
+Usage: matrix-registration [OPTIONS] COMMAND [ARGS]...
 
   a token based matrix registration app
 
