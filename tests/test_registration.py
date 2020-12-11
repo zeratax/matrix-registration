@@ -133,7 +133,7 @@ def mocked_requests_post(*args, **kwargs):
     re_mxid = r"^@?[a-zA-Z_\-=\.\/0-9]+(:" + \
               re.escape(domain) + \
               r")?$"
-    location = '_matrix/client/r0/admin/register'
+    location = '_synapse/admin/v1/register'
 
     if args[0] == '%s/%s' % (GOOD_CONFIG['server_location'], location):
         if kwargs:
