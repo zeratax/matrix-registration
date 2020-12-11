@@ -29,7 +29,7 @@
           characters.</p>
       </header>
       <section>
-        <form id="registration" action="/register" method="post">
+        <form id="registration" action="{{ base_url }}/register" method="post">
           <div class="group">
             <input id="username" name="username" type="text" placeholder=" " required
               pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" required minlength="1"
@@ -223,7 +223,7 @@
       });
 
       // Set up our request
-      XHR.open("POST", "/register");
+      XHR.open("POST", "{{ base_url }}/register");
 
       // The data sent is what the user provided in the form
       XHR.send(FD);

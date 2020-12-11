@@ -55,7 +55,7 @@ def run_server(info):
     )
     if config.config.allow_cors:
         CORS(app)
-    serve(app, host=config.config.host, port=config.config.port)
+    serve(app, host=config.config.host, port=config.config.port, url_prefix=config.config.base_url)
 
 
 @cli.command("generate", help="generate new token")
@@ -79,7 +79,7 @@ def status_token(status, list, disable):
     if status:
         token = tokens.tokens.get_token(status)
         if token:
-            print(f"This token is{' ' if token.valid else ' not '}valid") 
+            print(f"This token is{' ' if token.valid else ' not '}valid")
             print(json.dumps(token.toDict(), indent=2))
         else:
             print("No token with that name")

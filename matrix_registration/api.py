@@ -208,7 +208,8 @@ def register():
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
-                               riot_instance=config.config.riot_instance)
+                               riot_instance=config.config.riot_instance,
+                               base_url=config.config.base_url)
 
 
 @api.route('/token', methods=['GET', 'POST'])
