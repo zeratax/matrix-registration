@@ -54,7 +54,8 @@ setuptools.setup(
         "python-dateutil~=2.8.1",
         "PyYAML~=5.1",
         "requests~=2.21.0",
-        "waitress~=1.2.1",
+        "SQLAlchemy>=1.3.20,<1.4",
+        "waitress~=1.4.4",
         "WTForms~=2.1"
     ],
     tests_require=test_requirements,
