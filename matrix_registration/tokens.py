@@ -2,20 +2,19 @@
 from datetime import datetime
 import logging
 import random
-import sqlite3
 
-# Third-party imports...
-from dateutil import parser
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc, Table, Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 
 # Local imports...
-from . import config
 from .constants import WORD_LIST_PATH
-
-sqlite3.register_adapter(bool, int)
-sqlite3.register_converter('BOOLEAN', lambda v: bool(int(v)))
 
 
 logger = logging.getLogger(__name__)
+
+db = SQLAlchemy()
+session = db.session
 
 
 def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
@@ -27,19 +26,40 @@ def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
     return string
 
 
-class Token(object):
-    def __init__(self, name=False, ex_date=None, max_usage=1, used=0, disabled=False):
-        if not ex_date or ex_date == 'None':
-            self.ex_date = None
-        else:
-            self.ex_date = parser.parse(ex_date)
-        if name:
-            self.name = name
-        else:
+association_table = Table('association', db.Model.metadata,
+                          Column('ips', String, ForeignKey('ips.address'), primary_key=True),
+                          Column('tokens', Integer, ForeignKey('tokens.name'), primary_key=True))
+
+
+class IP(db.Model):
+    __tablename__ = 'ips'
+    id = Column(Integer, primary_key=True)
+    address = Column(String(255))
+
+    def __repr__(self):
+        return self.address
+
+
+class Token(db.Model):
+    __tablename__ = 'tokens'
+    name = Column(String(255), primary_key=True)
+    expiration_date = Column(DateTime, nullable=True)
+    max_usage = Column(Integer, default=1)
+    used = Column(Integer, default=0)
+    disabled = Column(Boolean, default=False)
+    ips = relationship("IP",
+                       secondary=association_table,
+                       lazy='subquery',
+                       backref=db.backref('pages', lazy=True))
+
+    def __init__(self, **kwargs):
+        super(Token, self).__init__(**kwargs)
+        if not self.name:
             self.name = random_readable_string()
-        self.max_usage = max_usage
-        self.used = used
-        self.disabled = disabled
+        if self.used is None:
+            self.used = 0
+        if self.max_usage is None:
+            self.max_usage = False
 
     def __repr__(self):
         return self.name
@@ -48,24 +68,27 @@ class Token(object):
         _token = {
             'name': self.name,
             'used': self.used,
-            'expiration_date': self.ex_date,
+            'expiration_date': str(self.expiration_date) if self.expiration_date else None,
             'max_usage': self.max_usage,
-            'active': self.active(),
-            'disabled': bool(self.disabled())
+            'ips': list(map(lambda x: x.address, self.ips)),
+            'disabled': bool(self.disabled),
+            'active': self.active()
         }
         return _token
 
     def active(self):
         expired = False
-        if self.ex_date:
-            expired = self.ex_date < datetime.now()
-        used = bool(self.max_usage and self.used > 0)
+        if self.expiration_date:
+            expired = self.expiration_date < datetime.now()
+        used = self.max_usage != 0 and self.max_usage <= self.used
 
-        return (not expired) and (not used)
+        return (not expired) and (not used) and (not self.disabled)
 
-    def use(self):
-        if self.active() and self.max_usage - self.used > 0:
+    def use(self, ip_address=False):
+        if self.active():
             self.used += 1
+            if ip_address:
+                self.ips.append(IP(address=ip_address))
             return True
         return False
 
@@ -78,19 +101,7 @@ class Token(object):
 
 class Tokens():
     def __init__(self):
-        logger.info('connecting to %s' % config.config.db)
-        self.conn = sqlite3.connect(config.config.db, check_same_thread=False)
-        self.c = self.conn.cursor()
         self.tokens = {}
-
-        logger.debug('creating table')
-        self.c.execute('''CREATE TABLE IF NOT EXISTS tokens
-                          (name TEXT UNIQUE,
-                          ex_date TEXT,
-                          max_usage INT,
-                          used INT,
-                          disabled BOOL)''')
-        self.conn.commit()
 
         self.load()
 
@@ -106,33 +117,19 @@ class Tokens():
             _tokens.append(self.tokens[tokens_key].toDict())
         return _tokens
 
-    def update(self, token):
-        sql = 'UPDATE tokens SET ex_date=?, max_usage=?, used=?, disabled=? WHERE name=?'
-        self.c.execute(sql, (str(token.ex_date),
-                             token.max_usage,
-                             token.used,
-                             token.disabled,
-                             token.name))
-        self.conn.commit()
-
     def load(self):
-        logger.debug('loading tokens from db...')
+        logger.debug('loading tokens from ..')
         self.tokens = {}
-        # Get tokens
-        self.c.execute('SELECT * FROM tokens')
-        for token in self.c.fetchall():
+        for token in Token.query.all():
             logger.debug(token)
-        self.tokens[token[0]] = Token(name=token[0],
-                                      ex_date=str(token[1]),
-                                      max_usage=token[2],
-                                      used=token[3],
-                                      disabled=token[4])
+            self.tokens[token.name] = token
+
         logger.debug('token loaded!')
 
     def get_token(self, token_name):
         logger.debug('getting token by name: %s' % token_name)
         try:
-            token = self.tokens[token_name]
+            token = Token.query.filter_by(name=token_name).first()
         except KeyError:
             return False
         return token
@@ -140,17 +137,19 @@ class Tokens():
     def active(self, token_name):
         logger.debug('checking if "%s" is active' % token_name)
         token = self.get_token(token_name)
-        # if token exists
         if token:
             return token.active()
         return False
 
-    def use(self, token_name):
+    def use(self, token_name, ip_address=False):
         logger.debug('using token: %s' % token_name)
         token = self.get_token(token_name)
         if token:
-            if token.use():
-                self.update(token)
+            if token.use(ip_address):
+                try:
+                    session.commit()
+                except exc.IntegrityError:
+                    logger.warning("User already used this token before!")
                 return True
         return False
 
@@ -159,27 +158,20 @@ class Tokens():
         token = self.get_token(token_name)
         if token:
             if token.disable():
-                self.update(token)
+                session.commit()
                 return True
-            self.update(token)
         return False
 
-    def new(self, ex_date=None, max_usage=1):
+    def new(self, expiration_date=None, max_usage=False):
         logger.debug(('creating new token, with options: max_usage: {},' +
-                     'ex_dates: {}').format(max_usage, ex_date))
-        token = Token(ex_date=ex_date, max_usage=max_usage)
-        sql = '''INSERT INTO tokens (name, ex_date, max_usage, used, disabled)
-                     VALUES (?, ?, ?, ?, ?)'''
-
-        self.c.execute(sql, (token.name,
-                             str(token.ex_date),
-                             token.max_usage,
-                             token.used,
-                             token.disabled))
+                     'expiration_dates: {}').format(max_usage, expiration_date))
+        token = Token(expiration_date=expiration_date, max_usage=max_usage)
         self.tokens[token.name] = token
-        self.conn.commit()
+        session.add(token)
+        session.commit()
 
         return token
 
 
 tokens = None
+ips = None

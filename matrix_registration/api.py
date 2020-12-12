@@ -5,8 +5,9 @@ import re
 from urllib.parse import urlparse
 
 # Third-party imports...
+from dateutil import parser
 from flask import (
-    Flask,
+    Blueprint,
     abort,
     jsonify,
     request,
@@ -26,12 +27,10 @@ from .matrix_api import create_account
 from . import config
 from . import tokens
 
-
-app = Flask(__name__)
-
 auth = HTTPTokenAuth(scheme='SharedSecret')
 logger = logging.getLogger(__name__)
 
+api = Blueprint("api", __name__)
 
 re_mxid = re.compile(r'^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$')
 
@@ -53,7 +52,7 @@ def validate_token(form, token):
 
     """
     tokens.tokens.load()
-    if not tokens.tokens.valid(token.data):
+    if not tokens.tokens.active(token.data):
         raise validators.ValidationError('Token is invalid')
 
 
@@ -127,7 +126,7 @@ class RegistrationForm(Form):
 
 @auth.verify_token
 def verify_token(token):
-    return token == config.config.shared_secret
+    return token != 'APIAdminPassword' and token == config.config.admin_secret
 
 
 @auth.error_handler
@@ -139,7 +138,7 @@ def unauthorized():
     return make_response(jsonify(resp), 401)
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@api.route('/register', methods=['GET', 'POST'])
 def register():
     """
     main user account registration endpoint
@@ -188,8 +187,12 @@ def register():
                     logger.error('failure communicating with HS',
                                  exc_info=True)
                 abort(500)
+
+            logger.debug('using token %s' % form.token.data)
+            ip = request.remote_addr if config.config.ip_logging else False
+            tokens.tokens.use(form.token.data, ip)
+
             logger.debug('account creation succeded!')
-            tokens.tokens.use(form.token.data)
             return jsonify(access_token=account_data['access_token'],
                            home_server=account_data['home_server'],
                            user_id=account_data['user_id'],
@@ -209,40 +212,46 @@ def register():
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
-                               riot_instance=config.config.riot_instance)
+                               riot_instance=config.config.riot_instance,
+                               base_url=config.config.base_url)
 
 
-@app.route('/token', methods=['GET', 'POST'])
+@api.route('/token', methods=['GET', 'POST'])
 @auth.login_required
 def token():
     tokens.tokens.load()
 
     data = False
     max_usage = False
-    ex_date = None
+    expiration_date = None
     if request.method == 'GET':
         return jsonify(tokens.tokens.toList())
     elif request.method == 'POST':
         data = request.get_json()
         if data:
             if 'expiration' in data:
-                ex_date = data['expiration']
+                expiration_date = data['expiration']
             if 'max_usage' in data:
                 max_usage = data['max_usage']
         try:
-            token = tokens.tokens.new(ex_date=ex_date,
-                                      max_usage=max_usage)
+            if data:
+                if 'expiration_date' in data and data['expiration_date'] is not None:
+                    expiration_date = parser.parse(data['expiration_date'])
+                if 'max_usage' in data:
+                    max_usage = data['max_usage']
+                token = tokens.tokens.new(expiration_date=expiration_date,
+                                          max_usage=max_usage)
         except ValueError:
             resp = {
                 'errcode': 'MR_BAD_DATE_FORMAT',
-                'error': "date wasn't in DD.MM.YYYY format"
+                'error': "date wasn't in YYYY-MM-DD format"
             }
             return make_response(jsonify(resp), 400)
         return jsonify(token.toDict())
     abort(400)
 
 
-@app.route('/token/<token>', methods=['GET', 'PATCH'])
+@api.route('/token/<token>', methods=['GET', 'PATCH'])
 @auth.login_required
 def token_status(token):
     tokens.tokens.load()

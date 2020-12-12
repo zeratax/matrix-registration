@@ -12,13 +12,15 @@ from .constants import (
     CONFIG_PATH1,
     CONFIG_PATH2,
     CONFIG_PATH3,
-    CONFIG_PATH4
+    CONFIG_PATH4,
+    CONFIG_PATH5
 )
 CONFIG_PATHS = [
     CONFIG_PATH1,
     CONFIG_PATH2,
     CONFIG_PATH3,
-    CONFIG_PATH4
+    CONFIG_PATH4,
+    CONFIG_PATH5
 ]
 CONFIG_SAMPLE_NAME = "config.sample.yaml"
 CONFIG_NAME = 'config.yaml'
@@ -39,7 +41,7 @@ class Config:
 
     def load(self):
         """
-        loads the dict/the yaml file and recusively set dictionary to class properties
+        loads the dict/the yaml file and recursively sets dictionary to class properties
         """
         logger.debug('loading config...')
         dictionary = None
@@ -47,7 +49,7 @@ class Config:
         if type(self.data) is dict:
             logger.debug('from dict...')
             dictionary = self.data
-            config_default = False 
+            config_default = False
         else:
             logger.debug('from file...')
             # check work dir and all other pip install locations for config

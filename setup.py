@@ -21,6 +21,12 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
+test_requirements = [
+        "parameterized>=0.7.0",
+        "flake8>=3.7.7"
+]
+
+
 setuptools.setup(
     name='matrix-registration',
     version=find_version("matrix_registration", "__init__.py"),
@@ -37,24 +43,27 @@ setuptools.setup(
                                           'static/images/*.jpg',
                                           'static/images/*.png',
                                           'static/images/*.ico']},
-    include_package_data=True,
     python_requires='~=3.6',
-
     install_requires=[
-        "appdirs==1.4.3",
-        "Flask>=1.0.2",
-        "flask-cors==3.0.7",
-        "flask-httpauth==3.2.4",
-        "flask-limiter==1.0.1",
-        "python-dateutil>=2.7.3",
-        "PyYAML>=5.1",
-        "requests>=2.21.0",
-        "WTForms>=2.2.1"
+        "alembic>=1.3.2",
+        "appdirs~=1.4.3",
+        "Flask~=1.1",
+        "Flask-SQLAlchemy~=2.4.1",
+        "flask-cors~=3.0.7",
+        "flask-httpauth>=3.3.0",
+        "flask-limiter>=1.1.0",
+        "python-dateutil~=2.8.1",
+        "PyYAML~=5.1",
+        "requests>=2.22",
+        "SQLAlchemy>=1.3.13,<1.4",
+        "waitress~=1.4.4",
+        "WTForms~=2.1"
     ],
-    tests_require=[
-        "parameterized==0.7.0",
-        "flake8==3.7.7"
-    ],
+    tests_require=test_requirements,
+    extras_require={
+        "postgres":  ["psycopg2-binary>=2.8.4"],
+        "testing": test_requirements
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Topic :: Communications :: Chat",
@@ -63,12 +72,14 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8"
     ],
-    entry_points="""
-        [console_scripts]
-        matrix_registration=matrix_registration.__main__:main
-    """,
-    test_suite="tests.test_registration",
+    entry_points={
+        'console_scripts': [
+            'matrix-registration=matrix_registration.app:cli'
+        ],
     data_files=[
         ("config", ["config.sample.yaml"]),
+        (".", ["alembic.ini"]),
+        ("alembic", ["alembic/env.py"]),
+        ("alembic/versions", glob.glob("alembic/versions/*.py"))
     ]
 )

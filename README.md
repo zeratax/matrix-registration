@@ -17,7 +17,7 @@ with this project you can just quickly generate tokens on the fly and share them
 
 ```bash
 pip3 install matrix-registration
-python3 -m matrix_registration
+matrix-registration
 ```
 __INFO:__ 
 - This only asks you for the most important options. 
@@ -39,22 +39,20 @@ If you already have a website and want to use your own register page, the [wiki]
 ## usage
 
 ```bash
-$ python -m matrix_registration -h
-usage: python -m matrix_registration [-h] {api,gen,status,config} ...
+$ matrix-registration -h
+Usage: matrix-registration [OPTIONS] COMMAND [ARGS]...
 
-a token based matrix registration app
+  a token based matrix registration app
 
-positional arguments:
-  {api,gen,status,config}
-                        sub-commands. for ex. 'gen -h' for additional help
-    api                 start as api
-    gen                 generate new token. -o onetime, -e expire date
-    status              view status or disable token. -s status, -d disable,
-                        -l list
-    config              show config location
+Options:
+  --config-path TEXT  specifies the config file to be used
+  --version           Show the flask version
+  -h, --help          Show this message and exit.
 
-optional arguments:
-  -h, --help            show this help message and exit
+Commands:
+  generate  generate new token
+  serve     start api server
+  status    view status or disable
 
 ```
 
@@ -77,5 +75,20 @@ if you want to write your own registration page, you can take a look at the samp
 the html page looks for the query paramater `token` and sets the token input field to it's value. this would allow you to directly share links with the token included, e.g.:
 `https://homeserver.tld/register.html?token=DoubleWizardSki`
 
+### troubleshooting
+
+#### SQLAlchemy complains that a value isn't in a DateTime value
+
+Before #17 introduced SQLAlchemy support the sqlite database incorrectly stored the expire dates, to fix this you have to manually run:
+```sql
+update tokens set ex_date=null where ex_date='None';
+```
+on your database once, or just delete your current database.
+
+### similar projects
+
+  - [matrix-invite](https://gitlab.com/reivilibre/matrix-invite) live at https://librepush.net/matrix/registration/
+  - [matrix-register-bot](https://github.com/krombel/matrix-register-bot) using a bot to review accounts before sending out invite links
+  - [MatrixRegistration](https://gitlab.com/olze/matrixregistration/) similar java project using my webui
 
 For more info check the [wiki](https://github.com/ZerataX/matrix-registration/wiki)
