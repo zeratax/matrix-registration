@@ -153,6 +153,22 @@ class Tokens():
                 return True
         return False
 
+    def update(self, token_name, data):
+        logger.debug('updating token: %s' % token_name)
+        token = self.get_token(token_name)
+        if not token:
+            return False
+        if 'expiration_date' in data:
+            token.expiration_date = data['expiration_date']
+        if 'max_usage' in data:
+            token.max_usage = data['max_usage']
+        if 'used' in data:
+            token.used = data['used']
+        if 'disabled' in data:
+            token.disabled = data['disabled']  
+        session.commit()
+        return True
+
     def disable(self, token_name):
         logger.debug('disabling token: %s' % token_name)
         token = self.get_token(token_name)

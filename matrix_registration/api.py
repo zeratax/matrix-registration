@@ -268,7 +268,7 @@ def token_status(token):
     elif request.method == 'PATCH':
         data = request.get_json(force=True)
         if data:
-            if 'active' not in data and 'name' not in data:
+            if 'ips' not in data and 'active' not in data and 'name' not in data:
                 if tokens.tokens.update(token, data):
                     return jsonify(tokens.tokens.get_token(token).toDict())
             else:
@@ -279,7 +279,11 @@ def token_status(token):
                 return make_response(jsonify(resp), 400)
             resp = {
                 'errcode': 'MR_TOKEN_NOT_FOUND',
-                'error': 'token does not exist or is already disabled'
+                'error': 'token does not exist'
             }
             return make_response(jsonify(resp), 404)
-    abort(400)
+    resp = {
+        'errcode': 'MR_BAD_USER_REQUEST',
+        'error': 'malformed request'
+    }
+    return make_response(jsonify(resp), 400)
