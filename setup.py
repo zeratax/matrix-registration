@@ -65,12 +65,12 @@ setuptools.setup(
         "testing": test_requirements
     },
     classifiers=[
-        "Development Status :: 4 - Beta",
+         "Development Status :: 5 - Production/Stable",
         "Topic :: Communications :: Chat",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8"
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9"
     ],
     entry_points={
         'console_scripts': [

@@ -8,6 +8,7 @@ Create Date: 2020-12-12 01:44:28.195736
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import Table, Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.engine.reflection import Inspector
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -27,19 +28,34 @@ def upgrade():
         sa.Column('address', sa.String(255), nullable=True)
     )
 
+    conn = op.get_bind()
+    inspector = Inspector.from_engine(conn)
+    tables = inspector.get_table_names()
+
+    if 'tokens' not in tables:
+        op.create_table(
+            'tokens',
+            sa.Column('name', String(255), primary_key=True),
+            sa.Column('expiration_date', DateTime, nullable=True),
+            sa.Column('max_usage', Integer, default=1),
+            sa.Column('used', Integer, default=0),
+            sa.Column('disabled', Boolean, default=False),
+            sa.Column('ips', Integer, ForeignKey('association.id'))
+        )
+    else:
+        with op.batch_alter_table('tokens') as batch_op:
+            batch_op.alter_column('ex_date', new_column_name='expiration_date', nullable=True)
+            batch_op.alter_column('one_time', new_column_name='max_usage')
+
+            batch_op.add_column(
+                Column('disabled', Boolean, default=False)
+            )
+
     op.create_table(
        'association', db.Model.metadata,
         Column('ips', String, ForeignKey('ips.address'), primary_key=True),
         Column('tokens', Integer, ForeignKey('tokens.name'), primary_key=True)
-    )
-
-    with op.batch_alter_table('tokens') as batch_op:
-        batch_op.alter_column('ex_date', new_column_name='expiration_date', nullable=True)
-        batch_op.alter_column('one_time', new_column_name='max_usage')
-
-        batch_op.add_column(
-            Column('disabled', Boolean, default=False)
-        )
+    )   
     
     op.execute("update tokens set expiration_date=null where expiration_date='None'")
 
