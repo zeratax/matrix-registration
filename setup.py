@@ -44,7 +44,7 @@ setuptools.setup(
                                           'static/images/*.jpg',
                                           'static/images/*.png',
                                           'static/images/*.ico']},
-    python_requires='~=3.6',
+    python_requires='~=3.7',
     install_requires=[
         "alembic>=1.3.2",
         "appdirs~=1.4.3",
