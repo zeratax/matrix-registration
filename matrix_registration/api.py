@@ -5,7 +5,7 @@ import re
 from urllib.parse import urlparse
 
 # Third-party imports...
-from dateutil import parser
+from datetime import datetime
 from flask import (
     Blueprint,
     abort,
@@ -236,7 +236,7 @@ def token():
         try:
             if data:
                 if 'expiration_date' in data and data['expiration_date'] is not None:
-                    expiration_date = parser.parse(data['expiration_date'])
+                    expiration_date = datetime.fromisoformat(data['expiration_date'])
                 if 'max_usage' in data:
                     max_usage = data['max_usage']
                 token = tokens.tokens.new(expiration_date=expiration_date,

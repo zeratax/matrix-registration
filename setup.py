@@ -3,6 +3,7 @@ import codecs
 import os
 import re
 import setuptools
+import glob
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -52,7 +53,6 @@ setuptools.setup(
         "flask-cors~=3.0.7",
         "flask-httpauth>=3.3.0",
         "flask-limiter>=1.1.0",
-        "python-dateutil~=2.8.1",
         "PyYAML~=5.1",
         "requests>=2.22",
         "SQLAlchemy>=1.3.13,<1.4",
@@ -76,6 +76,7 @@ setuptools.setup(
         'console_scripts': [
             'matrix-registration=matrix_registration.app:cli'
         ],
+    },
     data_files=[
         ("config", ["config.sample.yaml"]),
         (".", ["alembic.ini"]),
