@@ -22,15 +22,16 @@ db = SQLAlchemy()
 
 
 def upgrade():
-    op.create_table(
-        'ips',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('address', sa.String(255), nullable=True)
-    )
-
     conn = op.get_bind()
     inspector = Inspector.from_engine(conn)
     tables = inspector.get_table_names()
+
+    if 'ips' not in tables:
+        op.create_table(
+            'ips',
+            sa.Column('id', sa.Integer, primary_key=True),
+            sa.Column('address', sa.String(255), nullable=True)
+        )
 
     if 'tokens' not in tables:
         op.create_table(
@@ -51,11 +52,13 @@ def upgrade():
                 Column('disabled', Boolean, default=False)
             )
 
-    op.create_table(
-       'association', db.Model.metadata,
-        Column('ips', String, ForeignKey('ips.address'), primary_key=True),
-        Column('tokens', Integer, ForeignKey('tokens.name'), primary_key=True)
-    )   
+
+    if 'association' not in tables:
+        op.create_table(
+        'association', db.Model.metadata,
+            Column('ips', String, ForeignKey('ips.address'), primary_key=True),
+            Column('tokens', Integer, ForeignKey('tokens.name'), primary_key=True)
+        )   
     
     op.execute("update tokens set expiration_date=null where expiration_date='None'")
 
@@ -64,4 +67,3 @@ def upgrade():
 def downgrade():
     op.alter_column('tokens', 'expiration_date', new_column_name='ex_date')
     op.alter_column('tokens', 'max_usage', new_column_name='one_time')
-    pass

@@ -75,15 +75,12 @@ if you want to write your own registration page, you can take a look at the samp
 the html page looks for the query paramater `token` and sets the token input field to it's value. this would allow you to directly share links with the token included, e.g.:
 `https://homeserver.tld/register.html?token=DoubleWizardSki`
 
-### troubleshooting
+### bot
 
-#### SQLAlchemy complains that a value isn't in a DateTime value
+if you're looking for a bot to interface with matrix-registration and manage your tokens, take a look at:
 
-Before #17 introduced SQLAlchemy support the sqlite database incorrectly stored the expire dates, to fix this you have to manually run:
-```sql
-update tokens set ex_date=null where ex_date='None';
-```
-on your database once, or just delete your current database.
+[maubot-invite](https://github.com/williamkray/maubot-invite)
+
 
 ### similar projects
 

@@ -243,11 +243,6 @@ def token():
         return jsonify(tokens.tokens.toList())
     elif request.method == 'POST':
         data = request.get_json()
-        if data:
-            if 'expiration' in data:
-                expiration_date = data['expiration']
-            if 'max_usage' in data:
-                max_usage = data['max_usage']
         try:
             if data:
                 if 'expiration_date' in data and data['expiration_date'] is not None:
@@ -263,7 +258,11 @@ def token():
             }
             return make_response(jsonify(resp), 400)
         return jsonify(token.toDict())
-    abort(400)
+    resp = {
+        'errcode': 'MR_BAD_USER_REQUEST',
+        'error': 'malformed request'
+    }
+    return make_response(jsonify(resp), 400)
 
 
 @api.route('/api/token/<token>', methods=['GET', 'PATCH'])
