@@ -3,6 +3,7 @@ import logging
 from requests import exceptions
 import re
 from urllib.parse import urlparse
+import os
 
 # Third-party imports...
 from datetime import datetime
@@ -26,6 +27,7 @@ from wtforms import (
 from .matrix_api import create_account
 from . import config
 from . import tokens
+from .constants import __location__
 
 auth = HTTPTokenAuth(scheme='SharedSecret')
 logger = logging.getLogger(__name__)
@@ -216,7 +218,20 @@ def register():
                                base_url=config.config.base_url)
 
 
-@api.route('/token', methods=['GET', 'POST'])
+@api.route('/api/version')
+@auth.login_required
+def version():
+    with open(os.path.join(__location__, '__init__.py'), 'r') as file:
+        version_file = file.read()
+        version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                                version_file, re.M)
+        resp = {
+            'version': version_match.group(1),
+        }
+        return make_response(jsonify(resp), 200)
+
+
+@api.route('/api/token', methods=['GET', 'POST'])
 @auth.login_required
 def token():
     tokens.tokens.load()
@@ -251,7 +266,7 @@ def token():
     abort(400)
 
 
-@api.route('/token/<token>', methods=['GET', 'PATCH'])
+@api.route('/api/token/<token>', methods=['GET', 'PATCH'])
 @auth.login_required
 def token_status(token):
     tokens.tokens.load()

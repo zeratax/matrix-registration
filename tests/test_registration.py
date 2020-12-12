@@ -473,7 +473,7 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.get('/token', headers=headers)
+            rv = self.client.get('/api/token', headers=headers)
 
             self.assertEqual(rv.status_code, 200)
             token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
@@ -492,7 +492,7 @@ class ApiTest(unittest.TestCase):
             secret = matrix_registration.config.config.admin_secret
             matrix_registration.config.config = Config(GOOD_CONFIG)
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.get('/token', headers=headers)
+            rv = self.client.get('/api/token', headers=headers)
 
             self.assertEqual(rv.status_code, 401)
             token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
@@ -515,7 +515,7 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.post('/token',
+            rv = self.client.post('/api/token',
                                   data=json.dumps(dict(expiration_date=expiration_date,
                                                        max_usage=max_usage)),
                                   content_type='application/json',
@@ -538,7 +538,7 @@ class ApiTest(unittest.TestCase):
             secret = matrix_registration.config.config.admin_secret
             matrix_registration.config.config = Config(GOOD_CONFIG)
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.post('/token',
+            rv = self.client.post('/api/token',
                                   data=json.dumps(dict(expiration_date='24.12.2020',
                                                        max_usage=False)),
                                   content_type='application/json',
@@ -552,7 +552,7 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.post('/token',
+            rv = self.client.post('/api/token',
                                   data=json.dumps(dict(expiration_date='2020-24-12',
                                                        max_usage=False)),
                                   content_type='application/json',
@@ -572,7 +572,7 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.patch('/token/' + test_token.name,
+            rv = self.client.patch('/api/token/' + test_token.name,
                                  data=json.dumps(dict(disabled=True)),
                                  content_type='application/json',
                                  headers=headers)
@@ -593,7 +593,7 @@ class ApiTest(unittest.TestCase):
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             matrix_registration.config.config = Config(GOOD_CONFIG)
-            rv = self.client.patch('/token/' + test_token.name,
+            rv = self.client.patch('/api/token/' + test_token.name,
                                  data=json.dumps(dict(disabled=True)),
                                  content_type='application/json',
                                  headers=headers)
@@ -605,7 +605,7 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.patch('/token/' + test_token.name,
+            rv = self.client.patch('/api/token/' + test_token.name,
                                  data=json.dumps(dict(active=False)),
                                  content_type='application/json',
                                  headers=headers)
@@ -615,7 +615,7 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(token_data['errcode'], 'MR_BAD_USER_REQUEST')
             self.assertEqual(token_data['error'], 'you\'re not allowed to change this property')
 
-            rv = self.client.patch('/token/' + "nicememe",
+            rv = self.client.patch('/api/token/' + "nicememe",
                                  data=json.dumps(dict(disabled=True)),
                                  content_type='application/json',
                                  headers=headers)
@@ -640,7 +640,7 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.get('/token/' + test_token.name,
+            rv = self.client.get('/api/token/' + test_token.name,
                                  content_type='application/json',
                                  headers=headers)
 
@@ -657,7 +657,7 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.get('/token/' + 'nice_meme',
+            rv = self.client.get('/api/token/' + 'nice_meme',
                                  content_type='application/json',
                                  headers=headers)
 
@@ -671,7 +671,7 @@ class ApiTest(unittest.TestCase):
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             matrix_registration.config.config = Config(GOOD_CONFIG)
-            rv = self.client.patch('/token/' + test_token.name,
+            rv = self.client.patch('/api/token/' + test_token.name,
                                  data=json.dumps(dict(disabled=True)),
                                  content_type='application/json',
                                  headers=headers)
@@ -707,7 +707,7 @@ class ConfigTest(unittest.TestCase):
         self.assertIsNotNone(matrix_registration.config.config)
         os.remove(good_config_path)
 
-# TODO: - tests for /token/<token>
+# TODO: - tests for /api/token/<token>
 #       - a nonce is only valid for 60s
 
 
