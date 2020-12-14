@@ -79,13 +79,12 @@ def status_token(status, list, disable):
             print("Token disabled")
         else:
             print("Token couldn't be disabled")
-    if status:
+    elif status:
         token = tokens.tokens.get_token(status)
         if token:
             print(f"This token is{' ' if token.active else ' not '}valid")
-            print(token.toDict())
             print(json.dumps(token.toDict(), indent=2))
         else:
             print("No token with that name")
-    if list:
+    elif list:
         print(tokens.tokens)

@@ -166,7 +166,7 @@ def register():
                 account_data = create_account(form.username.data,
                                               form.password.data,
                                               config.config.server_location,
-                                              config.config.shared_secret)
+                                              config.config.registration_shared_secret)
             except exceptions.ConnectionError:
                 logger.error('can not connect to %s' % config.config.server_location,
                              exc_info=True)
@@ -214,7 +214,8 @@ def register():
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
-                               riot_instance=config.config.riot_instance,
+                               client_redirect=config.config.client_redirect,
+                               client_logo=config.config.client_logo,
                                base_url=config.config.base_url)
 
 

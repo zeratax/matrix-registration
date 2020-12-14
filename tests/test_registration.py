@@ -57,7 +57,7 @@ LOGGING = {
 
 GOOD_CONFIG = {
     'server_location': 'https://righths.org',
-    'shared_secret': 'coolsharesecret',
+    'registration_shared_secret': 'coolsharesecret',
     'admin_secret': 'coolpassword',
     'db': 'sqlite:///%s/tests/db.sqlite' % (os.getcwd(),),
     'port': 5000,
@@ -80,7 +80,7 @@ BAD_CONFIG2 = dict(  # wrong admin secret password -> 401
 
 BAD_CONFIG3 = dict(  # wrong matrix shared password -> 500
     GOOD_CONFIG.items(),
-    shared_secret='wrongsecret',
+    registration_shared_secret='wrongsecret',
 )
 
 usernames = []
@@ -145,7 +145,7 @@ def mocked_requests_post(*args, **kwargs):
                                     400)
 
             mac = hmac.new(
-                key=str.encode(GOOD_CONFIG['shared_secret']),
+                key=str.encode(GOOD_CONFIG['registration_shared_secret']),
                 digestmod=hashlib.sha1,
             )
 
@@ -158,7 +158,7 @@ def mocked_requests_post(*args, **kwargs):
             mac.update(b'admin' if req['admin'] else b'notadmin')
             mac = mac.hexdigest()
             if not re.search(re_mxid, req['username']):
-                return MockResponse({"'errcode': 'M_INactive_USERNAME",
+                return MockResponse({"'errcode': 'M_INVALID_USERNAME",
                                      "'error': 'User ID can only contain" +
                                      "characters a-z, 0-9, or '=_-./'"},
                                     400)

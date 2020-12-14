@@ -1,9 +1,10 @@
 server_location: 'https://matrix.org'
 server_name: 'matrix.org'
-shared_secret: 'RegistrationSharedSecret'
+registration_shared_secret: 'RegistrationSharedSecret' # see your synapse's homeserver.yaml
 admin_secret: 'APIAdminPassword'
-base_url: '' # e.g. '/riot' for https://example.tld/riot/register
-riot_instance: 'https://riot.im/app/'
+base_url: '' # e.g. '/element' for https://example.tld/element/register
+client_redirect: 'https://app.element.io/#/login'
+client_logo: 'https://raw.githubusercontent.com/vector-im/element-web/develop/res/vector-icons/180.png'
 db: 'sqlite:///{cwd}db.sqlite3'
 host: 'localhost'
 port: 5000
@@ -11,7 +12,7 @@ rate_limit: ["100 per day", "10 per minute"]
 allow_cors: false
 ip_logging: false
 logging:
-  disable_existing_loggers: False
+  disable_existing_loggers: false
   version: 1
   root:
     level: DEBUG

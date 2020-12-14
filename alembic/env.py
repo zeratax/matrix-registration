@@ -23,7 +23,7 @@ config = context.config
 fileConfig(config.config_file_name)
 
 # load matrix-registration config and set db path for alembic
-config_path = context.get_x_argument(as_dictionary=True).get("dbname") or "config.yaml"
+config_path = context.get_x_argument(as_dictionary=True).get("config") or "config.yaml"
 mr_config.config = mr_config.Config(config_path)
 config.set_main_option("sqlalchemy.url", mr_config.config.db.replace("{cwd}", f"{getcwd()}/"))
 
