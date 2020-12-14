@@ -1,8 +1,8 @@
-ARG PYTHON_VERSION=3.7
+ARG PYTHON_VERSION=3.8
 
 # builder
 
-FROM docker.io/python:${PYTHON_VERSION}-alpine as builder
+FROM docker.io/python:${PYTHON_VERSION}-alpine3.12 as builder
 
 
 RUN apk add \
@@ -18,7 +18,7 @@ RUN pip install --prefix="/install" --no-warn-script-location \
 		/tmp/matrix-registration
 
 # Runtime
-FROM docker.io/python:${PYTHON_VERSION}-alpine3.11
+FROM docker.io/python:${PYTHON_VERSION}-alpine3.12
 
 RUN apk add --no-cache --virtual .runtime_deps \
 		postgresql-libs
