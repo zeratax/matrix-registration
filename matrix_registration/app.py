@@ -4,6 +4,7 @@ import click
 import json
 
 from flask import Flask
+from flask.ext.babel import Babel, gettext
 from flask.cli import FlaskGroup, pass_script_info
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
@@ -18,6 +19,7 @@ import os
 def create_app(testing=False):
     app = Flask(__name__)
     app.testing = testing
+    babel = Babel(app)
 
     with app.app_context():
         from .api import api
