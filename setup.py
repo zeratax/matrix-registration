@@ -49,6 +49,7 @@ setuptools.setup(
         "alembic>=1.3.2",
         "appdirs~=1.4.3",
         "Flask~=1.1",
+        "Flask-Babel>=1.0.0"
         "Flask-SQLAlchemy~=2.4.1",
         "flask-cors~=3.0.7",
         "flask-httpauth>=3.3.0",

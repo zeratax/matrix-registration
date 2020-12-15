@@ -4,6 +4,7 @@ from requests import exceptions
 import re
 from urllib.parse import urlparse
 import os
+import gettext
 
 # Third-party imports...
 from datetime import datetime
@@ -22,6 +23,7 @@ from wtforms import (
     PasswordField,
     validators
 )
+from flask.ext.babel import Babel, gettext
 
 # Local imports...
 from .matrix_api import create_account
@@ -124,6 +126,11 @@ class RegistrationForm(Form):
         validators.Regexp(r'^([A-Z][a-z]+)+$'),
         validate_token
     ])
+
+
+@babel.localeselector
+def get_locale():
+    return request.args.get('lang') or request.accept_languages.best
 
 
 @auth.verify_token

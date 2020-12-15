@@ -3,18 +3,18 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width; initial-scale=1.0;" />
-  <meta property="og:title" content="{{ server_name }} registration">
+  <meta name="viewport" content="width=device-width initial-scale=1.0" />
+  <meta property="og:title" content='{{ gettext("%(server_name)s registration", server_name=server_name) }}'>
   <meta property="og:site_name" content="{{ server_name }}">
   <meta property="og:type" content="website" />
-  <meta name="og:description" content="registrate an account on {{ server_name }}" />
+  <meta name="og:description" content='{{ gettext("registrate an account on %(server_name)s", server_name=server_name) }}'/>
   <meta name="og:image" content="{{ url_for('static', filename='images/icon.png') }}" />
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/icon.png') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon32x32.png') }}" sizes="32x32">
   <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
   <meta name="msapplication-TileImage" content="{{ url_for('static', filename='images/tile.png') }}">
   <meta name="msapplication-TileColor" content="#fff">
-  <title>{{ server_name }} registration</title>
+  <title>'{{ gettext("%(server_name)s registration", server_name=server_name) }}'</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 </head>
@@ -23,10 +23,9 @@
   <article class="widget register">
     <div class="center">
       <header>
-        <h1>{{ server_name }} registration</h1>
-        <p>the registration requires a secret token<br>
-          registration does not require an email, just a username and a password that's longer than {{ pw_length }}
-          characters.</p>
+        <h1>{{ gettext("%(server_name)s registration", server_name=server_name) }}</h1>
+        <p>{{ gettext("the registration requires a secret token") }}<br>
+          {{ gettext("registration does not require an email, just a username and a password that\'s longer than %(pw_length)d characters.", pw_length=pw_length) }}</p>
       </header>
       <section>
         <form id="registration" action="{{ base_url }}/register" method="post">
@@ -36,29 +35,29 @@
               maxlength="200">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="username">Username</label>
+            <label for="username">{{ gettext("Username") }}</label>
           </div>
           <div class="group">
             <input id="password" name="password" type="password" placeholder=" " required minlength="{{ pw_length }}"
               maxlength="128">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="password">Password</label>
+            <label for="password">{{ gettext("Password") }}</label>
           </div>
           <div class="group">
             <input id="confirm_password" name="confirm" type="password" placeholder=" " required>
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="confirm_password">Confirm</label>
+            <label for="confirm_password">{{ gettext("Confirm") }}</label>
           </div>
           <div class="group">
             <input id="token" name="token" type="text" placeholder=" " required pattern="^([A-Z][a-z]+)+$">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="token">Token</label>
+            <label for="token">{{ gettext("Token") }}</label>
           </div>
           <div class="btn-box">
-            <input class="btn btn-submit" type="submit" value="register">
+            <input class="btn btn-submit" type="submit" value='{{ gettext("register") }}'>
           </div>
         </form>
       </section>
@@ -70,9 +69,9 @@
         <h2 id="welcome"></h2>
       </header>
       <section>
-        <p>Click here to login in:</p>
+        <p> {{ gettext("Click here to login in:") }}</p>
         <h3><a href="{{ client_redirect }}"><img src="{{ client_logo }}" height="100px"></a></h3>
-        <p>or choose one of the many other clients here: <a href="https://matrix.org/docs/projects/clients-matrix"
+        <p>{{ gettext("or choose one of the many other clients here:") }} <a href="https://matrix.org/docs/projects/clients-matrix"
             a>https://matrix.org/docs/projects/clients-matrix</a></p>
       </section>
     </div>
@@ -80,10 +79,10 @@
   <article id="error" class="widget modal hidden">
     <div class="center">
       <header>
-        <h2>Error</h2>
+        <h2>{{ gettext("Error") }}</h2>
       </header>
       <section>
-        <p>There was an error while trying to register you.</p>
+        <p>{{ gettext("There was an error while trying to register you.") }}</p>
         <h3 id="error_message" class="error"></h3>
         <p id="error_dialog"></p>
       </section>
@@ -110,7 +109,7 @@
       const outsideClickListener = event => {
         if (!element.contains(event.target) && isVisible(
             element)) {
-          element.classList.add("hidden");
+          element.classList.add("hidden")
           removeClickListener()
         }
       }
@@ -124,117 +123,123 @@
     const isVisible = elem => !!elem && !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
 
     // set token input to "?token=" query parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    document.getElementById("token").value = urlParams.get("token");
+    const urlParams = new URLSearchParams(window.location.search)
+    document.getElementById("token").value = urlParams.get("token")
+
+    // set "?lang=" parameter to user lang
+    const userLang = getCookie('lang') || navigator.language || navigator.userLanguage
+    if (!urlParams.has("lang")) {
+      urlParams.append("lang", userLang)
+    }
 
     // html5 validators
-    var username = document.getElementById("username");
-    var password = document.getElementById("password");
-    var confirm_password = document.getElementById("confirm_password");
-    var token = document.getElementById("token");
+    var username = document.getElementById("username")
+    var password = document.getElementById("password")
+    var confirm_password = document.getElementById("confirm_password")
+    var token = document.getElementById("token")
 
     username.addEventListener("input", function (event) {
       if (username.validity.typeMismatch) {
-        username.setCustomValidity("format: @username:{{ server_name }}");
+        username.setCustomValidity('{{ gettext("format: @username:%(server_name)s", server_name=server_name) }}')
       } else {
-        username.setCustomValidity("");
+        username.setCustomValidity("")
       }
-    });
+    })
 
     token.addEventListener("input", function (event) {
       if (token.validity.typeMismatch) {
-        token.setCustomValidity("case-sensitive, e.g: SardineImpactReport");
+        token.setCustomValidity('{{ gettext("case-sensitive, e.g: SardineImpactReport") }}')
       } else {
-        token.setCustomValidity("");
+        token.setCustomValidity("")
       }
-    });
+    })
 
     password.addEventListener("input", function (event) {
       if (password.validity.typeMismatch) {
-        password.setCustomValidity("atleast {{ pw_length }} characters long");
+        password.setCustomValidity('{{ gettext("atleast %(pw_length)s characters long", pw_length=pw_length) }}')
       } else {
-        password.setCustomValidity("");
+        password.setCustomValidity("")
       }
-    });
+    })
 
     function validatePassword() {
       if (password.value != confirm_password.value) {
-        confirm_password.setCustomValidity("passwords don't match");
+        confirm_password.setCustomValidity('{{ gettext("passwords don\'t match") }}')
       } else {
-        confirm_password.setCustomValidity("");
+        confirm_password.setCustomValidity("")
       }
     }
 
-    password.onchange = validatePassword;
-    confirm_password.onkeyup = validatePassword;
+    password.onchange = validatePassword
+    confirm_password.onkeyup = validatePassword
 
     function showError(message, dialog) {
-      document.getElementById("error_message").innerHTML = message;
-      document.getElementById("error_dialog").innerHTML = dialog;
-      let error = document.getElementById("error");
-      error.classList.remove("hidden");
-      hideOnClickOutside(error);
+      document.getElementById("error_message").innerHTML = message
+      document.getElementById("error_dialog").innerHTML = dialog
+      let error = document.getElementById("error")
+      error.classList.remove("hidden")
+      hideOnClickOutside(error)
     }
 
     // hijack the submit button to display the json response in a neat modal
-    var form = document.getElementById("registration");
+    var form = document.getElementById("registration")
 
     function sendData() {
-      let XHR = new XMLHttpRequest();
+      let XHR = new XMLHttpRequest()
 
       // Bind the FormData object and the form element
-      let FD = new FormData(form);
+      let FD = new FormData(form)
 
       // Define what happens on successful data submission
       XHR.addEventListener("load", function (event) {
-        console.log(XHR.responseText);
-        let response = JSON.parse(XHR.responseText);
+        console.log(XHR.responseText)
+        let response = JSON.parse(XHR.responseText)
         try {
-          console.log(response);
+          console.log(response)
         } catch (e) {
           if (e instanceof SyntaxError) {
-            showError("Internal Server Error!", "Please contact the server admin about this.");
-            return;
+            showError('{{ gettext("Internal Server Error!") }}, {{ gettext("Please contact the server admin about this.") }}')
+            return
           }
         }
         if ("errcode" in response) {
           if (response["errcode"] == "MR_BAD_USER_REQUEST") {
             if ("token" in response["error"]) {
-              showError("Token Error", response["error"]["token"][0]);
+              showError('{{ gettext("Token Error") }}', response["error"]["token"][0])
             } else if ("password" in response["error"]) {
-              showError("Password Error", response["error"]["password"][0]);
+              showError('{{ gettext("Password Error") }}', response["error"]["password"][0])
             } else if ("username" in response["error"]) {
-              showError("Username Error", response["error"]["username"][0]);
+              showError('{{ gettext("Username Error") }}', response["error"]["username"][0])
             }
-            return;
+            return
           } else {
-            showError("Homeserver Error", response["error"]);
+            showError('{{ gettext("Homeserver Error") }}', response["error"])
           }
         } else {
-          document.getElementById("welcome").innerHTML = "Welcome " + response['user_id'];
-          document.getElementById("success").classList.remove("hidden");
+          document.getElementById("welcome").innerHTML = '{{ gettext("Welcome") }}'  + response['user_id']
+          document.getElementById("success").classList.remove("hidden")
         }
 
-      });
+      })
 
       // Define what happens in case of error
       XHR.addEventListener("error", function (event) {
-        showError("Internal Server Error!", "Please contact the server admin about this.");
-      });
+        showError('{{ gettext("Internal Server Error!") }}, {{ gettext("Please contact the server admin about this.") }}')
+      })
 
       // Set up our request
-      XHR.open("POST", "{{ base_url }}/register");
+      XHR.open("POST", "{{ base_url }}/register")
 
       // The data sent is what the user provided in the form
-      XHR.send(FD);
+      XHR.send(FD)
     }
 
     // take over its submit event.
     form.addEventListener("submit", function (event) {
-      event.preventDefault();
+      event.preventDefault()
 
-      sendData();
-    });
+      sendData()
+    })
   </script>
 </body>
 
