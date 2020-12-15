@@ -88,6 +88,8 @@ class Config:
         # recusively set dictionary to class properties
         for k, v in dictionary.items():
             setattr(self, k, v)
+        logger.debug('checking for secrets...')
+        self.get_secrets()
         logger.debug('config set!')
         # self.x = namedtuple('config',
         #                     dictionary.keys())(*dictionary.values())
@@ -129,6 +131,24 @@ class Config:
         with open(new_config_path, 'w') as stream:
             yaml.dump(dictionary, stream, default_flow_style=False)
             print('config file written to "%s"' % relative_path)
+
+
+    def get_secrets():
+        dir = os.environ['CREDENTIALS_DIRECTORY']
+        path = os.path.join(dir, 'secrets')
+        if not os.path.isfile(path):
+            return
+
+        logger.debug('secrets found!')
+        with open(path) as file:
+            for line in file:
+                key, value = line.split('=')
+
+                if key == 'registration_shared_secret'
+                    self.registration_shared_secret = value
+                if key == 'admin_secret'
+                    self.admin_secret = value
+
 
 
 config = None
