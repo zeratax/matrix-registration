@@ -165,7 +165,7 @@ class Tokens():
         if 'used' in data:
             token.used = data['used']
         if 'disabled' in data:
-            token.disabled = data['disabled']  
+            token.disabled = data['disabled']
         session.commit()
         return True
 
@@ -185,7 +185,7 @@ class Tokens():
         self.tokens[token.name] = token
         session.add(token)
         session.commit()
-        
+
         return token
 
 

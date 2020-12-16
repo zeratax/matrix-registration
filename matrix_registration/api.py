@@ -4,7 +4,6 @@ from requests import exceptions
 import re
 from urllib.parse import urlparse
 import os
-import gettext
 
 # Third-party imports...
 from datetime import datetime
@@ -235,10 +234,8 @@ def version():
     with open(os.path.join(__location__, '__init__.py'), 'r') as file:
         version_file = file.read()
         version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                                version_file, re.M)
-        resp = {
-            'version': version_match.group(1),
-        }
+                                  version_file, re.M)
+        resp = {'version': version_match.group(1)}
         return make_response(jsonify(resp), 200)
 
 

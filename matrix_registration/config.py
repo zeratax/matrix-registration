@@ -134,9 +134,8 @@ class Config:
             yaml.dump(dictionary, stream, default_flow_style=False)
             print('config file written to "%s"' % relative_path)
 
-
-    def get_secrets():
-        with open(path) as file:
+    def get_secrets(self):
+        with open(self.secret_path) as file:
             for line in file:
                 key, value = line.split('=')
 
@@ -144,7 +143,6 @@ class Config:
                     self.registration_shared_secret = value
                 if key == 'admin_secret':
                     self.admin_secret = value
-
 
 
 config = None

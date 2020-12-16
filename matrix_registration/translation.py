@@ -25,7 +25,7 @@ def _get_translations(lang='en', replacements={}):
         translations = yaml.load(stream, Loader=yaml.SafeLoader)
 
     interpolated_translations = {}
-    for key, value  in translations['weblate'].items():
+    for key, value in translations['weblate'].items():
         match = re.search(replace_pattern, value)
         while match:
             value = value.replace(match.group(0), str(replacements[match.group('name')]))
