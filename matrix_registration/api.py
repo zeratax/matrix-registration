@@ -23,13 +23,14 @@ from wtforms import (
     PasswordField,
     validators
 )
-from flask.ext.babel import Babel, gettext
 
 # Local imports...
 from .matrix_api import create_account
 from . import config
 from . import tokens
 from .constants import __location__
+from .translation import get_translations
+
 
 auth = HTTPTokenAuth(scheme='SharedSecret')
 logger = logging.getLogger(__name__)
@@ -128,11 +129,6 @@ class RegistrationForm(Form):
     ])
 
 
-@babel.localeselector
-def get_locale():
-    return request.args.get('lang') or request.accept_languages.best
-
-
 @auth.verify_token
 def verify_token(token):
     return token != 'APIAdminPassword' and token == config.config.admin_secret
@@ -218,12 +214,19 @@ def register():
     else:
         server_name = config.config.server_name
         pw_length = config.config.password['min_length']
+        lang = request.args.get('lang') or request.accept_languages.best
+        replacements = {
+            'server_name': server_name,
+            'pw_length': pw_length
+        }
+        translations = get_translations(lang, replacements)
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
                                client_redirect=config.config.client_redirect,
                                client_logo=config.config.client_logo,
-                               base_url=config.config.base_url)
+                               base_url=config.config.base_url,
+                               translations=translations)
 
 
 @api.route('/api/version')

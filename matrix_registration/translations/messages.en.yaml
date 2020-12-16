@@ -1,0 +1,27 @@
+weblate:
+  server_registration: "{{ server_name }} registration"
+  register_account: "register an account on {{ server_name }}"
+  requires_token: "the registration requires a secret token"
+  requires_username_and_password: >
+    registration does not require an email, just a username and a password
+    that's longer than {{ pw_length }} characters.
+  username: "Username"
+  password: "Password"
+  confirm: "Confirm"
+  token: "Token"
+  register: "register"
+  click_to_login: "Click here to login in:"
+  choose_client: "or choose one of the many other clients here:"
+  username_format: "format: @username:{{ server_name }}"
+  case_sensitive: "case-sensitive, e.g: SardineImpactReport"
+  password_too_short: "atleast {{ pw_length }} characters long"
+  password_do_not_match: passwords don't match
+  error: "Error"
+  error_long: "There was an error while trying to register you."
+  internal_error: "Internal Server Error!"
+  contact: "Please contact the server admin about this."
+  token_error: "Token Error"
+  password_error: "Password Error"
+  username_error: "Username Error"
+  homeserver_error: "Homeserver Error"
+  welcome: "Welcome"

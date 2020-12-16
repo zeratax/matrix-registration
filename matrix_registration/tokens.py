@@ -56,10 +56,10 @@ class Token(db.Model):
         super(Token, self).__init__(**kwargs)
         if not self.name:
             self.name = random_readable_string()
-        if self.used is None:
+        if not self.used:
             self.used = 0
-        if self.max_usage is None:
-            self.max_usage = False
+        if not self.max_usage:
+            self.max_usage = 0
 
     def __repr__(self):
         return self.name
@@ -93,7 +93,7 @@ class Token(db.Model):
         return False
 
     def disable(self):
-        if self.active():
+        if not self.disabled:
             self.disabled = True
             return True
         return False
@@ -185,9 +185,8 @@ class Tokens():
         self.tokens[token.name] = token
         session.add(token)
         session.commit()
-
+        
         return token
 
 
 tokens = None
-ips = None

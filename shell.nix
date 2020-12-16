@@ -8,7 +8,6 @@ buildPythonPackage rec {
     pkgs.libsndfile
     appdirs
     flask
-    flask-babel
     flask-cors
     flask-httpauth
     flask-limiter

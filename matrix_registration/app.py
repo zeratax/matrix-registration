@@ -4,7 +4,6 @@ import click
 import json
 
 from flask import Flask
-from flask.ext.babel import Babel, gettext
 from flask.cli import FlaskGroup, pass_script_info
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
@@ -20,7 +19,6 @@ import os
 def create_app(testing=False):
     app = Flask(__name__)
     app.testing = testing
-    babel = Babel(app)
 
     with app.app_context():
         from .api import api
@@ -32,10 +30,11 @@ def create_app(testing=False):
 @click.group(cls=FlaskGroup, add_default_commands=False, create_app=create_app,
              context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("--config-path", default="config.yaml", help='specifies the config file to be used')
+@click.option("--secrets-path", default=None, help='location of secrets file')
 @pass_script_info
-def cli(info, config_path):
+def cli(info, config_path, secrets_path):
     """a token based matrix registration app"""
-    config.config = config.Config(config_path)
+    config.config = config.Config(config_path, secrets_path)
     logging.config.dictConfig(config.config.logging)
     app = info.load_app()
     with app.app_context():
@@ -84,7 +83,7 @@ def status_token(status, list, disable):
     elif status:
         token = tokens.tokens.get_token(status)
         if token:
-            print(f"This token is{' ' if token.active else ' not '}valid")
+            print(f"This token is{' ' if token.active() else ' not '}valid")
             print(json.dumps(token.toDict(), indent=2))
         else:
             print("No token with that name")

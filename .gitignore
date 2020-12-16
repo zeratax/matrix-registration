@@ -3,6 +3,7 @@
 *.conf
 !config.sample.yaml
 !tests/test_config.yaml
+!matrix_registration/translations/*.yaml
 # vscode
 .vscode/
 # nose

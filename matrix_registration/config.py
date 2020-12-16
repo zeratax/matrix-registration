@@ -33,8 +33,9 @@ class Config:
 
     loads a dict or a yaml file to be accessible by all files in the module
     """
-    def __init__(self, data):
+    def __init__(self, data, secret_path=None):
         self.data = data
+        self.secret_path = secret_path
         self.CONFIG_PATH = None
         self.location = None
         self.load()
@@ -89,7 +90,8 @@ class Config:
         for k, v in dictionary.items():
             setattr(self, k, v)
         logger.debug('checking for secrets...')
-        self.get_secrets()
+        if self.secret_path:
+            self.get_secrets()
         logger.debug('config set!')
         # self.x = namedtuple('config',
         #                     dictionary.keys())(*dictionary.values())
@@ -134,19 +136,13 @@ class Config:
 
 
     def get_secrets():
-        dir = os.environ['CREDENTIALS_DIRECTORY']
-        path = os.path.join(dir, 'secrets')
-        if not os.path.isfile(path):
-            return
-
-        logger.debug('secrets found!')
         with open(path) as file:
             for line in file:
                 key, value = line.split('=')
 
-                if key == 'registration_shared_secret'
+                if key == 'registration_shared_secret':
                     self.registration_shared_secret = value
-                if key == 'admin_secret'
+                if key == 'admin_secret':
                     self.admin_secret = value
 
 

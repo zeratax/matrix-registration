@@ -9,6 +9,7 @@ import os
 import yaml
 import random
 import re
+import requests
 from requests import exceptions
 import string
 import sys
@@ -19,6 +20,8 @@ from urllib.parse import urlparse
 # Third-party imports...
 from parameterized import parameterized
 from datetime import datetime
+from click.testing import CliRunner
+from flask import Flask
 
 # Local imports...
 try:
@@ -28,6 +31,10 @@ except ModuleNotFoundError:
 from matrix_registration.config import Config
 from matrix_registration.app import create_app
 from matrix_registration.tokens import db
+from matrix_registration.app import (
+    create_app,
+    cli,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +66,7 @@ GOOD_CONFIG = {
     'server_location': 'https://righths.org',
     'registration_shared_secret': 'coolsharesecret',
     'admin_secret': 'coolpassword',
+    'base_url': '/element',
     'db': 'sqlite:///%s/tests/db.sqlite' % (os.getcwd(),),
     'port': 5000,
     'password': {
@@ -707,8 +715,76 @@ class ConfigTest(unittest.TestCase):
         self.assertIsNotNone(matrix_registration.config.config)
         os.remove(good_config_path)
 
-# TODO: - tests for /api/token/<token>
-#       - a nonce is only valid for 60s
+class CliTest(unittest.TestCase):
+    path = "tests/test_config.yaml"
+    db = "tests/db.sqlite"
+    
+    def setUp(self):
+        try:
+            os.remove(self.db)
+        except FileNotFoundError:
+            pass
+        with open(self.path, 'w') as outfile:
+            yaml.dump(GOOD_CONFIG, outfile, default_flow_style=False)
+    
+    def tearDown(self):
+        os.remove(self.path)
+        os.remove(self.db)
+
+    def test_create_token(self):
+        runner = create_app().test_cli_runner()
+        generate = runner.invoke(cli, ['--config-path', self.path, 'generate', '-m', 1])
+        name1 = generate.output.strip()
+    
+        status = runner.invoke(cli, ['--config-path', self.path, 'status', '-s', name1])
+        valid, info_dict_string = status.output.strip().split('\n', 1)
+        self.assertEqual(valid, "This token is valid")
+        comparison_dict = {
+            "name": name1,
+            "used": 0,
+            "expiration_date": None,
+            "max_usage": 1,
+            "disabled": False,
+            "ips": [],
+            "active": True
+        }
+        self.assertEqual(json.loads(info_dict_string), comparison_dict)
+
+        runner.invoke(cli, ['--config-path', self.path, 'status', '-d', name1])
+        status = runner.invoke(cli, ['--config-path', self.path, 'status', '-s', name1])
+        valid, info_dict_string = status.output.strip().split('\n', 1)
+        self.assertEqual(valid, "This token is not valid")
+        comparison_dict = {
+            "name": name1,
+            "used": 0,
+            "expiration_date": None,
+            "max_usage": 1,
+            "disabled": True,
+            "ips": [],
+            "active": False
+        }
+        self.assertEqual(json.loads(info_dict_string), comparison_dict)
+
+        generate = runner.invoke(cli, ['--config-path', self.path, 'generate', '-e', '2220-05-12'])
+        name2 = generate.output.strip()
+
+        status = runner.invoke(cli, ['--config-path', self.path, 'status', '-s', name2])
+        valid, info_dict_string = status.output.strip().split('\n', 1)
+        self.assertEqual(valid, "This token is valid")
+        comparison_dict = {
+            "name": name2,
+            "used": 0,
+            "expiration_date": "2220-05-12 00:00:00",
+            "max_usage": 0,
+            "disabled": False,
+            "ips": [],
+            "active": True
+        }
+        self.assertEqual(json.loads(info_dict_string), comparison_dict)
+
+        status = runner.invoke(cli, ['--config-path', self.path, 'status', '-l'])
+        list = status.output.strip()
+        self.assertEqual(list, f"{name1}, {name2}")
 
 
 if "logging" in sys.argv:
