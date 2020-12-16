@@ -92,3 +92,9 @@ on your database once, or just delete your current database.
   - [MatrixRegistration](https://gitlab.com/olze/matrixregistration/) similar java project using my webui
 
 For more info check the [wiki](https://github.com/ZerataX/matrix-registration/wiki)
+
+### assets
+
+- the valley cover photo on the registration page is photo by [Jesús Roncero](https://www.flickr.com/golan)
+used under the terms of [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). No warranties are given.
+- the font used on the registration page is [Nunito](https://fonts.google.com/specimen/Nunito) which is licensed under [SIL Open Font License, Version 1.1](./matrix_registration/static/fonts/NUNITO-LICENSE).
