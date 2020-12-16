@@ -31,7 +31,7 @@
       src: local("Nunito"), url("{{ url_for('static', filename='fonts/Nunito_400_Nunito_700.woff2') }}");
     }
     body, .widget::before {
-      background-image: url("/static/images/valley.jpg");
+      background-image: url("{{ url_for('static', filename='images/valley.jpg') }}");
     }
   </style>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
