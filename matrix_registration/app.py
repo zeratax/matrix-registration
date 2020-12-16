@@ -30,7 +30,7 @@ def create_app(testing=False):
 @click.group(cls=FlaskGroup, add_default_commands=False, create_app=create_app,
              context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("--config-path", default="config.yaml", help='specifies the config file to be used')
-@click.option("--secrets-path", default=None, help='location of secrets file')
+@click.option("--secrets-path", default=None, help='location of the secrets file')
 @pass_script_info
 def cli(info, config_path, secrets_path):
     """a token based matrix registration app"""

@@ -4,7 +4,7 @@ registration_shared_secret: 'RegistrationSharedSecret' # see your synapse's home
 admin_secret: 'APIAdminPassword'
 base_url: '' # e.g. '/element' for https://example.tld/element/register
 client_redirect: 'https://app.element.io/#/login'
-client_logo: 'https://raw.githubusercontent.com/vector-im/element-web/develop/res/vector-icons/180.png'
+client_logo: '{cwd}/matrix_registration/static/images/element-logo.png'
 db: 'sqlite:///{cwd}db.sqlite3'
 host: 'localhost'
 port: 5000

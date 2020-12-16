@@ -13,7 +13,8 @@ from flask import (
     jsonify,
     request,
     make_response,
-    render_template
+    render_template,
+    send_file
 )
 from flask_httpauth import HTTPTokenAuth
 from wtforms import (
@@ -142,6 +143,12 @@ def unauthorized():
     return make_response(jsonify(resp), 401)
 
 
+@api.route('/static/replace/images/element-logo.png')
+def element_logo():
+    return send_file(config.config.client_logo.replace('{cwd}', f'{os.getcwd()}/'),
+                     mimetype='image/jpeg')
+
+
 @api.route('/register', methods=['GET', 'POST'])
 def register():
     """
@@ -223,7 +230,6 @@ def register():
                                server_name=server_name,
                                pw_length=pw_length,
                                client_redirect=config.config.client_redirect,
-                               client_logo=config.config.client_logo,
                                base_url=config.config.base_url,
                                translations=translations)
 

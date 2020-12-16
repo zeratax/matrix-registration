@@ -16,7 +16,7 @@
   <meta name="msapplication-TileImage" content="{{ url_for('static', filename='images/tile.png') }}">
   <meta name="msapplication-TileColor" content="#fff">
   <title>{{ translations.server_registration }}</title>
-  <!-- font designed by Designed by Vernon Adams, Cyreal -->
+  <!-- font designed by Vernon Adams, Cyreal -->
   <!-- https://fonts.google.com/specimen/Nunito -->
   <!-- licensed under SIL Open Font License, Version 1.1 -->
   <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/Nunito_400_Nunito_700.woff2') }}" type="font/woff2" crossorigin="anonymous">
@@ -88,7 +88,7 @@
       </header>
       <section>
         <p> {{ translations.click_to_login }}</p>
-        <h3><a href="{{ client_redirect }}"><img src="{{ client_logo }}" height="100px"></a></h3>
+        <h3><a href="{{ client_redirect }}"><img src="{{ base_url }}/static/replace/images/element-logo.png" height="100px"></a></h3>
         <p>{{ translations.choose_client }} <a href="https://matrix.org/docs/projects/clients-matrix"
             a>https://matrix.org/docs/projects/clients-matrix</a></p>
       </section>
@@ -217,7 +217,7 @@
           console.log(response)
         } catch (e) {
           if (e instanceof SyntaxError) {
-            showError("{{ translations.internal_error }}")
+            showError("{{ translations.internal_error }}", "{{ translations.contact }}")
             return
           }
         }
@@ -243,7 +243,7 @@
 
       // Define what happens in case of error
       XHR.addEventListener("error", function (event) {
-        showError("{{ translations.internal_error }}")
+        showError("{{ translations.internal_error }}", "{{ translations.contact }}")
       })
 
       // Set up our request
