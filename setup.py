@@ -38,6 +38,7 @@ setuptools.setup(
     url="https://github.com/zeratax/matrix-registration",
     packages=['matrix_registration'],
     package_data={'matrix_registration': ['*.txt',
+                                          'translations/*.yaml',
                                           'templates/*.html',
                                           'static/css/*.css',
                                           'static/images/*.jpg',
