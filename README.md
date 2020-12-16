@@ -1,6 +1,6 @@
 <img src="resources/logo.png" width="300">
 
-[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matrix-registration.svg) [![PyPI](https://img.shields.io/pypi/v/matrix-registration.svg)](https://pypi.org/project/matrix-registration/) [![Matrix](https://img.shields.io/matrix/matrix-registration:dmnd.sh.svg?server_fqdn=matrix.org)](https://matrix.to/#/#matrix-registration:dmnd.sh)
+[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration) [![Translation status](https://l10n.dmnd.sh/widgets/matrix-registration/-/svg-badge.svg)](http://l10n.dmnd.sh/engage/matrix-registration/) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matrix-registration.svg) [![PyPI](https://img.shields.io/pypi/v/matrix-registration.svg)](https://pypi.org/project/matrix-registration/) [![Matrix](https://img.shields.io/matrix/matrix-registration:dmnd.sh.svg?server_fqdn=matrix.org)](https://matrix.to/#/#matrix-registration:dmnd.sh)
 
 # matrix-registration
 

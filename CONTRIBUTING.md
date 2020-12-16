@@ -9,6 +9,18 @@ If you're reporting a security issue, please email me at security@zera.tax, othe
 if you're reporting a bug, please fill out this [form](https://github.com/ZerataX/matrix-registration/issues/new?labels=bug&template=bug_report.md).
 #### Feature Requests
 If you have an idea for a new feature or an enhancement, please fill out this [form](https://github.com/ZerataX/matrix-registration/issues/new?labels=enhancement&template=feature_request.md).
+#### Translations
+You can translate the registration page over at https://l10n.dmnd.sh/engage/matrix-registration/
+
+[![Translation status](https://l10n.dmnd.sh/widgets/matrix-registration/-/open-graph.png)](https://l10n.dmnd.sh/engage/matrix-registration/)
+
+#### Getting Started
+
+To begin working on translating with WebLate, you will need to create an account linked to your GitHub account. From there, you'll be able to see a list of currently translated languages as well as incomplete lines.
+
+
+If you have any further questions about how to contribute, please make an issue on the GitHub page.
+
 
 ### Pull Requests
 
