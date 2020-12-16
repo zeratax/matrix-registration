@@ -15,7 +15,7 @@ weblate:
   username_format: "format: @username:{{ server_name }}"
   case_sensitive: "case-sensitive, e.g: SardineImpactReport"
   password_too_short: "atleast {{ pw_length }} characters long"
-  password_do_not_match: passwords don't match"
+  password_do_not_match: passwords don't match
   error: "Error"
   error_long: "There was an error while trying to register you."
   internal_error: "Internal Server Error!"
