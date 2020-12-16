@@ -41,6 +41,7 @@ setuptools.setup(
                                           'translations/*.yaml',
                                           'templates/*.html',
                                           'static/css/*.css',
+                                          'static/fonts/*.woff2',
                                           'static/images/*.jpg',
                                           'static/images/*.png',
                                           'static/images/*.ico']},
