@@ -1,6 +1,6 @@
 <img src="resources/logo.png" width="300">
 
-[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matrix-registration.svg) [![PyPI](https://img.shields.io/pypi/v/matrix-registration.svg)](https://pypi.org/project/matrix-registration/) [![Matrix](https://img.shields.io/matrix/matrix-registration:dmnd.sh.svg?server_fqdn=matrix.org)](https://matrix.to/#/#matrix-registration:dmnd.sh)
+[![Build Status](https://travis-ci.org/ZerataX/matrix-registration.svg?branch=master)](https://travis-ci.org/ZerataX/matrix-registration) [![Coverage Status](https://coveralls.io/repos/github/ZerataX/matrix-registration/badge.svg)](https://coveralls.io/github/ZerataX/matrix-registration) [![Translation status](https://l10n.dmnd.sh/widgets/matrix-registration/-/svg-badge.svg)](http://l10n.dmnd.sh/engage/matrix-registration/) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matrix-registration.svg) [![PyPI](https://img.shields.io/pypi/v/matrix-registration.svg)](https://pypi.org/project/matrix-registration/) [![Matrix](https://img.shields.io/matrix/matrix-registration:dmnd.sh.svg?server_fqdn=matrix.org)](https://matrix.to/#/#matrix-registration:dmnd.sh)
 
 # matrix-registration
 
@@ -17,7 +17,7 @@ with this project you can just quickly generate tokens on the fly and share them
 
 ```bash
 pip3 install matrix-registration
-python3 -m matrix_registration
+matrix-registration
 ```
 __INFO:__ 
 - This only asks you for the most important options. 
@@ -39,8 +39,8 @@ If you already have a website and want to use your own register page, the [wiki]
 ## usage
 
 ```bash
-$ matrix_registration -h
-Usage: matrix_registration [OPTIONS] COMMAND [ARGS]...
+$ matrix-registration -h
+Usage: matrix-registration [OPTIONS] COMMAND [ARGS]...
 
   a token based matrix registration app
 
@@ -92,3 +92,9 @@ on your database once, or just delete your current database.
   - [MatrixRegistration](https://gitlab.com/olze/matrixregistration/) similar java project using my webui
 
 For more info check the [wiki](https://github.com/ZerataX/matrix-registration/wiki)
+
+### assets
+
+- the valley cover photo on the registration page is photo by [Jesús Roncero](https://www.flickr.com/golan)
+used under the terms of [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). No warranties are given.
+- the font used on the registration page is [Nunito](https://fonts.google.com/specimen/Nunito) which is licensed under [SIL Open Font License, Version 1.1](./matrix_registration/static/fonts/NUNITO-LICENSE).

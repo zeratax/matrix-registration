@@ -60,13 +60,13 @@ def create_account(user, password, server_location, shared_secret,
 
     server_location = server_location.rstrip('/')
 
-    r = requests.post('%s/_matrix/client/r0/admin/register' % (server_location),
+    r = requests.post('%s/_synapse/admin/v1/register' % (server_location),
                       json=data)
     r.raise_for_status()
     return r.json()
 
 
 def _get_nonce(server_location):
-    r = requests.get('%s/_matrix/client/r0/admin/register' % (server_location))
+    r = requests.get('%s/_synapse/admin/v1/register' % (server_location))
     r.raise_for_status()
     return r.json()['nonce']

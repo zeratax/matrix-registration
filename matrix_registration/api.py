@@ -3,6 +3,7 @@ import logging
 from requests import exceptions
 import re
 from urllib.parse import urlparse
+import gettext
 
 # Third-party imports...
 from dateutil import parser
@@ -26,6 +27,8 @@ from wtforms import (
 from .matrix_api import create_account
 from . import config
 from . import tokens
+from .translation import get_translations
+
 
 auth = HTTPTokenAuth(scheme='SharedSecret')
 logger = logging.getLogger(__name__)
@@ -205,10 +208,18 @@ def register():
     else:
         server_name = config.config.server_name
         pw_length = config.config.password['min_length']
+        lang = request.args.get('lang') or request.accept_languages.best
+        replacements = {
+            'server_name': server_name,
+            'pw_length': pw_length
+        }
+        translations = get_translations(lang, replacements)
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
-                               riot_instance=config.config.riot_instance)
+                               riot_instance=config.config.riot_instance,
+                               base_url=config.config.base_url,
+                               translations=translations)
 
 
 @api.route('/token', methods=['GET', 'POST'])

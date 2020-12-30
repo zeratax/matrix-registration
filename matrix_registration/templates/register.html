@@ -3,62 +3,79 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width; initial-scale=1.0;" />
-  <meta property="og:title" content="{{ server_name }} registration">
+  <meta name="viewport" content="width=device-width initial-scale=1.0" />
+  <meta property="og:title" content="{{ translations.server_registration }}">
   <meta property="og:site_name" content="{{ server_name }}">
   <meta property="og:type" content="website" />
-  <meta name="og:description" content="registrate an account on {{ server_name }}" />
+  <meta name="og:description" content="{{ translations.register_account }}"/>
   <meta name="og:image" content="{{ url_for('static', filename='images/icon.png') }}" />
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/icon.png') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon32x32.png') }}" sizes="32x32">
+  <link rel="preload" as="image" href="{{ url_for('static', filename='images/favicon.ico') }}">
   <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
   <meta name="msapplication-TileImage" content="{{ url_for('static', filename='images/tile.png') }}">
   <meta name="msapplication-TileColor" content="#fff">
-  <title>{{ server_name }} registration</title>
+  <title>{{ translations.server_registration }}</title>
+  <!-- font designed by Designed by Vernon Adams, Cyreal -->
+  <!-- https://fonts.google.com/specimen/Nunito -->
+  <!-- licensed under SIL Open Font License, Version 1.1 -->
+  <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/Nunito_400_Nunito_700.woff2') }}" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- valley cover by Designed by Jesús Roncero -->
+  <!-- https://www.flickr.com/golan -->
+  <!-- licensed under CC-BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/) -->
+  <link rel="preload" as="image" href="{{ url_for('static', filename='images/valley.jpg') }}">
+  <style>
+    @font-face {
+      font-family: "Nunito";
+      src: local("Nunito"), url("{{ url_for('static', filename='fonts/Nunito_400_Nunito_700.woff2') }}");
+    }
+    body, .widget::before {
+      background-image: url("{{ url_for('static', filename='images/valley.jpg') }}");
+    }
+  </style>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 </head>
 
 <body class="blur">
   <article class="widget register">
     <div class="center">
       <header>
-        <h1>{{ server_name }} registration</h1>
-        <p>the registration requires a secret token<br>
-          registration does not require an email, just a username and a password that's longer than {{ pw_length }}
-          characters.</p>
+        <h1>{{ translations.server_registration }}</h1>
+        <p>{{ translations.requires_token }}<br>
+          {{ translations.requires_username_and_password }}</p>
       </header>
       <section>
-        <form id="registration" action="/register" method="post">
+        <form id="registration" action="{{ base_url }}/register" method="post">
           <div class="group">
             <input id="username" name="username" type="text" placeholder=" " required
               pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" required minlength="1"
               maxlength="200">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="username">Username</label>
+            <label for="username">{{ translations.username }}</label>
           </div>
           <div class="group">
             <input id="password" name="password" type="password" placeholder=" " required minlength="{{ pw_length }}"
               maxlength="128">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="password">Password</label>
+            <label for="password">{{ translations.password }}</label>
           </div>
           <div class="group">
             <input id="confirm_password" name="confirm" type="password" placeholder=" " required>
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="confirm_password">Confirm</label>
+            <label for="confirm_password">{{ translations.confirm }}</label>
           </div>
           <div class="group">
             <input id="token" name="token" type="text" placeholder=" " required pattern="^([A-Z][a-z]+)+$">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label for="token">Token</label>
+            <label for="token">{{ translations.token }}</label>
           </div>
           <div class="btn-box">
-            <input class="btn btn-submit" type="submit" value="register">
+            <input class="btn btn-submit" type="submit" value="{{ translations.register }}">
           </div>
         </form>
       </section>
@@ -70,9 +87,9 @@
         <h2 id="welcome"></h2>
       </header>
       <section>
-        <p>Click here to login in:</p>
-        <h3><a href="{{ riot_instance }}"><img src="static/images/riot.png" height="50px"></a></h3>
-        <p>or choose one of the many other clients here: <a href="https://matrix.org/docs/projects/clients-matrix"
+        <p> {{ translations.click_to_login }}</p>
+        <h3><a href="{{ riot_instance }}"><img src="{{ url_for('static', filename='images/icon32x32.png') }}" height="100px"></a></h3>
+        <p>{{ translations.choose_client }} <a href="https://matrix.org/docs/projects/clients-matrix"
             a>https://matrix.org/docs/projects/clients-matrix</a></p>
       </section>
     </div>
@@ -80,10 +97,10 @@
   <article id="error" class="widget modal hidden">
     <div class="center">
       <header>
-        <h2>Error</h2>
+        <h2>{{ translations.error }}</h2>
       </header>
       <section>
-        <p>There was an error while trying to register you.</p>
+        <p>{{ translations.error_long }}</p>
         <h3 id="error_message" class="error"></h3>
         <p id="error_dialog"></p>
       </section>
@@ -110,7 +127,7 @@
       const outsideClickListener = event => {
         if (!element.contains(event.target) && isVisible(
             element)) {
-          element.classList.add("hidden");
+          element.classList.add("hidden")
           removeClickListener()
         }
       }
@@ -124,117 +141,124 @@
     const isVisible = elem => !!elem && !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
 
     // set token input to "?token=" query parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    document.getElementById("token").value = urlParams.get("token");
+    const urlParams = new URLSearchParams(window.location.search)
+    document.getElementById("token").value = urlParams.get("token")
+
+    // set "?lang=" parameter to user lang
+    const userLang = navigator.language || navigator.userLanguage
+    if (!urlParams.has("lang")) { 
+      urlParams.append("lang", userLang)
+      window.history.replaceState({}, '', `${location.pathname}?${urlParams}`);
+    }
 
     // html5 validators
-    var username = document.getElementById("username");
-    var password = document.getElementById("password");
-    var confirm_password = document.getElementById("confirm_password");
-    var token = document.getElementById("token");
+    var username = document.getElementById("username")
+    var password = document.getElementById("password")
+    var confirm_password = document.getElementById("confirm_password")
+    var token = document.getElementById("token")
 
     username.addEventListener("input", function (event) {
       if (username.validity.typeMismatch) {
-        username.setCustomValidity("format: @username:{{ server_name }}");
+        username.setCustomValidity("{{ translations.username_format }}")
       } else {
-        username.setCustomValidity("");
+        username.setCustomValidity("")
       }
-    });
+    })
 
     token.addEventListener("input", function (event) {
       if (token.validity.typeMismatch) {
-        token.setCustomValidity("case-sensitive, e.g: SardineImpactReport");
+        token.setCustomValidity("{{ translations.case_sensitive }}")
       } else {
-        token.setCustomValidity("");
+        token.setCustomValidity("")
       }
-    });
+    })
 
     password.addEventListener("input", function (event) {
       if (password.validity.typeMismatch) {
-        password.setCustomValidity("atleast {{ pw_length }} characters long");
+        password.setCustomValidity('{{ translations.password_too_short }}')
       } else {
-        password.setCustomValidity("");
+        password.setCustomValidity("")
       }
-    });
+    })
 
     function validatePassword() {
       if (password.value != confirm_password.value) {
-        confirm_password.setCustomValidity("passwords don't match");
+        confirm_password.setCustomValidity("{{ translations.password_do_not_match }}")
       } else {
-        confirm_password.setCustomValidity("");
+        confirm_password.setCustomValidity("")
       }
     }
 
-    password.onchange = validatePassword;
-    confirm_password.onkeyup = validatePassword;
+    password.onchange = validatePassword
+    confirm_password.onkeyup = validatePassword
 
     function showError(message, dialog) {
-      document.getElementById("error_message").innerHTML = message;
-      document.getElementById("error_dialog").innerHTML = dialog;
-      let error = document.getElementById("error");
-      error.classList.remove("hidden");
-      hideOnClickOutside(error);
+      document.getElementById("error_message").innerHTML = message
+      document.getElementById("error_dialog").innerHTML = dialog
+      let error = document.getElementById("error")
+      error.classList.remove("hidden")
+      hideOnClickOutside(error)
     }
 
     // hijack the submit button to display the json response in a neat modal
-    var form = document.getElementById("registration");
+    var form = document.getElementById("registration")
 
     function sendData() {
-      let XHR = new XMLHttpRequest();
+      let XHR = new XMLHttpRequest()
 
       // Bind the FormData object and the form element
-      let FD = new FormData(form);
+      let FD = new FormData(form)
 
       // Define what happens on successful data submission
       XHR.addEventListener("load", function (event) {
-        console.log(XHR.responseText);
-        let response = JSON.parse(XHR.responseText);
+        console.log(XHR.responseText)
+        let response = JSON.parse(XHR.responseText)
         try {
-          console.log(response);
+          console.log(response)
         } catch (e) {
           if (e instanceof SyntaxError) {
-            showError("Internal Server Error!", "Please contact the server admin about this.");
-            return;
+            showError("{{ translations.internal_error }}")
+            return
           }
         }
         if ("errcode" in response) {
           if (response["errcode"] == "MR_BAD_USER_REQUEST") {
             if ("token" in response["error"]) {
-              showError("Token Error", response["error"]["token"][0]);
+              showError(" {{ translations.token_error }} ", response["error"]["token"][0])
             } else if ("password" in response["error"]) {
-              showError("Password Error", response["error"]["password"][0]);
+              showError("{{ translations.password_error }}", response["error"]["password"][0])
             } else if ("username" in response["error"]) {
-              showError("Username Error", response["error"]["username"][0]);
+              showError("{{ translations.username_error }}", response["error"]["username"][0])
             }
-            return;
+            return
           } else {
-            showError("Homeserver Error", response["error"]);
+            showError("{{ translations.homeserver_error }}", response["error"])
           }
         } else {
-          document.getElementById("welcome").innerHTML = "Welcome " + response['user_id'];
-          document.getElementById("success").classList.remove("hidden");
+          document.getElementById("welcome").innerHTML = "{{ translations.welcome }}"  + response['user_id']
+          document.getElementById("success").classList.remove("hidden")
         }
 
-      });
+      })
 
       // Define what happens in case of error
       XHR.addEventListener("error", function (event) {
-        showError("Internal Server Error!", "Please contact the server admin about this.");
-      });
+        showError("{{ translations.internal_error }}")
+      })
 
       // Set up our request
-      XHR.open("POST", "/register");
+      XHR.open("POST", "{{ base_url }}/register")
 
       // The data sent is what the user provided in the form
-      XHR.send(FD);
+      XHR.send(FD)
     }
 
     // take over its submit event.
     form.addEventListener("submit", function (event) {
-      event.preventDefault();
+      event.preventDefault()
 
-      sendData();
-    });
+      sendData()
+    })
   </script>
 </body>
 

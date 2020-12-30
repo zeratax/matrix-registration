@@ -6,6 +6,7 @@
 result
 data/
 
+!matrix_registration/translations/*.yaml
 # vscode
 .vscode/
 # nose
