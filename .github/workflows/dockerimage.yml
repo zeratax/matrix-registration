@@ -11,18 +11,25 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
+      - name: Install nix
+        uses: cachix/install-nix-action@v12
+        with:
+          nix_path: nixpkgs=channel:nixos-20.09
+      - run: nix-build docker.nix ${{ github.event.ref }}
+      - run: nix-env -iA nixpkgs.docker
+
       - name: Push to Docker Hub 🐋
-        uses: docker/build-push-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: zeratax/matrix-registration
-          tag_with_ref: true
-      - name: Push to GitHub Packages 📦
-        uses: docker/build-push-action@v1
-        with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: docker.pkg.github.com
-          repository: zeratax/matrix-registration/matrix-registration-image
-          tag_with_ref: true
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker push hub.docker.com/zeratax/matrix-registration
+       
+      # - name: Push to GitHub Packages 📦
+      #   env:
+      #     GITHUB_USERNAME: ${{ github.actor }}
+      #     GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     echo "$GITHUB_USERNAME" | docker login ghcr.io -u "$GITHUB_PASSWORD" --password-stdin
+      #     docker push ghcr.io/zeratax/matrix-registration/matrix-registration-image

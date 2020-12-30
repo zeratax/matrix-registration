@@ -1,9 +1,16 @@
-with import <nixpkgs> {};
+{ pkgs ? import <nixpkgs> {}}:
 with pkgs.python3Packages;
 
-buildPythonPackage rec {
+let
+  # officially supported database drivers
+  dbDrivers = [
+    psycopg2
+    # sqlite driver is already shipped with python by default
+  ];
+
+in buildPythonPackage {
   name = "matrix-registration";
-  # src = ./.;
+  src = ./.;
   propagatedBuildInputs = [
     pkgs.libsndfile
     appdirs
@@ -13,18 +20,15 @@ buildPythonPackage rec {
     flask-limiter
     flask_sqlalchemy
     python-dateutil
-    pytest
     pyyaml
     requests
     waitress
     wtforms
     setuptools
-  ];
+  ]++ dbDrivers;
+
   checkInputs = [
     flake8
     parameterized
   ];
-  # shellHook = ''
-  #   unset SOURCE_DATE_EPOCH
-  # '';
 }

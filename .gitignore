@@ -3,6 +3,9 @@
 *.conf
 !config.sample.yaml
 !tests/test_config.yaml
+result
+data/
+
 !matrix_registration/translations/*.yaml
 # vscode
 .vscode/
