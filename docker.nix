@@ -10,12 +10,6 @@ in pkgs.dockerTools.buildImage {
 
   contents = [ matrix-registration ];
 
-  runAsRoot = ''
-    #!${pkgs.runtimeShell}
-    mkdir /data
-    cp ${matrix-registration}/config/config.sample.yaml /data/
-  '';
-
   config = { 
     Entrypoint = [
       "${matrix-registration}/bin/matrix-registration"
