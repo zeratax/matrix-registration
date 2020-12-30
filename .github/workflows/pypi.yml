@@ -1,5 +1,4 @@
-# https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
-name: Upload Python Package
+name: Publish Python Package
 
 on:
   push:

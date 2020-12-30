@@ -40,5 +40,5 @@ jobs:
           REGISTERY: docker.pkg.github.com
           TAG_NAME: ${{ env.REPO }}/matrix-registration-image:${{ env.VERSION }}
         run: |
-          sudo skopeo login --username="$GITHUB_USERNAME" --password="$GITHUB_PASSWORD" docker://$REGISTERY
+          sudo skopeo login --username="$GITHUB_USERNAME" --password="$GITHUB_PASSWORD" $REGISTERY
           sudo skopeo copy --insecure-policy docker-archive:result docker://$REGISTERY/$TAG_NAME
