@@ -13,7 +13,7 @@ With matrix-registration, you can quickly generate tokens on the fly and share t
 <img src="https://matrix.org/_matrix/media/v1/download/dmnd.sh/UKGgpbHRdFXzKywxjjbfHAsI" width="500">
 
 
-## setup
+## Setup
 Install using pip:
 
 ```bash
@@ -22,18 +22,22 @@ matrix-registration
 ```
 
 ### First start
-Generate a configuration for your matrix homeserver by copying [config.sample.yaml](/config.sample.yaml) to your server and editing it:
+To start, execute `matrix-registration`.
+
+A configuration file should be generated for you on first start.
+
+If this fails, you can create a configuration for your matrix homeserver by copying [config.sample.yaml](/config.sample.yaml) to your server and editing it:
 ```bash
 wget https://raw.githubusercontent.com/ZerataX/matrix-registration/master/config.sample.yaml
 cp config.sample.yaml config.yaml
 nano config.yaml
 ```
 
-Then pass the path to this configuration to the application on startup using `--confiig-path /path/to/config.yaml`.
+Then pass the path to this configuration to the application on startup using `--config-path /path/to/config.yaml`.
 
 __INFO:__ 
 - This only asks you for the most important options. 
-You should definitely take a look at the actual configuration file.
+You should definitely take a look at the actual configuration file. The path to the file will be printed by `matrix-registration` the first time it runs.
 - The `shared_secret` has to be the same as `registration_shared_secret` in your homeserver.yaml
 
 
@@ -58,7 +62,7 @@ Commands:
 
 ```
 
-After you've started the api server and [generated a token](https://github.com/ZerataX/matrix-registration/wiki/api#creating-a-new-token) you can register an account either:
+After you've started the API server and [generated a token](https://github.com/ZerataX/matrix-registration/wiki/api#creating-a-new-token) you can register an account either:
 - with a simple post request, e.g.:
 ```bash
 curl -X POST \
