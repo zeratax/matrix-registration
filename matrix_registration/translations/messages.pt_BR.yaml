@@ -1,1 +1,26 @@
-{}
+weblate:
+  error_long: Ocorreu um erro enquanto tentávamos fazer seu registro.
+  register: registrar
+  confirm: Confirmar a senha
+  internal_error: Erro Interno no Servidor!
+  welcome: Bem-vindo
+  homeserver_error: Erro no Homeserver
+  username_error: Erro no Nome do Usuário
+  password_error: Erro na Senha
+  token_error: Erro no Token
+  contact: Por favor, contacte o administrador do servidor sobre esse assunto.
+  error: Erro
+  password_do_not_match: as senhas não são iguais
+  password_too_short: pelo menos {{ pw_length }} caracteres de comprimento
+  case_sensitive: 'maiúsculas e minúsculas, p.ex.: SardinhaImpactoRelatorio'
+  username_format: 'formato: @nome_do_usuário:{{ server_name }}'
+  choose_client: 'ou escolha algum dos outros clientes aqui:'
+  click_to_login: 'Clique aqui para logar em:'
+  token: Token
+  password: Senha
+  username: Nome do usuário
+  requires_username_and_password: "o registro não requer endereço de email, apenas\
+    \ um nome de usuário e uma senha maior que {{ pw_length }} caracteres.\n"
+  requires_token: o registro necessita de um token secreto
+  register_account: registre uma conta no {{ server_name }}
+  server_registration: Registro no {{ server_name }}
