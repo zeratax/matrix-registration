@@ -17,9 +17,9 @@ weblate:
   click_to_login: 点此登陆：
   register: 注册
   token: 令牌
-  confirm: 确认
+  confirm: 确认密码
   password: 密码
   username: 用户名
-  requires_username_and_password: "注册不需要电子邮箱，仅需用户名与长于 {{ pw_length }}个字符的密码。\n"
+  requires_username_and_password: "注册不需要电子邮箱，仅需用户名与长于{{ pw_length }}个字符的密码。\n"
   register_account: 在 {{ server_name }} 注册账户
   server_registration: '{{ server_name }} 注册'
