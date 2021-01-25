@@ -83,6 +83,7 @@ If you'd like to run matrix-registration behind a reverse-proxy, here is an exam
 
 ```nginx
 location  ~ ^/(static|register) {
+        proxy_set_header X-Forwarded-For $remote_addr;
         proxy_pass http://localhost:5000;
 }
 ```
