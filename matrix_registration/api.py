@@ -16,6 +16,7 @@ from flask import (
     render_template
 )
 from flask_httpauth import HTTPTokenAuth
+from werkzeug.exceptions import BadRequest
 from wtforms import (
     Form,
     StringField,
@@ -233,15 +234,22 @@ def token():
     if request.method == 'GET':
         return jsonify(tokens.tokens.toList())
     elif request.method == 'POST':
-        data = request.get_json()
+        try:
+            data = request.get_json(force=True)
+        except BadRequest as e:
+            # empty request means use default values
+            if len(request.get_data()) == 0:
+                data = None
+            else:
+                raise e
         try:
             if data:
                 if 'ex_date' in data and data['ex_date'] is not None:
                     ex_date = parser.parse(data['ex_date'])
                 if 'one_time' in data:
                     one_time = data['one_time']
-                token = tokens.tokens.new(ex_date=ex_date,
-                                          one_time=one_time)
+            token = tokens.tokens.new(ex_date=ex_date,
+                                      one_time=one_time)
         except ValueError:
             resp = {
                 'errcode': 'MR_BAD_DATE_FORMAT',
