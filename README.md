@@ -107,17 +107,6 @@ if you're looking for a bot to interface with matrix-registration and manage you
 [maubot-invite](https://github.com/williamkray/maubot-invite)
 
 
-
-### Troubleshooting
-
-#### SQLAlchemy complains that a value isn't in a DateTime value
-
-Before #17 introduced SQLAlchemy support the sqlite database incorrectly stored the expire dates, to fix this you have to manually run:
-```sql
-update tokens set ex_date=null where ex_date='None';
-```
-on your database once, or just delete your current database.
-
 ### Similar projects
 
   - [matrix-invite](https://gitlab.com/reivilibre/matrix-invite) live at https://librepush.net/matrix/registration/
