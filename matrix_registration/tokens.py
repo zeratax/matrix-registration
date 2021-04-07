@@ -4,6 +4,8 @@ import logging
 import random
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc, Table, Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 
 # Local imports...
 from .constants import WORD_LIST_PATH
@@ -12,6 +14,7 @@ from .constants import WORD_LIST_PATH
 logger = logging.getLogger(__name__)
 
 db = SQLAlchemy()
+session = db.session
 
 
 def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
@@ -23,21 +26,40 @@ def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
     return string
 
 
+association_table = Table('association', db.Model.metadata,
+                          Column('ips', String, ForeignKey('ips.address'), primary_key=True),
+                          Column('tokens', Integer, ForeignKey('tokens.name'), primary_key=True))
+
+
+class IP(db.Model):
+    __tablename__ = 'ips'
+    id = Column(Integer, primary_key=True)
+    address = Column(String(255))
+
+    def __repr__(self):
+        return self.address
+
+
 class Token(db.Model):
     __tablename__ = 'tokens'
-    name = db.Column(db.String(255), primary_key=True)
-    ex_date = db.Column(db.DateTime, nullable=True)
-    one_time = db.Column(db.Boolean, default=False)
-    used = db.Column(db.Integer, default=0)
+    name = Column(String(255), primary_key=True)
+    expiration_date = Column(DateTime, nullable=True)
+    max_usage = Column(Integer, default=1)
+    used = Column(Integer, default=0)
+    disabled = Column(Boolean, default=False)
+    ips = relationship("IP",
+                       secondary=association_table,
+                       lazy='subquery',
+                       backref=db.backref('pages', lazy=True))
 
     def __init__(self, **kwargs):
         super(Token, self).__init__(**kwargs)
         if not self.name:
             self.name = random_readable_string()
-        if self.used is None:
+        if not self.used:
             self.used = 0
-        if self.one_time is None:
-            self.one_time = False
+        if not self.max_usage:
+            self.max_usage = 0
 
     def __repr__(self):
         return self.name
@@ -46,29 +68,33 @@ class Token(db.Model):
         _token = {
             'name': self.name,
             'used': self.used,
-            'ex_date': str(self.ex_date) if self.ex_date else None,
-            'one_time': bool(self.one_time),
-            'valid': self.valid()
+            'expiration_date': str(self.expiration_date) if self.expiration_date else None,
+            'max_usage': self.max_usage,
+            'ips': list(map(lambda x: x.address, self.ips)),
+            'disabled': bool(self.disabled),
+            'active': self.active()
         }
         return _token
 
-    def valid(self):
+    def active(self):
         expired = False
-        if self.ex_date:
-            expired = self.ex_date < datetime.now()
-        used = bool(self.one_time and self.used > 0)
+        if self.expiration_date:
+            expired = self.expiration_date < datetime.now()
+        used = self.max_usage != 0 and self.max_usage <= self.used
 
-        return (not expired) and (not used)
+        return (not expired) and (not used) and (not self.disabled)
 
-    def use(self):
-        if self.valid():
+    def use(self, ip_address=False):
+        if self.active():
             self.used += 1
+            if ip_address:
+                self.ips.append(IP(address=ip_address))
             return True
         return False
 
     def disable(self):
-        if self.valid():
-            self.ex_date = datetime(1, 1, 1)
+        if not self.disabled:
+            self.disabled = True
             return True
         return False
 
@@ -92,7 +118,7 @@ class Tokens():
         return _tokens
 
     def load(self):
-        logger.debug('loading tokens from db...')
+        logger.debug('loading tokens from ..')
         self.tokens = {}
         for token in Token.query.all():
             logger.debug(token)
@@ -108,38 +134,57 @@ class Tokens():
             return False
         return token
 
-    def valid(self, token_name):
-        logger.debug('checking if "%s" is valid' % token_name)
+    def active(self, token_name):
+        logger.debug('checking if "%s" is active' % token_name)
         token = self.get_token(token_name)
         if token:
-            return token.valid()
+            return token.active()
         return False
 
-    def use(self, token_name):
+    def use(self, token_name, ip_address=False):
         logger.debug('using token: %s' % token_name)
         token = self.get_token(token_name)
         if token:
-            if token.use():
-                db.session.commit()
+            if token.use(ip_address):
+                try:
+                    session.commit()
+                except exc.IntegrityError:
+                    logger.warning("User already used this token before!")
                 return True
         return False
+
+    def update(self, token_name, data):
+        logger.debug('updating token: %s' % token_name)
+        token = self.get_token(token_name)
+        if not token:
+            return False
+        if 'expiration_date' in data:
+            token.expiration_date = data['expiration_date']
+        if 'max_usage' in data:
+            token.max_usage = data['max_usage']
+        if 'used' in data:
+            token.used = data['used']
+        if 'disabled' in data:
+            token.disabled = data['disabled']
+        session.commit()
+        return True
 
     def disable(self, token_name):
         logger.debug('disabling token: %s' % token_name)
         token = self.get_token(token_name)
         if token:
             if token.disable():
-                db.session.commit()
+                session.commit()
                 return True
         return False
 
-    def new(self, ex_date=None, one_time=False):
-        logger.debug(('creating new token, with options: one_time: {},' +
-                     'ex_dates: {}').format(one_time, ex_date))
-        token = Token(ex_date=ex_date, one_time=one_time)
+    def new(self, expiration_date=None, max_usage=False):
+        logger.debug(('creating new token, with options: max_usage: {},' +
+                     'expiration_dates: {}').format(max_usage, expiration_date))
+        token = Token(expiration_date=expiration_date, max_usage=max_usage)
         self.tokens[token.name] = token
-        db.session.add(token)
-        db.session.commit()
+        session.add(token)
+        session.commit()
 
         return token
 

@@ -19,7 +19,7 @@ from urllib.parse import urlparse
 
 # Third-party imports...
 from parameterized import parameterized
-from dateutil import parser
+from datetime import datetime
 from click.testing import CliRunner
 from flask import Flask
 
@@ -64,7 +64,7 @@ LOGGING = {
 
 GOOD_CONFIG = {
     'server_location': 'https://righths.org',
-    'shared_secret': 'coolsharesecret',
+    'registration_shared_secret': 'coolsharesecret',
     'admin_secret': 'coolpassword',
     'base_url': '/element',
     'db': 'sqlite:///%s/tests/db.sqlite' % (os.getcwd(),),
@@ -72,6 +72,7 @@ GOOD_CONFIG = {
     'password': {
         'min_length': 8
     },
+    'ip_logging': False,
     'logging': LOGGING
 }
 
@@ -87,7 +88,7 @@ BAD_CONFIG2 = dict(  # wrong admin secret password -> 401
 
 BAD_CONFIG3 = dict(  # wrong matrix shared password -> 500
     GOOD_CONFIG.items(),
-    shared_secret='wrongsecret',
+    registration_shared_secret='wrongsecret',
 )
 
 usernames = []
@@ -152,7 +153,7 @@ def mocked_requests_post(*args, **kwargs):
                                     400)
 
             mac = hmac.new(
-                key=str.encode(GOOD_CONFIG['shared_secret']),
+                key=str.encode(GOOD_CONFIG['registration_shared_secret']),
                 digestmod=hashlib.sha1,
             )
 
@@ -209,34 +210,34 @@ class TokensTest(unittest.TestCase):
             test_tokens = matrix_registration.tokens.Tokens()
 
             # no token should exist at this point
-            self.assertFalse(test_tokens.valid(""))
+            self.assertFalse(test_tokens.active(""))
             test_token = test_tokens.new()
 
             # no empty token should have been created
-            self.assertFalse(test_tokens.valid(""))
+            self.assertFalse(test_tokens.active(""))
 
     def test_tokens_disable(self):
         with self.app.app_context():
             test_tokens = matrix_registration.tokens.Tokens()
             test_token = test_tokens.new()
 
-            # new tokens should be valid first, invalid after disabling it
-            self.assertTrue(test_token.valid())
+            # new tokens should be active first, inactive after disabling it
+            self.assertTrue(test_token.active())
             self.assertTrue(test_token.disable())
-            self.assertFalse(test_token.valid())
+            self.assertFalse(test_token.active())
 
             test_token2 = test_tokens.new()
 
-            self.assertTrue(test_tokens.valid(test_token2.name))
+            self.assertTrue(test_tokens.active(test_token2.name))
             self.assertTrue(test_tokens.disable(test_token2.name))
-            self.assertFalse(test_tokens.valid(test_token2.name))
+            self.assertFalse(test_tokens.active(test_token2.name))
 
             test_token3 = test_tokens.new()
             test_token3.use()
 
-            self.assertFalse(test_tokens.valid(test_token2.name))
+            self.assertFalse(test_tokens.active(test_token2.name))
             self.assertFalse(test_tokens.disable(test_token2.name))
-            self.assertFalse(test_tokens.valid(test_token2.name))
+            self.assertFalse(test_tokens.active(test_token2.name))
 
     def test_tokens_load(self):
         with self.app.app_context():
@@ -244,9 +245,9 @@ class TokensTest(unittest.TestCase):
 
             test_token = test_tokens.new()
             test_token2 = test_tokens.new()
-            test_token3 = test_tokens.new(one_time=True)
-            test_token4 = test_tokens.new(ex_date=parser.parse("2111-01-01"))
-            test_token5 = test_tokens.new(ex_date=parser.parse("1999-01-01"))
+            test_token3 = test_tokens.new(max_usage=True)
+            test_token4 = test_tokens.new(expiration_date=datetime.fromisoformat("2111-01-01"))
+            test_token5 = test_tokens.new(expiration_date=datetime.fromisoformat("1999-01-01"))
 
             test_tokens.disable(test_token2.name)
             test_tokens.use(test_token3.name)
@@ -254,91 +255,91 @@ class TokensTest(unittest.TestCase):
 
             test_tokens.load()
 
-            # token1: valid, unused, no expiration date
-            # token2: invalid, unused, no expiration date
-            # token3: used once, one-time, now invalid
-            # token4: valid, used once, expiration date
-            # token5: invalid, expiration date
+            # token1: active, unused, no expiration date
+            # token2: inactive, unused, no expiration date
+            # token3: used once, one-time, now inactive
+            # token4: active, used once, expiration date
+            # token5: inactive, expiration date
 
             self.assertEqual(test_token.name,
                              test_tokens.get_token(test_token.name).name)
             self.assertEqual(test_token2.name,
                              test_tokens.get_token(test_token2.name).name)
-            self.assertEqual(test_token2.valid(),
-                             test_tokens.get_token(test_token2.name).valid())
+            self.assertEqual(test_token2.active(),
+                             test_tokens.get_token(test_token2.name).active())
             self.assertEqual(test_token3.used,
                              test_tokens.get_token(test_token3.name).used)
-            self.assertEqual(test_token3.valid(),
-                             test_tokens.get_token(test_token3.name).valid())
+            self.assertEqual(test_token3.active(),
+                             test_tokens.get_token(test_token3.name).active())
             self.assertEqual(test_token4.used,
                              test_tokens.get_token(test_token4.name).used)
-            self.assertEqual(test_token4.ex_date,
-                             test_tokens.get_token(test_token4.name).ex_date)
-            self.assertEqual(test_token5.valid(),
-                             test_tokens.get_token(test_token5.name).valid())
+            self.assertEqual(test_token4.expiration_date,
+                             test_tokens.get_token(test_token4.name).expiration_date)
+            self.assertEqual(test_token5.active(),
+                             test_tokens.get_token(test_token5.name).active())
 
     @parameterized.expand([
         [None, False],
-        [parser.parse('2100-01-12'), False],
+        [datetime.fromisoformat('2100-01-12'), False],
         [None, True],
-        [parser.parse('2100-01-12'), True]
+        [datetime.fromisoformat('2100-01-12'), True]
     ])
-    def test_tokens_new(self, ex_date, one_time):
+    def test_tokens_new(self, expiration_date, max_usage):
         with self.app.app_context():
             test_tokens = matrix_registration.tokens.Tokens()
-            test_token = test_tokens.new(ex_date=ex_date, one_time=one_time)
+            test_token = test_tokens.new(expiration_date=expiration_date, max_usage=max_usage)
 
             self.assertIsNotNone(test_token)
-            if ex_date:
-                self.assertIsNotNone(test_token.ex_date)
+            if expiration_date:
+                self.assertIsNotNone(test_token.expiration_date)
             else:
-                self.assertIsNone(test_token.ex_date)
-            if one_time:
-                self.assertTrue(test_token.one_time)
+                self.assertIsNone(test_token.expiration_date)
+            if max_usage:
+                self.assertTrue(test_token.max_usage)
             else:
-                self.assertFalse(test_token.one_time)
-            self.assertTrue(test_tokens.valid(test_token.name))
+                self.assertFalse(test_token.max_usage)
+            self.assertTrue(test_tokens.active(test_token.name))
 
     @parameterized.expand([
         [None, False, 10, True],
-        [parser.parse('2100-01-12'), False, 10, True],
+        [datetime.fromisoformat('2100-01-12'), False, 10, True],
         [None, True, 1, False],
         [None, True, 0, True],
-        [parser.parse('2100-01-12'), True, 1, False],
-        [parser.parse('2100-01-12'), True, 2, False],
-        [parser.parse('2100-01-12'), True, 0, True]
+        [datetime.fromisoformat('2100-01-12'), True, 1, False],
+        [datetime.fromisoformat('2100-01-12'), True, 2, False],
+        [datetime.fromisoformat('2100-01-12'), True, 0, True]
     ])
-    def test_tokens_valid_form(self, ex_date, one_time, times_used, valid):
+    def test_tokens_active_form(self, expiration_date, max_usage, times_used, active):
         with self.app.app_context():
             test_tokens = matrix_registration.tokens.Tokens()
-            test_token = test_tokens.new(ex_date=ex_date, one_time=one_time)
+            test_token = test_tokens.new(expiration_date=expiration_date, max_usage=max_usage)
 
             for n in range(times_used):
                 test_tokens.use(test_token.name)
 
-            if not one_time:
+            if not max_usage:
                 self.assertEqual(test_token.used, times_used)
             elif times_used == 0:
                 self.assertEqual(test_token.used, 0)
             else:
                 self.assertEqual(test_token.used, 1)
-            self.assertEqual(test_tokens.valid(test_token.name), valid)
+            self.assertEqual(test_tokens.active(test_token.name), active)
 
     @parameterized.expand([
         [None, True],
-        [parser.parse('2100-01-12'), False],
-        [parser.parse('2200-01-13'), True],
+        [datetime.fromisoformat('2100-01-12'), False],
+        [datetime.fromisoformat('2200-01-13'), True],
     ])
-    def test_tokens_valid(self, ex_date, valid):
+    def test_tokens_active(self, expiration_date, active):
         with self.app.app_context():
             test_tokens = matrix_registration.tokens.Tokens()
-            test_token = test_tokens.new(ex_date=ex_date)
+            test_token = test_tokens.new(expiration_date=expiration_date)
 
-            self.assertEqual(test_tokens.valid(test_token.name), True)
+            self.assertEqual(test_tokens.active(test_token.name), True)
             # date changed to after expiration date
             with patch('matrix_registration.tokens.datetime') as mock_date:
-                mock_date.now.return_value = parser.parse('2200-01-12')
-                self.assertEqual(test_tokens.valid(test_token.name), valid)
+                mock_date.now.return_value = datetime.fromisoformat('2200-01-12')
+                self.assertEqual(test_tokens.active(test_token.name), active)
 
     @parameterized.expand([
         ['DoubleWizardSky'],
@@ -402,7 +403,7 @@ class ApiTest(unittest.TestCase):
         [''.join(random.choices(string.ascii_uppercase, k=256)),
          'test1234', 'test1234', True, 400]
     ])
-    # check form validators
+    # check form activeators
     @patch('matrix_registration.matrix_api._get_nonce',
            side_effect=mocked__get_nonce)
     @patch('matrix_registration.matrix_api.requests.post',
@@ -412,8 +413,8 @@ class ApiTest(unittest.TestCase):
         matrix_registration.config.config = Config(GOOD_CONFIG)
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(ex_date=None,
-                                                               one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(expiration_date=None,
+                                                               max_usage=True)
             # replace matrix with in config set hs
             domain = urlparse(matrix_registration.config.config.server_location).hostname
             if username:
@@ -441,8 +442,8 @@ class ApiTest(unittest.TestCase):
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(ex_date=None,
-                                                               one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(expiration_date=None,
+                                                               max_usage=True)
             rv = self.client.post('/register', data=dict(
                 username='username',
                 password='password',
@@ -460,8 +461,8 @@ class ApiTest(unittest.TestCase):
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(ex_date=None,
-                                                               one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(expiration_date=None,
+                                                               max_usage=True)
             rv = self.client.post('/register', data=dict(
                 username='username',
                 password='password',
@@ -475,31 +476,31 @@ class ApiTest(unittest.TestCase):
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(ex_date=None,
-                                                               one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(expiration_date=None,
+                                                               max_usage=True)
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.get('/token', headers=headers)
+            rv = self.client.get('/api/token', headers=headers)
 
             self.assertEqual(rv.status_code, 200)
             token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
 
-            self.assertEqual(token_data[0]['ex_date'], None)
-            self.assertEqual(token_data[0]['one_time'], True)
+            self.assertEqual(token_data[0]['expiration_date'], None)
+            self.assertEqual(token_data[0]['max_usage'], True)
 
     def test_error_get_tokens(self):
         matrix_registration.config.config = Config(BAD_CONFIG2)
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(ex_date=None,
-                                                               one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(expiration_date=None,
+                                                               max_usage=True)
 
             secret = matrix_registration.config.config.admin_secret
             matrix_registration.config.config = Config(GOOD_CONFIG)
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.get('/token', headers=headers)
+            rv = self.client.get('/api/token', headers=headers)
 
             self.assertEqual(rv.status_code, 401)
             token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
@@ -512,26 +513,26 @@ class ApiTest(unittest.TestCase):
         ['2020-12-24', False, '2020-12-24 00:00:00'],
         ['2200-05-12', True, '2200-05-12 00:00:00'],
     ])
-    def test_post_token(self, ex_date, one_time, parsed_date):
+    def test_post_token(self, expiration_date, max_usage, parsed_date):
         matrix_registration.config.config = Config(GOOD_CONFIG)
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(ex_date=None,
-                                                               one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(expiration_date=None,
+                                                               max_usage=True)
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.post('/token',
-                                  data=json.dumps(dict(ex_date=ex_date,
-                                                       one_time=one_time)),
+            rv = self.client.post('/api/token',
+                                  data=json.dumps(dict(expiration_date=expiration_date,
+                                                       max_usage=max_usage)),
                                   content_type='application/json',
                                   headers=headers)
 
             self.assertEqual(rv.status_code, 200)
             token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
-            self.assertEqual(token_data['ex_date'], parsed_date)
-            self.assertEqual(token_data['one_time'], one_time)
+            self.assertEqual(token_data['expiration_date'], parsed_date)
+            self.assertEqual(token_data['max_usage'], max_usage)
             self.assertTrue(token_data['name'] is not None)
 
     def test_error_post_token(self):
@@ -539,15 +540,15 @@ class ApiTest(unittest.TestCase):
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(ex_date=None,
-                                                               one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(expiration_date=None,
+                                                               max_usage=True)
 
             secret = matrix_registration.config.config.admin_secret
             matrix_registration.config.config = Config(GOOD_CONFIG)
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.post('/token',
-                                  data=json.dumps(dict(ex_date='24.12.2020',
-                                                       one_time=False)),
+            rv = self.client.post('/api/token',
+                                  data=json.dumps(dict(expiration_date='24.12.2020',
+                                                       max_usage=False)),
                                   content_type='application/json',
                                   headers=headers)
 
@@ -559,49 +560,49 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.post('/token',
-                                  data=json.dumps(dict(ex_date='2020-24-12',
-                                                       one_time=False)),
+            rv = self.client.post('/api/token',
+                                  data=json.dumps(dict(expiration_date='2020-24-12',
+                                                       max_usage=False)),
                                   content_type='application/json',
                                   headers=headers)
 
             self.assertEqual(rv.status_code, 400)
             token_data = json.loads(rv.data.decode('utf8'))
             self.assertEqual(token_data['errcode'], 'MR_BAD_DATE_FORMAT')
-            self.assertEqual(token_data['error'], "date wasn't YYYY-MM-DD format")
+            self.assertEqual(token_data['error'], "date wasn't in YYYY-MM-DD format")
 
-    def test_put_token(self):
+    def test_patch_token(self):
         matrix_registration.config.config = Config(GOOD_CONFIG)
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(max_usage=True)
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.put('/token/' + test_token.name,
-                                 data=json.dumps(dict(disable=True)),
+            rv = self.client.patch('/api/token/' + test_token.name,
+                                 data=json.dumps(dict(disabled=True)),
                                  content_type='application/json',
                                  headers=headers)
 
             self.assertEqual(rv.status_code, 200)
             token_data = json.loads(rv.data.decode('utf8').replace("'", '"'))
-            self.assertEqual(token_data['valid'], False)
-            self.assertEqual(token_data['one_time'], True)
+            self.assertEqual(token_data['active'], False)
+            self.assertEqual(token_data['max_usage'], True)
             self.assertEqual(token_data['name'], test_token.name)
 
-    def test_error_put_token(self):
+    def test_error_patch_token(self):
         matrix_registration.config.config = Config(BAD_CONFIG2)
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(max_usage=True)
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             matrix_registration.config.config = Config(GOOD_CONFIG)
-            rv = self.client.put('/token/' + test_token.name,
-                                 data=json.dumps(dict(disable=True)),
+            rv = self.client.patch('/api/token/' + test_token.name,
+                                 data=json.dumps(dict(disabled=True)),
                                  content_type='application/json',
                                  headers=headers)
 
@@ -612,60 +613,59 @@ class ApiTest(unittest.TestCase):
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.put('/token/' + test_token.name,
-                                 data=json.dumps(dict(disable=False)),
+            rv = self.client.patch('/api/token/' + test_token.name,
+                                 data=json.dumps(dict(active=False)),
                                  content_type='application/json',
                                  headers=headers)
 
             self.assertEqual(rv.status_code, 400)
             token_data = json.loads(rv.data.decode('utf8'))
             self.assertEqual(token_data['errcode'], 'MR_BAD_USER_REQUEST')
-            self.assertEqual(token_data['error'], 'PUT only allows "disable": true')
+            self.assertEqual(token_data['error'], 'you\'re not allowed to change this property')
 
-            rv = self.client.put('/token/' + "nicememe",
-                                 data=json.dumps(dict(disable=True)),
+            rv = self.client.patch('/api/token/' + "nicememe",
+                                 data=json.dumps(dict(disabled=True)),
                                  content_type='application/json',
                                  headers=headers)
 
             self.assertEqual(rv.status_code, 404)
             token_data = json.loads(rv.data.decode('utf8'))
             self.assertEqual(token_data['errcode'], 'MR_TOKEN_NOT_FOUND')
-            self.assertEqual(token_data['error'], 'token does not exist or is already disabled')
-
+            self.assertEqual(token_data['error'], 'token does not exist')
 
     @parameterized.expand([
         [None, True, None],
-        [parser.isoparse('2020-12-24'), False, '2020-12-24 00:00:00'],
-        [parser.isoparse('2200-05-12'), True, '2200-05-12 00:00:00'],
+        [datetime.fromisoformat('2020-12-24'), False, '2020-12-24 00:00:00'],
+        [datetime.fromisoformat('2200-05-12'), True, '2200-05-12 00:00:00'],
     ])
-    def test_get_token(self, ex_date, one_time, parsed_date):
+    def test_get_token(self, expiration_date, max_usage, parsed_date):
         matrix_registration.config.config = Config(BAD_CONFIG2)
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(ex_date=ex_date,
-                                                               one_time=one_time)
+            test_token = matrix_registration.tokens.tokens.new(expiration_date=expiration_date,
+                                                               max_usage=max_usage)
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.get('/token/' + test_token.name,
+            rv = self.client.get('/api/token/' + test_token.name,
                                  content_type='application/json',
                                  headers=headers)
 
             self.assertEqual(rv.status_code, 200)
             token_data = json.loads(rv.data.decode('utf8'))
-            self.assertEqual(token_data['ex_date'], parsed_date)
-            self.assertEqual(token_data['one_time'], one_time)
+            self.assertEqual(token_data['expiration_date'], parsed_date)
+            self.assertEqual(token_data['max_usage'], max_usage)
 
     def test_error_get_token(self):
         matrix_registration.config.config = Config(BAD_CONFIG2)
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
-            test_token = matrix_registration.tokens.tokens.new(one_time=True)
+            test_token = matrix_registration.tokens.tokens.new(max_usage=True)
 
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
-            rv = self.client.get('/token/' + 'nice_meme',
+            rv = self.client.get('/api/token/' + 'nice_meme',
                                  content_type='application/json',
                                  headers=headers)
 
@@ -679,8 +679,8 @@ class ApiTest(unittest.TestCase):
             secret = matrix_registration.config.config.admin_secret
             headers = {'Authorization': 'SharedSecret %s' % secret}
             matrix_registration.config.config = Config(GOOD_CONFIG)
-            rv = self.client.put('/token/' + test_token.name,
-                                 data=json.dumps(dict(disable=True)),
+            rv = self.client.patch('/api/token/' + test_token.name,
+                                 data=json.dumps(dict(disabled=True)),
                                  content_type='application/json',
                                  headers=headers)
 
@@ -733,31 +733,35 @@ class CliTest(unittest.TestCase):
 
     def test_create_token(self):
         runner = create_app().test_cli_runner()
-        generate = runner.invoke(cli, ['--config-path', self.path, 'generate', '-o'])
+        generate = runner.invoke(cli, ['--config-path', self.path, 'generate', '-m', 1])
         name1 = generate.output.strip()
-
+    
         status = runner.invoke(cli, ['--config-path', self.path, 'status', '-s', name1])
         valid, info_dict_string = status.output.strip().split('\n', 1)
         self.assertEqual(valid, "This token is valid")
         comparison_dict = {
             "name": name1,
             "used": 0,
-            "ex_date": None,
-            "one_time": True,
-            "valid": True
+            "expiration_date": None,
+            "max_usage": 1,
+            "disabled": False,
+            "ips": [],
+            "active": True
         }
         self.assertEqual(json.loads(info_dict_string), comparison_dict)
 
         runner.invoke(cli, ['--config-path', self.path, 'status', '-d', name1])
         status = runner.invoke(cli, ['--config-path', self.path, 'status', '-s', name1])
         valid, info_dict_string = status.output.strip().split('\n', 1)
-        self.assertEqual(valid, "This token is valid")
+        self.assertEqual(valid, "This token is not valid")
         comparison_dict = {
             "name": name1,
             "used": 0,
-            "ex_date": "0001-01-01 00:00:00",
-            "one_time": True,
-            "valid": False
+            "expiration_date": None,
+            "max_usage": 1,
+            "disabled": True,
+            "ips": [],
+            "active": False
         }
         self.assertEqual(json.loads(info_dict_string), comparison_dict)
 
@@ -770,9 +774,11 @@ class CliTest(unittest.TestCase):
         comparison_dict = {
             "name": name2,
             "used": 0,
-            "ex_date": "2220-05-12 00:00:00",
-            "one_time": False,
-            "valid": True
+            "expiration_date": "2220-05-12 00:00:00",
+            "max_usage": 0,
+            "disabled": False,
+            "ips": [],
+            "active": True
         }
         self.assertEqual(json.loads(info_dict_string), comparison_dict)
 

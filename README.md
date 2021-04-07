@@ -100,6 +100,13 @@ The html page looks for the query paramater `token` and sets the token input fie
 If you already have a website and want to use your own register page, the [wiki](https://github.com/ZerataX/matrix-registration/wiki/reverse-proxy#advanced) describes a more advanced nginx setup.
 
 
+### bot
+
+if you're looking for a bot to interface with matrix-registration and manage your tokens, take a look at:
+
+[maubot-invite](https://github.com/williamkray/maubot-invite)
+
+
 
 ### Troubleshooting
 
