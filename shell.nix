@@ -13,6 +13,7 @@ in buildPythonPackage {
   src = ./.;
   propagatedBuildInputs = [
     pkgs.libsndfile
+    alembic
     appdirs
     flask
     flask-cors

@@ -3,6 +3,7 @@ import codecs
 import os
 import re
 import setuptools
+import glob
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -45,15 +46,15 @@ setuptools.setup(
                                           'static/images/*.jpg',
                                           'static/images/*.png',
                                           'static/images/*.ico']},
-    python_requires='~=3.6',
+    python_requires='~=3.7',
     install_requires=[
+        "alembic>=1.3.2",
         "appdirs~=1.4.3",
         "Flask~=1.1",
         "Flask-SQLAlchemy~=2.4.1",
         "flask-cors~=3.0.7",
         "flask-httpauth>=3.3.0",
         "flask-limiter>=1.1.0",
-        "python-dateutil~=2.8.1",
         "PyYAML~=5.1",
         "requests>=2.22",
         "SQLAlchemy>=1.3.13,<1.4",
@@ -69,17 +70,19 @@ setuptools.setup(
         "Development Status :: 4 - Beta",
         "Topic :: Communications :: Chat",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8"
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9"
     ],
     entry_points={
         'console_scripts': [
             'matrix-registration=matrix_registration.app:cli'
         ],
     },
-    test_suite="tests.test_registration",
     data_files=[
         ("config", ["config.sample.yaml"]),
+        (".", ["alembic.ini"]),
+        ("alembic", ["alembic/env.py"]),
+        ("alembic/versions", glob.glob("alembic/versions/*.py"))
     ]
 )

@@ -1,16 +1,18 @@
 server_location: 'https://matrix.org'
 server_name: 'matrix.org'
-shared_secret: 'RegistrationSharedSecret'
-admin_secret: 'APIAdminPassword'
-base_url: ''
-riot_instance: 'https://riot.im/app/'
+registration_shared_secret: 'RegistrationSharedSecret' # see your synapse's homeserver.yaml
+admin_api_shared_secret: 'APIAdminPassword' # to generate tokens via the web api
+base_url: '' # e.g. '/element' for https://example.tld/element/register
+client_redirect: 'https://app.element.io/#/login'
+client_logo: 'static/images/element-logo.png' # use '{cwd}' for current working directory
 db: 'sqlite:///{cwd}db.sqlite3'
 host: 'localhost'
 port: 5000
 rate_limit: ["100 per day", "10 per minute"]
 allow_cors: false
+ip_logging: false
 logging:
-  disable_existing_loggers: False
+  disable_existing_loggers: false
   version: 1
   root:
     level: DEBUG

@@ -100,16 +100,12 @@ The html page looks for the query paramater `token` and sets the token input fie
 If you already have a website and want to use your own register page, the [wiki](https://github.com/ZerataX/matrix-registration/wiki/reverse-proxy#advanced) describes a more advanced nginx setup.
 
 
+### bot
 
-### Troubleshooting
+if you're looking for a bot to interface with matrix-registration and manage your tokens, take a look at:
 
-#### SQLAlchemy complains that a value isn't in a DateTime value
+[maubot-invite](https://github.com/williamkray/maubot-invite)
 
-Before #17 introduced SQLAlchemy support the sqlite database incorrectly stored the expire dates, to fix this you have to manually run:
-```sql
-update tokens set ex_date=null where ex_date='None';
-```
-on your database once, or just delete your current database.
 
 ### Similar projects
 

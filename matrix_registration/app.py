@@ -59,10 +59,11 @@ def run_server(info):
 
 
 @cli.command("generate", help="generate new token")
-@click.option("-o", "--one-time", is_flag=True, help="make token one-time-useable")
-@click.option("-e", "--expires", type=click.DateTime(formats=["%Y-%m-%d"]), default=None, help='expire date: in ISO-8601 format (YYYY-MM-DD)')
-def generate_token(one_time, expires):
-    token = tokens.tokens.new(ex_date=expires, one_time=one_time)
+@click.option("-m", "--maximum", default=0, help="times token can be used")
+@click.option("-e", "--expires", type=click.DateTime(formats=["%Y-%m-%d"]),
+              default=None, help='expire date: in ISO-8601 format (YYYY-MM-DD)')
+def generate_token(maximum, expires):
+    token = tokens.tokens.new(expiration_date=expires, max_usage=maximum)
     print(token.name)
 
 
@@ -76,12 +77,12 @@ def status_token(status, list, disable):
             print("Token disabled")
         else:
             print("Token couldn't be disabled")
-    if status:
+    elif status:
         token = tokens.tokens.get_token(status)
         if token:
-            print(f"This token is{' ' if token.valid else ' not '}valid")
+            print(f"This token is{' ' if token.active() else ' not '}valid")
             print(json.dumps(token.toDict(), indent=2))
         else:
             print("No token with that name")
-    if list:
+    elif list:
         print(tokens.tokens)

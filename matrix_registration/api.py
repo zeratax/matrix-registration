@@ -3,17 +3,18 @@ import logging
 from requests import exceptions
 import re
 from urllib.parse import urlparse
-import gettext
+import os
 
 # Third-party imports...
-from dateutil import parser
+from datetime import datetime
 from flask import (
     Blueprint,
     abort,
     jsonify,
     request,
     make_response,
-    render_template
+    render_template,
+    send_file
 )
 from flask_httpauth import HTTPTokenAuth
 from werkzeug.exceptions import BadRequest
@@ -28,6 +29,7 @@ from wtforms import (
 from .matrix_api import create_account
 from . import config
 from . import tokens
+from .constants import __location__
 from .translation import get_translations
 
 
@@ -56,7 +58,7 @@ def validate_token(form, token):
 
     """
     tokens.tokens.load()
-    if not tokens.tokens.valid(token.data):
+    if not tokens.tokens.active(token.data):
         raise validators.ValidationError('Token is invalid')
 
 
@@ -130,7 +132,7 @@ class RegistrationForm(Form):
 
 @auth.verify_token
 def verify_token(token):
-    return token == config.config.admin_secret
+    return token != 'APIAdminPassword' and token == config.config.admin_api_shared_secret
 
 
 @auth.error_handler
@@ -140,6 +142,12 @@ def unauthorized():
                 'error': 'wrong shared secret'
             }
     return make_response(jsonify(resp), 401)
+
+
+@api.route('/static/replace/images/element-logo.png')
+def element_logo():
+    return send_file(config.config.client_logo.replace('{cwd}', f'{os.getcwd()}/'),
+                     mimetype='image/jpeg')
 
 
 @api.route('/register', methods=['GET', 'POST'])
@@ -168,7 +176,7 @@ def register():
                 account_data = create_account(form.username.data,
                                               form.password.data,
                                               config.config.server_location,
-                                              config.config.shared_secret)
+                                              config.config.registration_shared_secret)
             except exceptions.ConnectionError:
                 logger.error('can not connect to %s' % config.config.server_location,
                              exc_info=True)
@@ -191,8 +199,12 @@ def register():
                     logger.error('failure communicating with HS',
                                  exc_info=True)
                 abort(500)
+
+            logger.debug('using token %s' % form.token.data)
+            ip = request.remote_addr if config.config.ip_logging else False
+            tokens.tokens.use(form.token.data, ip)
+
             logger.debug('account creation succeded!')
-            tokens.tokens.use(form.token.data)
             return jsonify(access_token=account_data['access_token'],
                            home_server=account_data['home_server'],
                            user_id=account_data['user_id'],
@@ -218,49 +230,57 @@ def register():
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
-                               riot_instance=config.config.riot_instance,
+                               client_redirect=config.config.client_redirect,
                                base_url=config.config.base_url,
                                translations=translations)
 
 
-@api.route('/token', methods=['GET', 'POST'])
+@api.route('/api/version')
+@auth.login_required
+def version():
+    with open(os.path.join(__location__, '__init__.py'), 'r') as file:
+        version_file = file.read()
+        version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                                  version_file, re.M)
+        resp = {'version': version_match.group(1)}
+        return make_response(jsonify(resp), 200)
+
+
+@api.route('/api/token', methods=['GET', 'POST'])
 @auth.login_required
 def token():
     tokens.tokens.load()
 
     data = False
-    one_time = False
-    ex_date = None
+    max_usage = False
+    expiration_date = None
     if request.method == 'GET':
         return jsonify(tokens.tokens.toList())
     elif request.method == 'POST':
-        try:
-            data = request.get_json(force=True)
-        except BadRequest as e:
-            # empty request means use default values
-            if len(request.get_data()) == 0:
-                data = None
-            else:
-                raise e
+        data = request.get_json()
         try:
             if data:
-                if 'ex_date' in data and data['ex_date'] is not None:
-                    ex_date = parser.parse(data['ex_date'])
-                if 'one_time' in data:
-                    one_time = data['one_time']
-            token = tokens.tokens.new(ex_date=ex_date,
-                                      one_time=one_time)
+                if 'expiration_date' in data and data['expiration_date'] is not None:
+                    expiration_date = datetime.fromisoformat(data['expiration_date'])
+                if 'max_usage' in data:
+                    max_usage = data['max_usage']
+                token = tokens.tokens.new(expiration_date=expiration_date,
+                                          max_usage=max_usage)
         except ValueError:
             resp = {
                 'errcode': 'MR_BAD_DATE_FORMAT',
-                'error': "date wasn't YYYY-MM-DD format"
+                'error': "date wasn't in YYYY-MM-DD format"
             }
             return make_response(jsonify(resp), 400)
         return jsonify(token.toDict())
-    abort(400)
+    resp = {
+        'errcode': 'MR_BAD_USER_REQUEST',
+        'error': 'malformed request'
+    }
+    return make_response(jsonify(resp), 400)
 
 
-@api.route('/token/<token>', methods=['GET', 'PUT'])
+@api.route('/api/token/<token>', methods=['GET', 'PATCH'])
 @auth.login_required
 def token_status(token):
     tokens.tokens.load()
@@ -274,21 +294,32 @@ def token_status(token):
                 'error': 'token does not exist'
             }
             return make_response(jsonify(resp), 404)
-    elif request.method == 'PUT':
-        data = request.get_json(force=True)
+    elif request.method == 'PATCH':
+        try:
+            data = request.get_json(force=True)
+        except BadRequest as e:
+            # empty request means use default values
+            if len(request.get_data()) == 0:
+                data = None
+            else:
+                raise e
         if data:
-            if not data['disable']:
+            if 'ips' not in data and 'active' not in data and 'name' not in data:
+                if tokens.tokens.update(token, data):
+                    return jsonify(tokens.tokens.get_token(token).toDict())
+            else:
                 resp = {
                     'errcode': 'MR_BAD_USER_REQUEST',
-                    'error': 'PUT only allows "disable": true'
+                    'error': 'you\'re not allowed to change this property'
                 }
                 return make_response(jsonify(resp), 400)
-            else:
-                if tokens.tokens.disable(token):
-                    return jsonify(tokens.tokens.get_token(token).toDict())
             resp = {
                 'errcode': 'MR_TOKEN_NOT_FOUND',
-                'error': 'token does not exist or is already disabled'
+                'error': 'token does not exist'
             }
             return make_response(jsonify(resp), 404)
-    abort(400)
+    resp = {
+        'errcode': 'MR_BAD_USER_REQUEST',
+        'error': 'malformed request'
+    }
+    return make_response(jsonify(resp), 400)
