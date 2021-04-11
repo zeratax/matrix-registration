@@ -117,7 +117,7 @@ class Config:
             with sample values
         """
         # important keys that need to be changed
-        keys = ['server_location', 'server_name', 'shared_secret', 'port']
+        keys = ['server_location', 'server_name', 'port', 'registration_shared_secret']
         for key in keys:
             temp = dictionary[key]
             dictionary[key] = input('enter {}, e.g. {}\n'.format(key, temp))
