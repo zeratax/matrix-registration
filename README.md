@@ -29,6 +29,7 @@ A configuration file should be generated for you on first start.
 
 <details>
 <summary>If this fails...</summary>
+  
 you can create a configuration for your matrix homeserver by copying [config.sample.yaml](/config.sample.yaml) to your server and editing it:
 ```bash
 wget https://raw.githubusercontent.com/ZerataX/matrix-registration/master/config.sample.yaml
