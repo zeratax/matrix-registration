@@ -18,8 +18,9 @@ Install using pip:
 
 ```bash
 pip3 install matrix-registration
-matrix-registration
 ```
+
+or check the [docker guide](https://github.com/ZerataX/matrix-registration/wiki/docker)
 
 ### First start
 To start, execute `matrix-registration`.
