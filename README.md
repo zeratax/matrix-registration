@@ -26,7 +26,10 @@ To start, execute `matrix-registration`.
 
 A configuration file should be generated for you on first start.
 
-If this fails, you can create a configuration for your matrix homeserver by copying [config.sample.yaml](/config.sample.yaml) to your server and editing it:
+
+<details>
+<summary>If this fails...</summary>
+you can create a configuration for your matrix homeserver by copying [config.sample.yaml](/config.sample.yaml) to your server and editing it:
 ```bash
 wget https://raw.githubusercontent.com/ZerataX/matrix-registration/master/config.sample.yaml
 cp config.sample.yaml config.yaml
@@ -34,13 +37,11 @@ nano config.yaml
 ```
 
 Then pass the path to this configuration to the application on startup using `--config-path /path/to/config.yaml`.
+</details>
 
 __INFO:__ 
 - This only asks you for the most important options. 
 You should definitely take a look at the actual configuration file. The path to the file will be printed by `matrix-registration` the first time it runs.
-- The `shared_secret` has to be the same as `registration_shared_secret` in your homeserver.yaml
-
-
 
 ## Usage
 
