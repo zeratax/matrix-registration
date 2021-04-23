@@ -8,7 +8,7 @@ With this project you can just quickly generate tokens on the fly and share them
 ### Example Usage
   - Create a new one time usable token directly with python:
 ```console
-$ python -m matrix_registration gen -e 12.04.2020
+$ matrix-registration generate -e 2020-12-04
 ColorWhiskeyExpand
 ```
   - or make use of the api:
@@ -16,12 +16,12 @@ ColorWhiskeyExpand
 $ curl -X POST \
        -H "Authorization: SharedSecret demopagesecret" \
        -H "Content-Type: application/json" \
-       -d '{"ex_date": "12.04.2020"}' \
-       https://dmnd.sh/test-token
-{"ex_date":"Fri, 04 Dec 2020 00:00:00 GMT","name":"ColorWhiskeyExpand","one_time":false,"used":0,"valid":true}
+       -d '{"expiration_date": "2021-12-04"}' \
+       https://dmnd.sh/test/api/token
+{"active":true,"disabled":false,"expiration_date":"Fri, 04 Dec 2020 00:00:00 GMT","name":"ColorWhiskeyExpand","max_usage":0,"used":0,ips:[]}
 ```
   - now  you can share an invite link to your registration page, with your friends:
-[https://dmnd.sh/test-register?token=ColorWhiskeyExpand](https://dmnd.sh/test-register?token=ColorWhiskeyExpand)
+[https://dmnd.sh/test/register?token=ColorWhiskeyExpand](https://dmnd.sh/test/register?token=ColorWhiskeyExpand)
 
 
 ### Demo/Dev version
@@ -33,7 +33,7 @@ perform a [cURL](https://github.com/ZerataX/matrix-registration/wiki/api#curl) a
 $ curl -H "Authorization: SharedSecret demopagesecret" \
        -H "Content-Type: application/json" \
        -d '{"one_time": true, "ex_date": "24.12.2020"}' \
-       https://dmnd.sh/test-token
+       https://dmnd.sh/test/api/token
 ```
 
 ### Support or Contact
