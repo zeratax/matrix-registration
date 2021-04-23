@@ -30,11 +30,11 @@ No actual account will be created.
 </div>
 <br>
 You can get a token with a simple cURL request: [https://github.com/ZerataX/matrix-registration/wiki/api#curl](https://github.com/ZerataX/matrix-registration/wiki/api#curl)
-Just use the endpoints `/test-token` and `/test-register` and the SharedSecret `demopagesecret`.
+Just use the endpoints `/test/api/token` and `/test/register` and the SharedSecret `demopagesecret`.
 E.g. to list all tokens:
 ```console
 $ curl -H "Authorization: SharedSecret demopagesecret" \
-       https://dmnd.sh/test-token
+       https://dmnd.sh/test/api/token
 ```
 
 This page is based on [https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html](https://github.com/ZerataX/matrix-registration/blob/master/resources/example.html)
