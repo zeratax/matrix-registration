@@ -1,9 +1,25 @@
-name: Publish Docker image
+name: Publish Docker Image
 on:
   push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - '**'
+
+strategy:
+  matrix:
+    arch:
+	- 'import <nixpkgs> {}'
+        # - 'import <nixpkgs> { crossSystem.config = "aarch64-unknown-linux-gnu"; }'
+    hub: [Github, Docker]
+    include:
+	- hub: Github
+	  registry: docker.pkg.github.com
+	  username: ${{ github.actor }}
+	  password: ${{ secrets.GITHUB_TOKEN }}
+	- hub: Docker
+	  registry: docker.io
+	  username: ${{ secrets.DOCKER_USERNAME }}
+	  password: ${{ secrets.DOCKER_PASSWORD }}
+          tag: ${{ env.REPO }}:${{ env.VERSION }}
+
 jobs:
   push_to_registries:
     name: Push Docker image to multiple registries
@@ -12,33 +28,17 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Set env
-        run: |
-          echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-          echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+        run: "echo 'VERSION=${GITHUB_REF#refs/*/}' >> $GITHUB_ENV"
 
       - name: Install nix
         uses: cachix/install-nix-action@v12
         with:
-          nix_path: nixpkgs=channel:nixos-20.09
-      - run: nix-build docker.nix --argstr tag ${{ env.VERSION }}
+          nix_path: nixpkgs=channel:nixos-21.05
+      - run: nix-build docker.nix --arg '${{ matrix.arch }}' --argstr tag ${{ env.VERSION }}
       - run: nix-env -i skopeo -f '<nixpkgs>'
 
-      - name: Push to Docker Hub 🐋
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          REGISTERY: docker.io
-          TAG_NAME: ${{ env.REPO }}:${{ env.VERSION }}
-        run: |
-          sudo skopeo login --username="$DOCKER_USERNAME" --password="$DOCKER_PASSWORD" $REGISTERY
-          sudo skopeo copy --insecure-policy docker-archive:result docker://$REGISTERY/$TAG_NAME
-       
-      - name: Push to GitHub Packages 📦
-        env:
-          GITHUB_USERNAME: ${{ github.actor }}
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-          REGISTERY: docker.pkg.github.com
-          TAG_NAME: ${{ env.REPO }}/matrix-registration-image:${{ env.VERSION }}
-        run: |
-          sudo skopeo login --username="$GITHUB_USERNAME" --password="$GITHUB_PASSWORD" $REGISTERY
-          sudo skopeo copy --insecure-policy docker-archive:result docker://$REGISTERY/$TAG_NAME
+      - name: Push to ${{ matrix.hub }} 
+        run: |:q
+	  TAG=$GITHUB_REPOSITORY/matrix-registration-image:$VERSION
+          sudo skopeo login --username="${{matrix.username}}" --password="${{matrix.password}}" ${{ matrix.registry }}
+          sudo skopeo copy --insecure-policy docker-archive:result docker://${{ matrix.regisry }}/$TAG

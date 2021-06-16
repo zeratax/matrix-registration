@@ -49,17 +49,17 @@ setuptools.setup(
     python_requires='~=3.7',
     install_requires=[
         "alembic>=1.3.2",
-        "appdirs~=1.4.3",
-        "Flask~=1.1",
-        "Flask-SQLAlchemy~=2.4.1",
-        "flask-cors~=3.0.7",
+        "appdirs>=1.4.3",
+        "Flask>=1.1",
+        "Flask-SQLAlchemy>=2.4.1",
+        "flask-cors>=3.0.7",
         "flask-httpauth>=3.3.0",
         "flask-limiter>=1.1.0",
-        "PyYAML~=5.1",
+        "PyYAML>=5.1",
         "requests>=2.22",
         "SQLAlchemy>=1.3.13,<1.4",
-        "waitress~=1.4.4",
-        "WTForms~=2.1"
+        "waitress>=2.0.0",
+        "WTForms>=2.1"
     ],
     tests_require=test_requirements,
     extras_require={

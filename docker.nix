@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {}, tag ? "latest" }:
 
 let
-  matrix-registration = import ./shell.nix {};
+  matrix-registration = import ./shell.nix { inherit pkgs; };
 
 in pkgs.dockerTools.buildImage {
   name = "matrix-registration";
