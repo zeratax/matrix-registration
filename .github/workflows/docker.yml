@@ -1,29 +1,31 @@
 name: Publish Docker Image
 on:
   push:
-      - '**'
-
-strategy:
-  matrix:
-    arch:
-	- 'import <nixpkgs> {}'
-        # - 'import <nixpkgs> { crossSystem.config = "aarch64-unknown-linux-gnu"; }'
-    hub: [Github, Docker]
-    include:
-	- hub: Github
-	  registry: docker.pkg.github.com
-	  username: ${{ github.actor }}
-	  password: ${{ secrets.GITHUB_TOKEN }}
-	- hub: Docker
-	  registry: docker.io
-	  username: ${{ secrets.DOCKER_USERNAME }}
-	  password: ${{ secrets.DOCKER_PASSWORD }}
-          tag: ${{ env.REPO }}:${{ env.VERSION }}
+    # Pattern matched against refs/tags
+    tags:        
+      - '**'           # Push events to every tag including hierarchical tags like v1.0/beta
 
 jobs:
   push_to_registries:
     name: Push Docker image to multiple registries
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch:
+          - 'import <nixpkgs> {}'
+				  # - 'import <nixpkgs> { crossSystem.config = "aarch64-unknown-linux-gnu"; }'
+        hub: [Github, Docker]
+        include:
+          - hub: Github
+            registry: docker.pkg.github.com
+            username: ${{ github.actor }}
+            password: test123
+          - hub: Docker
+            registry: docker.io
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+    
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -38,7 +40,7 @@ jobs:
       - run: nix-env -i skopeo -f '<nixpkgs>'
 
       - name: Push to ${{ matrix.hub }} 
-        run: |:q
-	  TAG=$GITHUB_REPOSITORY/matrix-registration-image:$VERSION
+        run: |
+          TAG=$GITHUB_REPOSITORY/matrix-registration-image:$VERSION
           sudo skopeo login --username="${{matrix.username}}" --password="${{matrix.password}}" ${{ matrix.registry }}
           sudo skopeo copy --insecure-policy docker-archive:result docker://${{ matrix.regisry }}/$TAG
