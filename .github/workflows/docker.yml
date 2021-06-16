@@ -14,7 +14,7 @@ jobs:
       matrix:
         arch:
           - 'import <nixpkgs> {}'
-				  # - 'import <nixpkgs> { crossSystem.config = "aarch64-unknown-linux-gnu"; }'
+          # - 'import <nixpkgs> { crossSystem.config = "aarch64-unknown-linux-gnu"; }'
         hub: [Github, Docker]
         include:
           - hub: Github
