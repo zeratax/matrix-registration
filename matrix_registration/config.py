@@ -34,6 +34,7 @@ class Config:
     loads a dict or a yaml file to be accessible by all files in the module
     """
     def __init__(self, data):
+        self.secrets_dir = os.getenv("CREDENTIALS_DIRECTORY")
         self.data = data
         self.CONFIG_PATH = None
         self.location = None
@@ -88,6 +89,10 @@ class Config:
         # recusively set dictionary to class properties
         for k, v in dictionary.items():
             setattr(self, k, v)
+
+        logger.debug('checking for secrets...')
+        if self.secrets_dir:
+            self.get_secrets()
         logger.debug('config set!')
         # self.x = namedtuple('config',
         #                     dictionary.keys())(*dictionary.values())
@@ -128,7 +133,13 @@ class Config:
         relative_path = os.path.relpath(self.CONFIG_PATH + CONFIG_NAME)
         with open(new_config_path, 'w') as stream:
             yaml.dump(dictionary, stream, default_flow_style=False)
-            print('config file written to "%s"' % relative_path)
+            print('config ile written to "%s"' % relative_path)
+
+    def get_secrets(self):
+        with open(f"{self.secrets_dir}/secrets") as file:
+            for line in file:
+                k, v = line.split('=')
+                setattr(self, k.strip(), v.strip())
 
 
 config = None

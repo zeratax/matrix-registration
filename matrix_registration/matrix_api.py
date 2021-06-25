@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_account(user, password, server_location, shared_secret,
-                   admin=False):
+                   admin=False, user_type=None):
     """
     creates account
     https://github.com/matrix-org/synapse/blob/master/synapse/_scripts/register_new_matrix_user.py
@@ -35,27 +35,28 @@ def create_account(user, password, server_location, shared_secret,
     """
     nonce = _get_nonce(server_location)
 
-    mac = hmac.new(
-        key=str.encode(shared_secret),
-        digestmod=hashlib.sha1,
-    )
+    mac = hmac.new(key=shared_secret.encode("utf8"), digestmod=hashlib.sha1)
 
-    mac.update(nonce.encode())
-    mac.update(b'\x00')
-    mac.update(user.encode())
-    mac.update(b'\x00')
-    mac.update(password.encode())
-    mac.update(b'\x00')
-    mac.update(b'admin' if admin else b'notadmin')
+    mac.update(nonce.encode("utf8"))
+    mac.update(b"\x00")
+    mac.update(user.encode("utf8"))
+    mac.update(b"\x00")
+    mac.update(password.encode("utf8"))
+    mac.update(b"\x00")
+    mac.update(b"admin" if admin else b"notadmin")
+    if user_type:
+        mac.update(b"\x00")
+        mac.update(user_type.encode("utf8"))
 
     mac = mac.hexdigest()
 
     data = {
-        'nonce': nonce,
-        'username': user,
-        'password': password,
-        'admin': admin,
-        'mac': mac,
+        "nonce": nonce,
+        "username": user,
+        "password": password,
+        "mac": mac,
+        "admin": admin,
+        "user_type": user_type,
     }
 
     server_location = server_location.rstrip('/')

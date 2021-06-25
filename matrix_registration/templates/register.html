@@ -235,7 +235,7 @@
             showError("{{ translations.homeserver_error }}", response["error"])
           }
         } else {
-          document.getElementById("welcome").innerHTML = "{{ translations.welcome }}"  + response['user_id']
+          document.getElementById("welcome").innerHTML = "{{ translations.welcome }} "  + response['user_id']
           document.getElementById("success").classList.remove("hidden")
         }
 
