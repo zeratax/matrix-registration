@@ -43,6 +43,6 @@ jobs:
 
       - name: Push to ${{ matrix.hub }} 
         run: |
-          TAG=$GITHUB_REPOSITORY${{matrix.image}}:${{steps.tagName.outputs.tag}}
+          TAG=matrix-registration${{matrix.image}}:${{steps.tagName.outputs.tag}}
           sudo skopeo login --username="${{secrets[matrix.username]}}" --password="${{secrets[matrix.password]}}" ${{ matrix.registry }}
-          sudo skopeo copy --insecure-policy docker-archive:result docker://${{ matrix.registry }}/$TAG
+          sudo skopeo copy --insecure-policy docker-archive:result docker://${{matrix.registry}}/$TAG
