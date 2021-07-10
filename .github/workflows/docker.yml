@@ -19,12 +19,12 @@ jobs:
         include:
           - hub: Github
             registry: docker.pkg.github.com
-            username: ${{ github.actor }}
-            password: test123
+            username: ZerataX
+            password: GITHUB_TOKEN
           - hub: Docker
             registry: docker.io
-            username: ${{ secrets.DOCKER_USERNAME }}
-            password: ${{ secrets.DOCKER_PASSWORD }}
+            username: DOCKER_USERNAME
+            password: DOCKER_PASSWORD
     
     steps:
       - name: Check out the repo
@@ -42,5 +42,5 @@ jobs:
       - name: Push to ${{ matrix.hub }} 
         run: |
           TAG=$GITHUB_REPOSITORY/matrix-registration-image:$VERSION
-          sudo skopeo login --username="${{matrix.username}}" --password="${{matrix.password}}" ${{ matrix.registry }}
+          sudo skopeo login --username="${{secrets[matrix.username]}}" --password="${{secrets[matrix.password]}}" ${{ matrix.registry }}
           sudo skopeo copy --insecure-policy docker-archive:result docker://${{ matrix.regisry }}/$TAG

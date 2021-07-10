@@ -389,9 +389,9 @@ class ApiTest(unittest.TestCase):
 
     @parameterized.expand([
         ['test1', 'test1234', 'test1234', True, 200],
-        [None, 'test1234', 'test1234', True, 400],
-        ['test2', None, 'test1234', True, 400],
-        ['test3', 'test1234', None, True, 400],
+        ['', 'test1234', 'test1234', True, 400],
+        ['test2', '', 'test1234', True, 400],
+        ['test3', 'test1234', '', True, 400],
         ['test4', 'test1234', 'test1234', False, 400],
         ['@test5:matrix.org', 'test1234', 'test1234', True, 200],
         ['@test6:wronghs.org', 'test1234', 'test1234', True, 400],
