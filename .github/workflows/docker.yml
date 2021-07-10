@@ -3,7 +3,7 @@ on:
   push:
     # Pattern matched against refs/tags
     tags:        
-      - '**'           # Push events to every tag including hierarchical tags like v1.0/beta
+      - '**' # Push events to every tag including hierarchical tags like v1.0/beta
 
 jobs:
   push_to_registries:
@@ -19,18 +19,20 @@ jobs:
         include:
           - hub: Github
             registry: docker.pkg.github.com
-            username: ZerataX
+            username: GH_USERNAME
             password: GITHUB_TOKEN
+            image: "/matrix-registration-image"
           - hub: Docker
             registry: docker.io
             username: DOCKER_USERNAME
             password: DOCKER_PASSWORD
+            image: ""
     
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      - name: Set env
-        run: "echo 'VERSION=${GITHUB_REF#refs/*/}' >> $GITHUB_ENV"
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
 
       - name: Install nix
         uses: cachix/install-nix-action@v12
@@ -41,6 +43,6 @@ jobs:
 
       - name: Push to ${{ matrix.hub }} 
         run: |
-          TAG=$GITHUB_REPOSITORY/matrix-registration-image:$VERSION
+          TAG=$GITHUB_REPOSITORY${{matrix.image}}:${{steps.tagName.outputs.tag}}
           sudo skopeo login --username="${{secrets[matrix.username]}}" --password="${{secrets[matrix.password]}}" ${{ matrix.registry }}
-          sudo skopeo copy --insecure-policy docker-archive:result docker://${{ matrix.regisry }}/$TAG
+          sudo skopeo copy --insecure-policy docker-archive:result docker://${{ matrix.registry }}/$TAG
