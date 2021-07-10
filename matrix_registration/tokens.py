@@ -27,8 +27,8 @@ def random_readable_string(length=3, wordlist=WORD_LIST_PATH):
 
 
 association_table = Table('association', db.Model.metadata,
-                          Column('ips', String, ForeignKey('ips.address'), primary_key=True),
-                          Column('tokens', Integer, ForeignKey('tokens.name'), primary_key=True))
+                          Column('ips', Integer, ForeignKey('ips.id'), primary_key=True),
+                          Column('tokens', String(255), ForeignKey('tokens.name'), primary_key=True))
 
 
 class IP(db.Model):
@@ -146,10 +146,7 @@ class Tokens():
         token = self.get_token(token_name)
         if token:
             if token.use(ip_address):
-                try:
-                    session.commit()
-                except exc.IntegrityError:
-                    logger.warning("User already used this token before!")
+                session.commit()
                 return True
         return False
 

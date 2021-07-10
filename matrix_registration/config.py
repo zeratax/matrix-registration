@@ -138,7 +138,10 @@ class Config:
     def get_secrets(self):
         with open(f"{self.secrets_dir}/secrets") as file:
             for line in file:
-                k, v = line.split('=')
+                try:
+                    k, v = line.lower().split('=')
+                except NameError:
+                    logger.error(f'secret "{line}" in wrong format, please use "key=value"')  
                 setattr(self, k.strip(), v.strip())
 
 

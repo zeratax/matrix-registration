@@ -44,13 +44,16 @@ def upgrade():
             sa.Column('ips', Integer, ForeignKey('association.id'))
         )
     else:
-        with op.batch_alter_table('tokens') as batch_op:
-            batch_op.alter_column('ex_date', new_column_name='expiration_date', nullable=True)
-            batch_op.alter_column('one_time', new_column_name='max_usage')
+        try:
+            with op.batch_alter_table('tokens') as batch_op:
+                batch_op.alter_column('ex_date', new_column_name='expiration_date', nullable=True)
+                batch_op.alter_column('one_time', new_column_name='max_usage')
 
-            batch_op.add_column(
-                Column('disabled', Boolean, default=False)
-            )
+                batch_op.add_column(
+                    Column('disabled', Boolean, default=False)
+                )
+        except KeyError:
+            pass
 
 
     if 'association' not in tables:
