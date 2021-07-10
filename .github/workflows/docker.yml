@@ -46,7 +46,7 @@ jobs:
         include:
           - hub: Github
             registry: docker.pkg.github.com
-            username: GH_USERNAME
+            username: ZerataX
             password: GITHUB_TOKEN
             image: "/matrix-registration-image"
           - hub: Docker
@@ -70,10 +70,7 @@ jobs:
           name: image
 
       - name: rename archive 
-        run: |
-          ls
-          ls result
-          mv result image.tar.gz
+        run: mv result image.tar.gz
 
       - name: Push to ${{ matrix.hub }} 
         run: |
