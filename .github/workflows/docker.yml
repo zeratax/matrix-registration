@@ -46,7 +46,7 @@ jobs:
         include:
           - hub: Github
             registry: docker.pkg.github.com
-            username: ZerataX
+            username: DOCKER_USERNAME
             password: GITHUB_TOKEN
             image: "/matrix-registration-image"
           - hub: Docker
