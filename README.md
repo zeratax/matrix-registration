@@ -27,9 +27,12 @@ To start, execute `matrix-registration`.
 
 A configuration file should be generated for you on first start.
 
+**Note:**
+For `server_location` it is recommended to use a local connect, e.g. `localhost:8008` (or whatever port synapse listens to).
+It is possible however to connect over the internet, but you will need to make sure `/_synapse/admin/v1/register` is accessible.
 
 <details>
-<summary>If this fails...</summary>
+  <summary> If the configuration file is not automatically discovered...</summary>
   
 you can create a configuration by copying [config.sample.yaml](/config.sample.yaml) to your server and editing it:
 ```bash
