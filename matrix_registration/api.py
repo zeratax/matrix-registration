@@ -87,6 +87,15 @@ def validate_username(form, username):
     err = "Username doesn't follow pattern: '%s'" % re_mxid
     if not re.search(re_mxid, username.data):
         raise validators.ValidationError(err)
+	
+    id_validation = '[a-zA-Z_\-=\.\/0-9]+'
+    re_mxid = r'^@?'+ \
+              id_validation + \
+              '(:' + \
+              re.escape(domain) + \
+              r')?$'
+    if not re.search(re_mxid, username.data):
+        raise validators.ValidationError(err)
 
 
 def validate_password(form, password):
