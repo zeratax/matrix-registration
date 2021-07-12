@@ -73,7 +73,8 @@ GOOD_CONFIG = {
         'min_length': 8
     },
     'ip_logging': False,
-    'logging': LOGGING
+    'logging': LOGGING,
+    'username_validation_regex': '[a-zA-Z_\-=\.\/0-9]+'
 }
 
 BAD_CONFIG1 = dict(  # wrong matrix server location -> 500
