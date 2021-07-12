@@ -91,6 +91,7 @@ def validate_username(form, username):
     re_mxid = r'^@?[a-zA-Z_\-=\.\/0-9]+(:' + \
               re.escape(domain) + \
               r')?$'
+    err = "Username doesn't follow pattern: '%s'" % re_mxid
     if not re.search(re_mxid, username.data):
         raise validators.ValidationError(err)
 
