@@ -48,9 +48,9 @@
       <section>
         <form id="registration" action="{{ base_url }}/register" method="post">
           <div class="group">
-            <input id="username" name="username" type="text" placeholder=" " required
-              pattern="(?={{ username.validation_regex }})(?=^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$)" required minlength="1"
-              maxlength="200">
+            <input id="username" name="username" type="text" placeholder=" "
+              pattern="^@?(?=({{ uname_regex }}))[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" 
+              minlength="1" maxlength="200" required>
             <span class="highlight"></span>
             <span class="bar"></span>
             <label for="username">{{ translations.username }}</label>
@@ -158,7 +158,7 @@
     var token = document.getElementById("token")
 
     username.addEventListener("input", function (event) {
-      if (username.validity.typeMismatch) {
+      if (username.validity.typeMismatch || username.validity.patternMismatch) {
         username.setCustomValidity("{{ translations.username_format }}")
       } else {
         username.setCustomValidity("")
