@@ -94,6 +94,11 @@ BAD_CONFIG3 = dict(  # wrong matrix shared password -> 500
     registration_shared_secret='wrongsecret',
 )
 
+BAD_CONFIG4 = dict(  # bad username -> 401
+    GOOD_CONFIG.items(),
+    username.validation_regex = '^((?!admin).)*$',
+)
+
 usernames = []
 nonces = []
 logging.config.dictConfig(LOGGING)
@@ -404,7 +409,9 @@ class ApiTest(unittest.TestCase):
         ['test11@matrix.org', 'test1234', 'test1234', True, 400],
         ['', 'test1234', 'test1234', True, 400],
         [''.join(random.choices(string.ascii_uppercase, k=256)),
-         'test1234', 'test1234', True, 400]
+         'test1234', 'test1234', True, 400],
+        ['admin', 'test1234', 'test1234', True, 400],
+        ['matrixadmin123', 'test1234', 'test1234', True, 400]
     ])
     # check form activeators
     @patch('matrix_registration.matrix_api._get_nonce',
