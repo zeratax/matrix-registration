@@ -78,8 +78,8 @@ def validate_username(form, username):
         Username doesn't follow mxid requirements
     """
     domain = urlparse(config.config.server_location).hostname
-    if config.config.username_validation_regex:
-    	id_validation = config.config.username_validation_regex
+    if config.config.username['validation_regex']:
+    	id_validation = config.config.username['validation_regex']
     	re_mxid = r'^@?'+ \
      	         id_validation + \
      	         '(:' + \
