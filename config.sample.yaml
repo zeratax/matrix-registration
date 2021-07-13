@@ -40,4 +40,5 @@ logging:
 password:
   min_length: 8
 # username requirements
-username_validation_regex: '' #regex that selected usernames must match - default is '[a-zA-Z_\-=\.\/0-9]+'
+username:
+  validation_regex: '' #regex that selected usernames must match - default is '[a-zA-Z_\-=\.\/0-9]+'
