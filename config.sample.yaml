@@ -41,4 +41,4 @@ password:
   min_length: 8
 # username requirements
 username:
-  validation_regex: '' #regex that selected usernames must match - default is '[a-zA-Z_\-=\.\/0-9]+'
+  validation_regex: '' #additional regex that selected usernames must match. They'll still be checked against the default
