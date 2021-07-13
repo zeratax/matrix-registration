@@ -158,7 +158,7 @@
     var token = document.getElementById("token")
 
     username.addEventListener("input", function (event) {
-      if (username.validity.typeMismatch || username.validity.patternMismatch) {
+      if (username.validity.patternMismatch) {
         username.setCustomValidity("{{ translations.username_format }}")
       } else {
         username.setCustomValidity("")
@@ -166,7 +166,7 @@
     })
 
     token.addEventListener("input", function (event) {
-      if (token.validity.typeMismatch) {
+      if (token.validity.patternMismatch) {
         token.setCustomValidity("{{ translations.case_sensitive }}")
       } else {
         token.setCustomValidity("")
@@ -174,7 +174,7 @@
     })
 
     password.addEventListener("input", function (event) {
-      if (password.validity.typeMismatch) {
+      if (password.validity.tooShort) {
         password.setCustomValidity('{{ translations.password_too_short }}')
       } else {
         password.setCustomValidity("")
