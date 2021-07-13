@@ -49,7 +49,7 @@
         <form id="registration" action="{{ base_url }}/register" method="post">
           <div class="group">
             <input id="username" name="username" type="text" placeholder=" "
-              pattern="^@?(?={{ uname_regex }})[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" 
+              pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" 
               minlength="1" maxlength="200" required>
             <span class="highlight"></span>
             <span class="bar"></span>
@@ -160,6 +160,8 @@
     username.addEventListener("input", function (event) {
       if (username.validity.patternMismatch) {
         username.setCustomValidity("{{ translations.username_format }}")
+      } else if (username.value.replace(/^@/,'').split(":")[0].match({{ uname_regex }})==null) {
+        username.setCustomValidity("{{ translations.username_error }}")
       } else {
         username.setCustomValidity("")
       }
