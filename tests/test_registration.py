@@ -73,7 +73,7 @@ GOOD_CONFIG = {
         'min_length': 8
     },
     'username': {
-        'validation_regex': '[a-zA-Z_\-=\.\/0-9]+'
+        'validation_regex': '^((?!admin).)*$'
     },
     'ip_logging': False,
     'logging': LOGGING
@@ -92,11 +92,6 @@ BAD_CONFIG2 = dict(  # wrong admin secret password -> 401
 BAD_CONFIG3 = dict(  # wrong matrix shared password -> 500
     GOOD_CONFIG.items(),
     registration_shared_secret='wrongsecret',
-)
-
-BAD_CONFIG4 = dict(  # bad username -> 401
-    GOOD_CONFIG.items(),
-    username.validation_regex = '^((?!admin).)*$',
 )
 
 usernames = []
