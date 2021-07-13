@@ -77,9 +77,9 @@ def validate_username(form, username):
     """
     domain = urlparse(config.config.server_location).hostname
     id_validation = config.config.username['validation_regex'] or ''
-    re_mxid = r'^@?(?=(('+ \
+    re_mxid = r'^@?(?='+ \
               id_validation + \
-              r')))[a-zA-Z_\-=\.\/0-9]+(:' + \
+              r')[a-zA-Z_\-=\.\/0-9]+(:' + \
               re.escape(domain) + \
               r')?$'
     err = "Username doesn't follow pattern: '%s'" % re_mxid
