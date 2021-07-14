@@ -405,7 +405,7 @@ class ApiTest(unittest.TestCase):
         ['', 'test1234', 'test1234', True, 400],
         [''.join(random.choices(string.ascii_uppercase, k=256)),
          'test1234', 'test1234', True, 400],
-        ['@admin:matrxi.org', 'test1234', 'test1234', True, 400],
+        ['@admin:matrix.org', 'test1234', 'test1234', True, 400],
         ['matrixadmin123', 'test1234', 'test1234', True, 400]
     ])
     # check form activeators
