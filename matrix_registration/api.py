@@ -77,14 +77,12 @@ def validate_username(form, username):
     """
     domain = urlparse(config.config.server_location).hostname
     re_mxid = f"^(?P<at>@)?(?P<username>[a-zA-Z_\-=\.\/0-9]+)(?P<server_name>:{ re.escape(domain) })?$"
-    match = re_mxid.search(username.data)
-
+    match = re.search(re_mxid, username.data)
     if not match:
         raise validators.ValidationError(f"Username doesn't follow mxid pattern: /{re_mxid}/")
-    if(config.config.username):
-        username = match('username')
-        raise validators.ValidationError(f"Username does not follow custom pattern /{x}/") for x in config.config.username['validation_regex'] if not re.search(x, username)
-        raise validators.ValidationError(f"Username must not follow custom pattern /{x}/") for x in config.config.username['invalidation_regex'] if re.search(x, username)
+    username = match.group('username')
+    for e in [validators.ValidationError(f"Username does not follow custom pattern /{x}/") for x in config.config.username['validation_regex'] if not re.search(x, username)]: raise e
+    for e in [validators.ValidationError(f"Username must not follow custom pattern /{x}/") for x in config.config.username['invalidation_regex'] if re.search(x, username)]: raise e
 
 
 def validate_password(form, password):
@@ -233,7 +231,7 @@ def register():
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
-                               uname_regex=uname_regex,uname_regex_inv=uname_regex_inv
+                               uname_regex=uname_regex,uname_regex_inv=uname_regex_inv,
                                client_redirect=config.config.client_redirect,
                                base_url=config.config.base_url,
                                translations=translations)
