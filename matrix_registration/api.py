@@ -76,16 +76,19 @@ def validate_username(form, username):
         Username doesn't follow mxid requirements
     """
     domain = urlparse(config.config.server_location).hostname
+    re_mxid = f"^(?P<at>@)?(?P<username>[a-zA-Z_\-=\.\/0-9]+)(?P<server_name>:{ re.escape(domain) })?$"
+    match = re_mxid.search(username.data)
+    err = f"Username doesn't follow pattern: /{re_mxid}/"
+
+    if not match:
+        raise validators.ValidationError(err)
     if(config.config.username):
-        uname = re.split(r':', username.data)[0].replace("@","")
+        username = match('username')
         re_uname = config.config.username['validation_regex']
-        err = "Username doesn't follow pattern: '%s'" % re_uname
+        err = f"Username doesn't follow pattern /{re_uname}/"
+
         if not re.search(re_uname, uname):
             raise validators.ValidationError(err)
-    re_mxid = r'^@?[a-zA-Z_\-=\.\/0-9]+(:' + re.escape(domain) + r')?$'
-    err = "Username doesn't follow pattern: '%s'" % re_mxid
-    if not re.search(re_mxid, username.data):
-        raise validators.ValidationError(err)
 
 
 def validate_password(form, password):
