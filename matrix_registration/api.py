@@ -78,17 +78,13 @@ def validate_username(form, username):
     domain = urlparse(config.config.server_location).hostname
     re_mxid = f"^(?P<at>@)?(?P<username>[a-zA-Z_\-=\.\/0-9]+)(?P<server_name>:{ re.escape(domain) })?$"
     match = re_mxid.search(username.data)
-    err = f"Username doesn't follow pattern: /{re_mxid}/"
 
     if not match:
-        raise validators.ValidationError(err)
+        raise validators.ValidationError(f"Username doesn't follow mxid pattern: /{re_mxid}/")
     if(config.config.username):
         username = match('username')
-        re_uname = config.config.username['validation_regex']
-        err = f"Username doesn't follow pattern /{re_uname}/"
-
-        if not re.search(re_uname, uname):
-            raise validators.ValidationError(err)
+        raise validators.ValidationError(f"Username does not follow custom pattern /{x}/") for x in config.config.username['validation_regex'] if not re.search(x, username)
+        raise validators.ValidationError(f"Username must not follow custom pattern /{x}/") for x in config.config.username['invalidation_regex'] if re.search(x, username)
 
 
 def validate_password(form, password):
