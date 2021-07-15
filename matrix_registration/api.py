@@ -222,7 +222,8 @@ def register():
     else:
         server_name = config.config.server_name
         pw_length = config.config.password['min_length']
-        uname_regex = config.config.username['validation_regex'] or ''
+        uname_regex = config.config.username['validation_regex']
+        uname_regex_inv = config.config.username['invaidation_regex']
         lang = request.args.get('lang') or request.accept_languages.best
         replacements = {
             'server_name': server_name,
@@ -232,7 +233,7 @@ def register():
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
-                               uname_regex=uname_regex,
+                               uname_regex=uname_regex,uname_regex_inv=uname_regex_inv
                                client_redirect=config.config.client_redirect,
                                base_url=config.config.base_url,
                                translations=translations)
