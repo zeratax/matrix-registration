@@ -73,7 +73,8 @@ GOOD_CONFIG = {
         'min_length': 8
     },
     'username': {
-        'validation_regex': '^(?!.*?(?:admin|support)).+$'
+        'validation_regex': ['[a-z\d]']
+        'invalidation_regex' ['(admin|support)/g']
     },
     'ip_logging': False,
     'logging': LOGGING
