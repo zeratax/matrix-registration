@@ -64,11 +64,17 @@ LOGGING = {
 
 GOOD_CONFIG = {
     'server_location': 'https://righths.org',
+    'server_name': '',
     'registration_shared_secret': 'coolsharesecret',
     'admin_api_shared_secret': 'coolpassword',
     'base_url': '/element',
+    'client_redirect': '',
+    'client_logo': '',
     'db': 'sqlite:///%s/tests/db.sqlite' % (os.getcwd(),),
+    'host': '',
     'port': 5000,
+    'rate_limit': ["100 per day", "10 per minute"],
+    'allow_cors': False,
     'password': {
         'min_length': 8
     },
