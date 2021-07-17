@@ -1,7 +1,7 @@
 # Security Policy
 
 ## Supported Versions
-This project is still in active develoment so be aware that only the latest version will recive security fixes.
+This project is still in active develoment so be aware that only the latest version will receive security fixes.
 
 | Version | Supported          |
 | ------- | ------------------ |
