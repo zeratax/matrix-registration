@@ -160,9 +160,20 @@
     username.addEventListener("input", function (event) {
       if (username.validity.patternMismatch) {
         username.setCustomValidity("{{ translations.username_format }}")
-      } else if (username.value.replace(/^@/,'').split(":")[0].match({{ uname_regex }})==null) {
-        username.setCustomValidity("{{ translations.username_error }}")
       } else {
+        var uname = username.value.replace(/^@/,'').split(":")[0]
+        {% for each in uname_regex %}
+          if (uname.match({{ each }})==null) {
+            username.setCustomValidity("{{ translations.username_error }}")
+            return
+          }
+        {% end for %}
+        {% for each in uname_regex_inv %}
+          if (uname.match({{ each }})!=null) {
+            username.setCustomValidity("{{ translations.username_error }}")
+            return
+          }
+        {% end for %}
         username.setCustomValidity("")
       }
     })
