@@ -221,7 +221,7 @@ def register():
         server_name = config.config.server_name
         pw_length = config.config.password['min_length']
         uname_regex = config.config.username['validation_regex']
-        uname_regex_inv = config.config.username['invaidation_regex']
+        uname_regex_inv = config.config.username['invalidation_regex']
         lang = request.args.get('lang') or request.accept_languages.best
         replacements = {
             'server_name': server_name,
