@@ -167,13 +167,13 @@
             username.setCustomValidity("{{ translations.username_error }}")
             return
           }
-        {% end for %}
+        {% endfor %}
         {% for each in uname_regex_inv %}
           if (uname.match({{ each }})!=null) {
             username.setCustomValidity("{{ translations.username_error }}")
             return
           }
-        {% end for %}
+        {% endfor %}
         username.setCustomValidity("")
       }
     })
