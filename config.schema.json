@@ -2,7 +2,9 @@
   "type": "object",
   "properties": {
     "server_location": {
-      "type": "string"
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
     },
     "server_name": {
       "type": "string"
