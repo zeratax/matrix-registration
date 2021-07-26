@@ -75,8 +75,7 @@ def validate_username(form, username):
     ValidationError
         Username doesn't follow mxid requirements
     """
-    domain = urlparse(config.config.server_location).hostname
-    re_mxid = f"^(?P<at>@)?(?P<username>[a-zA-Z_\-=\.\/0-9]+)(?P<server_name>:{ re.escape(domain) })?$"
+    re_mxid = f"^(?P<at>@)?(?P<username>[a-zA-Z_\-=\.\/0-9]+)(?P<server_name>:{ re.escape(config.config.server_name) })?$"
     match = re.search(re_mxid, username.data)
     if not match:
         raise validators.ValidationError(f"Username doesn't follow mxid pattern: /{re_mxid}/")
