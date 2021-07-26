@@ -1,4 +1,4 @@
-server_location: 'https://matrix.org'
+server_location: 'http://localhost:8008'
 server_name: 'matrix.org'
 registration_shared_secret: 'RegistrationSharedSecret' # see your synapse's homeserver.yaml
 admin_api_shared_secret: 'APIAdminPassword' # to generate tokens via the web api
