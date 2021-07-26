@@ -31,7 +31,10 @@
       "type": "string"
     },
     "port": {
-      "type": "integer"
+      "oneOf": [
+        {"type": "integer"},
+        {"type": "string", "pattern": "^\d+$"}
+      ]
     },
     "rate_limit": {
       "type": "array",
