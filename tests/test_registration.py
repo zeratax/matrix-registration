@@ -64,7 +64,7 @@ LOGGING = {
 
 GOOD_CONFIG = {
     'server_location': 'https://righths.org',
-    'server_name': '',
+    'server_name': 'matrix.org',
     'registration_shared_secret': 'coolsharesecret',
     'admin_api_shared_secret': 'coolpassword',
     'base_url': '/element',
