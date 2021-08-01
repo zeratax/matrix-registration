@@ -118,6 +118,7 @@ if you're looking for a bot to interface with matrix-registration and manage you
   - [matrix-invite](https://gitlab.com/reivilibre/matrix-invite) live at https://librepush.net/matrix/registration/
   - [matrix-register-bot](https://github.com/krombel/matrix-register-bot) using a bot to review accounts before sending out invite links
   - [MatrixRegistration](https://gitlab.com/olze/matrixregistration/) similar java project using my webui
+  - [Mother Miounne](https://gitlab.com/etke.cc/miounne) "A bridge between matrix and external services", which also integrates matrix-registration
 
 For more info check the [wiki](https://github.com/ZerataX/matrix-registration/wiki)
 
