@@ -22,5 +22,16 @@ in pkgs.dockerTools.buildImage {
     ExposedPorts = {
       "5000/tcp" = {};
     };
+    HealthCheck = {
+      Interval    = 3000000000;
+      Timeout     = 1000000000;
+      StartPeriod = 3000000000;
+      Test = [
+        "CMD"
+        "${pkgs.curl}/bin/curl"
+        "-fSs"
+        "http://localhost:5000/health"
+      ];
+    };
   };
 }

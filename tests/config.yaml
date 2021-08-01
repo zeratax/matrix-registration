@@ -1,0 +1,32 @@
+server_location: 'http://synapse:8008'
+server_name: 'localhost'
+registration_shared_secret: 'dockerregistersecret'
+admin_api_shared_secret: 'dockeradminsecret'
+base_url: ''
+client_redirect: 'https://app.element.io/#/login'
+client_logo: 'static/images/element-logo.png'
+db: 'postgresql://postgres:postgres@postgres/postgres'
+host: '0.0.0.0'
+port: 5000
+rate_limit: ["100 per day", "10 per minute"]
+allow_cors: false
+ip_logging: false
+logging:
+  disable_existing_loggers: false
+  version: 1
+  root:
+    level: DEBUG
+    handlers:
+      - file
+  formatters:
+    precise:
+      format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  handlers:
+    file:
+      class: logging.handlers.RotatingFileHandler
+      formatter: precise
+      level: DEBUG
+      filename: /data/mreg.log
+      encoding: utf8
+password:
+  min_length: 8
