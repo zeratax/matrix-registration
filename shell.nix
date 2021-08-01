@@ -20,6 +20,7 @@ in buildPythonPackage {
     flask-httpauth
     flask-limiter
     flask_sqlalchemy
+    jsonschema
     python-dateutil
     pyyaml
     requests
