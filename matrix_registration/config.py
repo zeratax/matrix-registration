@@ -6,9 +6,11 @@ import sys
 
 # Third-party imports...
 import yaml
+from jsonschema import validate, ValidationError
 
 # Local imports...
 from .constants import (
+    CONFIG_SCHEMA_PATH,
     CONFIG_PATH1,
     CONFIG_PATH2,
     CONFIG_PATH3,
@@ -22,6 +24,7 @@ CONFIG_PATHS = [
     CONFIG_PATH4,
     CONFIG_PATH5
 ]
+
 CONFIG_SAMPLE_NAME = "config.sample.yaml"
 CONFIG_NAME = 'config.yaml'
 logger = logging.getLogger(__name__)
@@ -80,6 +83,12 @@ class Config:
             try:
                 with open(self.data, 'r') as stream:
                     dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
+                with open(CONFIG_SCHEMA_PATH, 'r') as schemafile:
+                    validate(dictionary, yaml.safe_load(schemafile))               
+            except ValidationError as e:
+                sys.exit("Check you config and update it to the newest version! Do you have missing fields in your config.yaml?\n\nTraceback:\n"+str(e))
+            except yaml.YAMLError as e:
+                sys.exit("Invalid YAML Syntax\n\nTraceback:\n"+str(e))
             except IOError as e:
                 sys.exit(e)
         if config_default:

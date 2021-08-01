@@ -38,8 +38,6 @@ logger = logging.getLogger(__name__)
 
 api = Blueprint("api", __name__)
 
-re_mxid = re.compile(r'^@?[a-zA-Z_\-=\.\/0-9]+(:[a-zA-Z\-\.:\/0-9]+)?$')
-
 
 def validate_token(form, token):
     """
@@ -77,13 +75,13 @@ def validate_username(form, username):
     ValidationError
         Username doesn't follow mxid requirements
     """
-    domain = urlparse(config.config.server_location).hostname
-    re_mxid = r'^@?[a-zA-Z_\-=\.\/0-9]+(:' + \
-              re.escape(domain) + \
-              r')?$'
-    err = "Username doesn't follow pattern: '%s'" % re_mxid
-    if not re.search(re_mxid, username.data):
-        raise validators.ValidationError(err)
+    re_mxid = f"^(?P<at>@)?(?P<username>[a-zA-Z_\-=\.\/0-9]+)(?P<server_name>:{ re.escape(config.config.server_name) })?$"
+    match = re.search(re_mxid, username.data)
+    if not match:
+        raise validators.ValidationError(f"Username doesn't follow mxid pattern: /{re_mxid}/")
+    username = match.group('username')
+    for e in [validators.ValidationError(f"Username does not follow custom pattern /{x}/") for x in config.config.username['validation_regex'] if not re.search(x, username)]: raise e
+    for e in [validators.ValidationError(f"Username must not follow custom pattern /{x}/") for x in config.config.username['invalidation_regex'] if re.search(x, username)]: raise e
 
 
 def validate_password(form, password):
@@ -221,6 +219,8 @@ def register():
     else:
         server_name = config.config.server_name
         pw_length = config.config.password['min_length']
+        uname_regex = config.config.username['validation_regex']
+        uname_regex_inv = config.config.username['invalidation_regex']
         lang = request.args.get('lang') or request.accept_languages.best
         replacements = {
             'server_name': server_name,
@@ -230,6 +230,7 @@ def register():
         return render_template('register.html',
                                server_name=server_name,
                                pw_length=pw_length,
+                               uname_regex=uname_regex,uname_regex_inv=uname_regex_inv,
                                client_redirect=config.config.client_redirect,
                                base_url=config.config.base_url,
                                translations=translations)

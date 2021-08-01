@@ -63,14 +63,24 @@ LOGGING = {
 }
 
 GOOD_CONFIG = {
-    'server_location': 'https://righths.org',
+    'server_location': 'https://matrix.org',
+    'server_name': 'matrix.org',
     'registration_shared_secret': 'coolsharesecret',
     'admin_api_shared_secret': 'coolpassword',
     'base_url': '/element',
+    'client_redirect': '',
+    'client_logo': '',
     'db': 'sqlite:///%s/tests/db.sqlite' % (os.getcwd(),),
+    'host': '',
     'port': 5000,
+    'rate_limit': ["100 per day", "10 per minute"],
+    'allow_cors': False,
     'password': {
         'min_length': 8
+    },
+    'username': {
+        'validation_regex': ['[a-z\d]'],
+        'invalidation_regex': ['.*?(admin|support).*?']
     },
     'ip_logging': False,
     'logging': LOGGING
@@ -401,7 +411,9 @@ class ApiTest(unittest.TestCase):
         ['test11@matrix.org', 'test1234', 'test1234', True, 400],
         ['', 'test1234', 'test1234', True, 400],
         [''.join(random.choices(string.ascii_uppercase, k=256)),
-         'test1234', 'test1234', True, 400]
+         'test1234', 'test1234', True, 400],
+        ['@admin:matrix.org', 'test1234', 'test1234', True, 400],
+        ['matrixadmin123', 'test1234', 'test1234', True, 400]
     ])
     # check form activeators
     @patch('matrix_registration.matrix_api._get_nonce',

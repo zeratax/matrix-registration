@@ -1,0 +1,105 @@
+{
+  "type": "object",
+  "properties": {
+    "server_location": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "server_name": {
+      "type": "string"
+    },
+    "registration_shared_secret": {
+      "type": "string"
+    },
+    "admin_api_shared_secret": {
+      "type": "string"
+    },
+    "base_url": {
+      "type": "string"
+    },
+    "client_redirect": {
+      "type": "string"
+    },
+    "client_logo": {
+      "type": "string"
+    },
+    "db": {
+      "type": "string"
+    },
+    "host": {
+      "type": "string"
+    },
+    "port": {
+      "oneOf": [
+        {"type": "integer"},
+        {"type": "string", "pattern": "^/d+$"}
+      ]
+    },
+    "rate_limit": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allow_cors": {
+      "type": "boolean"
+    },
+    "ip_logging": {
+      "type": "boolean"
+    },
+    "logging": {
+      "type": "object"
+    },
+    "password": {
+      "type": "object",
+      "properties": {
+        "min_length": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "min_length"
+      ]
+    },
+    "username": {
+      "type": "object",
+      "properties": {
+        "validation_regex": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "invalidation_regex": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "validation_regex",
+        "invalidation_regex"
+      ]
+    }
+  },
+  "required": [
+    "server_location",
+    "server_name",
+    "registration_shared_secret",
+    "admin_api_shared_secret",
+    "base_url",
+    "client_redirect",
+    "client_logo",
+    "db",
+    "host",
+    "port",
+    "rate_limit",
+    "allow_cors",
+    "ip_logging",
+    "logging",
+    "password",
+    "username"
+  ]
+}

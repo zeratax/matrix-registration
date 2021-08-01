@@ -48,9 +48,9 @@
       <section>
         <form id="registration" action="{{ base_url }}/register" method="post">
           <div class="group">
-            <input id="username" name="username" type="text" placeholder=" " required
-              pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" required minlength="1"
-              maxlength="200">
+            <input id="username" name="username" type="text" placeholder=" "
+              pattern="^@?[a-zA-Z_\-=\.\/0-9]+(:{{ server_name|replace('.', '\.') }})?$" 
+              minlength="1" maxlength="200" required>
             <span class="highlight"></span>
             <span class="bar"></span>
             <label for="username">{{ translations.username }}</label>
@@ -158,15 +158,28 @@
     var token = document.getElementById("token")
 
     username.addEventListener("input", function (event) {
-      if (username.validity.typeMismatch) {
+      if (username.validity.patternMismatch) {
         username.setCustomValidity("{{ translations.username_format }}")
       } else {
+        var uname = username.value.replace(/^@/,'').split(":")[0]
+        {% for each in uname_regex if each %}
+          if (uname.match(/{{ each }}/)==null) {
+            username.setCustomValidity("{{ translations.username_error }}")
+            return
+          }
+        {% endfor %}
+        {% for each in uname_regex_inv if each %}
+          if (uname.match(/{{ each }}/)!=null) {
+            username.setCustomValidity("{{ translations.username_error }}")
+            return
+          }
+        {% endfor %}
         username.setCustomValidity("")
       }
     })
 
     token.addEventListener("input", function (event) {
-      if (token.validity.typeMismatch) {
+      if (token.validity.patternMismatch) {
         token.setCustomValidity("{{ translations.case_sensitive }}")
       } else {
         token.setCustomValidity("")
@@ -174,7 +187,7 @@
     })
 
     password.addEventListener("input", function (event) {
-      if (password.validity.typeMismatch) {
+      if (password.validity.tooShort) {
         password.setCustomValidity('{{ translations.password_too_short }}')
       } else {
         password.setCustomValidity("")
