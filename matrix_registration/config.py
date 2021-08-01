@@ -83,8 +83,6 @@ class Config:
             try:
                 with open(self.data, 'r') as stream:
                     dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
-                if not CONFIG_SCHEMA_PATH:
-                    sys.exit("Make sure you have "+CONFIG_SCHEMA_PATH)
                 with open(CONFIG_SCHEMA_PATH, 'r') as schemafile:
                     validate(dictionary, yaml.safe_load(schemafile))               
             except ValidationError as e:
