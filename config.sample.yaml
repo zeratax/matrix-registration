@@ -41,7 +41,5 @@ password:
   min_length: 8
 # username requirements
 username:
-  validation_regex: #list of regexes that the selected username must match.        Example: '[a-zA-Z]\.[a-zA-Z]'
-     - ''
-  invalidation_regex: #list of regexes that the selected username must NOT match.  Example: '(admin|support)'
-     - ''
+  validation_regex: [] #list of regexes that the selected username must match.        Example: '[a-zA-Z]\.[a-zA-Z]'
+  invalidation_regex: [] #list of regexes that the selected username must NOT match.  Example: '(admin|support)'
