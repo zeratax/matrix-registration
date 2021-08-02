@@ -1,6 +1,5 @@
 name: Publish Docker Image
-on:
-  push
+on: [ push, pull_request ]
 
 jobs:
   build_image:
@@ -68,7 +67,7 @@ jobs:
         with:
           name: image
           
-      - name: Run Synapse
+      - name: Run synapse
         run: |
           docker run -d \
             -e UID=$(id -u) \
