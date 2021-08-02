@@ -1,0 +1,23 @@
+server_name: "localhost"
+pid_file: /data/homeserver.pid
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    resources:
+      - names: [client, federation]
+        compress: false
+database:
+  name: sqlite3
+  args:
+    database: /data/homeserver.db
+log_config: "/data/localhost.log.config"
+media_store_path: "/data/media_store"
+registration_shared_secret: "dockerregistersecret"
+report_stats: false
+macaroon_secret_key: "OTq8vEpLVUzNjxAoxKH3,jXSHC1vMup4bT9gVGf+C@JQjb2-ex"
+form_secret: "WS8zPZXCu8AR99Q#ha+F#sK&qBKru#v+2M~17deWIFX@1cl^nw"
+signing_key_path: "/data/localhost.signing.key"
+trusted_key_servers:
+  - server_name: "matrix.org"

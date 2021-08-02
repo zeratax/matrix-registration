@@ -236,6 +236,10 @@ def register():
                                translations=translations)
 
 
+@api.route('/health')
+def health():
+    return make_response("OK", 200)
+
 @api.route('/api/version')
 @auth.login_required
 def version():
