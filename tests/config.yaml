@@ -31,5 +31,5 @@ logging:
 password:
   min_length: 8
 username:
-  validation_regex: ['']
-  invalidation_regex: ['']
+  validation_regex: []
+  invalidation_regex: []

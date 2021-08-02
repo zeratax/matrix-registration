@@ -15,19 +15,28 @@ from . import tokens
 from .tokens import db
 import os
 
+
 def create_app(testing=False):
     app = Flask(__name__)
     app.testing = testing
 
     with app.app_context():
         from .api import api
+
         app.register_blueprint(api)
 
     return app
 
 
-@click.group(cls=FlaskGroup, add_default_commands=False, create_app=create_app, context_settings=dict(help_option_names=['-h', '--help']))
-@click.option("--config-path", default="config.yaml", help='specifies the config file to be used')
+@click.group(
+    cls=FlaskGroup,
+    add_default_commands=False,
+    create_app=create_app,
+    context_settings=dict(help_option_names=["-h", "--help"]),
+)
+@click.option(
+    "--config-path", default="config.yaml", help="specifies the config file to be used"
+)
 @pass_script_info
 def cli(info, config_path):
     """a token based matrix registration app"""
@@ -37,7 +46,7 @@ def cli(info, config_path):
     with app.app_context():
         app.config.from_mapping(
             SQLALCHEMY_DATABASE_URI=config.config.db.format(cwd=f"{os.getcwd()}/"),
-            SQLALCHEMY_TRACK_MODIFICATIONS=False
+            SQLALCHEMY_TRACK_MODIFICATIONS=False,
         )
         db.init_app(app)
         db.create_all()
@@ -48,20 +57,26 @@ def cli(info, config_path):
 @pass_script_info
 def run_server(info):
     app = info.load_app()
-    Limiter(
-        app,
-        key_func=get_ipaddr,
-        default_limits=config.config.rate_limit
-    )
+    Limiter(app, key_func=get_ipaddr, default_limits=config.config.rate_limit)
     if config.config.allow_cors:
         CORS(app)
-    serve(app, host=config.config.host, port=config.config.port, url_prefix=config.config.base_url)
+    serve(
+        app,
+        host=config.config.host,
+        port=config.config.port,
+        url_prefix=config.config.base_url,
+    )
 
 
 @cli.command("generate", help="generate new token")
 @click.option("-m", "--maximum", default=0, help="times token can be used")
-@click.option("-e", "--expires", type=click.DateTime(formats=["%Y-%m-%d"]),
-              default=None, help='expire date: in ISO-8601 format (YYYY-MM-DD)')
+@click.option(
+    "-e",
+    "--expires",
+    type=click.DateTime(formats=["%Y-%m-%d"]),
+    default=None,
+    help="expire date: in ISO-8601 format (YYYY-MM-DD)",
+)
 def generate_token(maximum, expires):
     token = tokens.tokens.new(expiration_date=expires, max_usage=maximum)
     print(token.name)

@@ -8,8 +8,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def create_account(user, password, server_location, shared_secret,
-                   admin=False, user_type=None):
+def create_account(
+    user, password, server_location, shared_secret, admin=False, user_type=None
+):
     """
     creates account
     https://github.com/matrix-org/synapse/blob/master/synapse/_scripts/register_new_matrix_user.py
@@ -59,15 +60,14 @@ def create_account(user, password, server_location, shared_secret,
         "user_type": user_type,
     }
 
-    server_location = server_location.rstrip('/')
+    server_location = server_location.rstrip("/")
 
-    r = requests.post('%s/_synapse/admin/v1/register' % (server_location),
-                      json=data)
+    r = requests.post("%s/_synapse/admin/v1/register" % (server_location), json=data)
     r.raise_for_status()
     return r.json()
 
 
 def _get_nonce(server_location):
-    r = requests.get('%s/_synapse/admin/v1/register' % (server_location))
+    r = requests.get("%s/_synapse/admin/v1/register" % (server_location))
     r.raise_for_status()
-    return r.json()['nonce']
+    return r.json()["nonce"]
