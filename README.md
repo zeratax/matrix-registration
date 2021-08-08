@@ -94,6 +94,14 @@ location  ~ ^/(static|register) {
 }
 ```
 
+Or if you'll be using the [web API](https://github.com/ZerataX/matrix-registration/wiki/api):
+
+```nginx
+location  ~ ^/(static|register|api) {
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass http://localhost:5000;
+}
+```
 
 ### Custom registration page
 
