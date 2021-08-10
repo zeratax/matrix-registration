@@ -94,6 +94,7 @@ location  ~ ^/(static|register) {
 }
 ```
 
+If you'll be using the [web API](https://github.com/ZerataX/matrix-registration/wiki/api), you'll also need to forward that endpoint. More information on reverse proxying [here](https://github.com/ZerataX/matrix-registration/wiki/reverse-proxy#optional)
 
 ### Custom registration page
 
