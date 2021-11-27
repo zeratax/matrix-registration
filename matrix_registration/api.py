@@ -141,6 +141,18 @@ class RegistrationForm(Form):
     )
 
 
+def get_request_ips(request):
+    """
+    Get the chain of client and proxy IP addresses from the request as
+    a nonempty list, where the closest IP in the chain is last. Each
+    IP vouches only for the IP before it. This works best if all proxies
+    conform the to the X-Forwarded-For header spec, including whatever
+    reverse proxy (such as nginx) is directly in front of the app, if any.
+    (X-Real-IP and similar are not supported at this time.)
+    """
+    return request.headers.getlist('X-Forwarded-For') + [request.remote_addr]
+
+
 @auth.verify_token
 def verify_token(token):
     return (
@@ -214,8 +226,8 @@ def register():
                 abort(500)
 
             logger.debug("using token %s" % form.token.data)
-            ip = request.remote_addr if config.config.ip_logging else False
-            tokens.tokens.use(form.token.data, ip)
+            ips = ', '.join(get_request_ips(request)) if config.config.ip_logging else False
+            tokens.tokens.use(form.token.data, ips)
 
             logger.debug("account creation succeded!")
             return jsonify(
