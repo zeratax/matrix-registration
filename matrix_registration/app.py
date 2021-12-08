@@ -6,7 +6,7 @@ import json
 from flask import Flask
 from flask.cli import FlaskGroup, pass_script_info
 from flask_limiter import Limiter
-from flask_limiter.util import get_ipaddr
+from flask_limiter.util import get_ip_from_header
 from flask_cors import CORS
 from waitress import serve
 
@@ -57,7 +57,7 @@ def cli(info, config_path):
 @pass_script_info
 def run_server(info):
     app = info.load_app()
-    Limiter(app, key_func=get_ipaddr, default_limits=config.config.rate_limit)
+    Limiter(app, key_func=get_ip_from_header, default_limits=config.config.rate_limit)
     if config.config.allow_cors:
         CORS(app)
     serve(
