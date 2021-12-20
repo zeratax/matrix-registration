@@ -301,7 +301,7 @@ def token():
     return make_response(jsonify(resp), 400)
 
 
-@api.route("/api/token/<token>", methods=["GET", "PATCH"])
+@api.route("/api/token/<token>", methods=["GET", "PATCH", "DELETE"])
 @auth.login_required
 def token_status(token):
     tokens.tokens.load()
@@ -331,6 +331,17 @@ def token_status(token):
                     "error": "you're not allowed to change this property",
                 }
                 return make_response(jsonify(resp), 400)
+            resp = {"errcode": "MR_TOKEN_NOT_FOUND", "error": "token does not exist"}
+            return make_response(jsonify(resp), 404)
+    elif request.method == "DELETE":
+        if tokens.tokens.get_token(token):
+            if tokens.tokens.delete(token):
+                resp = {"success": "true"}
+                return make_response(jsonify(resp), 200)
+            else:
+                resp = {"success": "false"}
+                return make_response(jsonify(resp), 500)
+        else:
             resp = {"errcode": "MR_TOKEN_NOT_FOUND", "error": "token does not exist"}
             return make_response(jsonify(resp), 404)
     resp = {"errcode": "MR_BAD_USER_REQUEST", "error": "malformed request"}
