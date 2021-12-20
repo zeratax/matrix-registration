@@ -6,7 +6,7 @@ import json
 from flask import Flask
 from flask.cli import FlaskGroup, pass_script_info
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+from flask_limiter import request
 from flask_cors import CORS
 from waitress import serve
 
@@ -52,12 +52,15 @@ def cli(info, config_path):
         db.create_all()
         tokens.tokens = tokens.Tokens()
 
-
+def get_real_user_ip -> str:
+    """ratelimit the users original ip instead of (optional) reverse proxy"""
+    return request.headers.getlist('X-Forwarded-For')[-1] or request.get_remote_address
+        
 @cli.command("serve", help="start api server")
 @pass_script_info
 def run_server(info):
     app = info.load_app()
-    Limiter(app, key_func=get_remote_address, default_limits=config.config.rate_limit)
+    Limiter(app, key_func=get_real_user_ip, default_limits=config.config.rate_limit)
     if config.config.allow_cors:
         CORS(app)
     serve(
