@@ -6,7 +6,7 @@ import json
 from flask import Flask
 from flask.cli import FlaskGroup, pass_script_info
 from flask_limiter import Limiter
-from flask_limiter import request
+from flask import request
 from flask_cors import CORS
 from waitress import serve
 
