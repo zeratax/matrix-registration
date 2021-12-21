@@ -54,7 +54,7 @@ def cli(info, config_path):
 
 def get_real_user_ip() -> str:
     """ratelimit the users original ip instead of (optional) reverse proxy"""
-    return request.headers.getlist('X-Forwarded-For')[1] or request.get_remote_address
+    return next(iter(request.headers.getlist('X-Forwarded-For')), request.remote_addr)
         
 @cli.command("serve", help="start api server")
 @pass_script_info
