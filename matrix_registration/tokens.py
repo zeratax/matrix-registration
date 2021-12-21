@@ -196,8 +196,8 @@ class Tokens:
         try:
             Token.query.filter_by(name=token_name).delete()
             session.commit()
-        except SQLAlchemyError:
-            logger.exception(error)
+        except exc.SQLAlchemyError as e:
+            logger.exception(e)
             return False
         return True
 
