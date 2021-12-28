@@ -722,16 +722,13 @@ class ApiTest(unittest.TestCase):
                 content_type="application/json",
                 headers=headers,
             )
-
             self.assertEqual(rv.status_code, 200)
             
             rv = self.client.delete(
                 "/api/token/" + test_token.name,
-                data=json.dumps(dict(disabled=True)),
                 content_type="application/json",
                 headers=headers,
             )
-            
             self.assertEqual(rv.status_code, 200)
 
             rv = self.client.get(
@@ -739,8 +736,41 @@ class ApiTest(unittest.TestCase):
                 content_type="application/json",
                 headers=headers,
             )
+            self.assertEqual(rv.status_code, 404)
+
+    def test_error_delete_token(self):
+        matrix_registration.config.config = Config(BAD_CONFIG2)
+
+        with self.app.app_context():
+            matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+            test_token = matrix_registration.tokens.tokens.new(max_usage=True)
+
+            secret = matrix_registration.config.config.admin_api_shared_secret
+            headers = {"Authorization": "SharedSecret %s" % secret}
+            matrix_registration.config.config = Config(GOOD_CONFIG)
+            rv = self.client.delete(
+                "/api/token/" + test_token.name,
+                content_type="application/json",
+                headers=headers,
+            )
+
+            self.assertEqual(rv.status_code, 401)
+            token_data = json.loads(rv.data.decode("utf8").replace("'", '"'))
+            self.assertEqual(token_data["errcode"], "MR_BAD_SECRET")
+            self.assertEqual(token_data["error"], "wrong shared secret")
+
+            secret = matrix_registration.config.config.admin_api_shared_secret
+            headers = {"Authorization": "SharedSecret %s" % secret}
+            rv = self.client.delete(
+                "/api/token/" + "nicememe",
+                content_type="application/json",
+                headers=headers,
+            )
 
             self.assertEqual(rv.status_code, 404)
+            token_data = json.loads(rv.data.decode("utf8"))
+            self.assertEqual(token_data["errcode"], "MR_TOKEN_NOT_FOUND")
+            self.assertEqual(token_data["error"], "token does not exist")
 
             
     @parameterized.expand(
