@@ -1,1 +1,26 @@
-{}
+weblate:
+  welcome: Välkommen
+  homeserver_error: Hemserverfel
+  username_error: Användarnamnsfel
+  password_error: Lösenordsfel
+  token_error: Token-fel
+  contact: Vänligen kontakta serveradministratören angående detta.
+  internal_error: Internt Serverfel!
+  error_long: Det uppstod ett fel när du skulle registreras.
+  error: Error
+  password_do_not_match: lösenorden matchar inte
+  password_too_short: åtminstone {{ pw_length }} symboler långt
+  case_sensitive: 'skiftlägeskänslighet, t.ex.: SardineImpactReport'
+  username_format: 'format: @användarnamn:{{ server_name }}'
+  choose_client: 'eller välj en av de många andra klienterna här:'
+  click_to_login: 'Klicka här för att logga in:'
+  register: registrera
+  token: Token
+  confirm: Bekräfta
+  password: Lösenord
+  username: Användarnamn
+  requires_username_and_password: "registreringen kräver inte en mejladress, enbart\
+    \ ett användarnamn och ett lösenord som är längre än {{ pw_length }} tecken.\n"
+  requires_token: registreringen kräver en hemlig token
+  server_registration: '{{ server_name }} registrering'
+  register_account: registrera ett konto på {{ server_name }}
