@@ -708,6 +708,41 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(token_data["errcode"], "MR_TOKEN_NOT_FOUND")
             self.assertEqual(token_data["error"], "token does not exist")
 
+    def test_delete_token(self):
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+
+        with self.app.app_context():
+            matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+            test_token = matrix_registration.tokens.tokens.new(max_usage=True)
+
+            secret = matrix_registration.config.config.admin_api_shared_secret
+            headers = {"Authorization": "SharedSecret %s" % secret}
+            rv = self.client.get(
+                "/api/token/" + test_token.name,
+                content_type="application/json",
+                headers=headers,
+            )
+
+            self.assertEqual(rv.status_code, 200)
+
+            rv = self.client.delete(
+                "/api/token/" + test_token.name,
+                data=json.dumps(dict(disabled=True)),
+                content_type="application/json",
+                headers=headers,
+            )
+
+            self.assertEqual(rv.status_code, 200)
+
+            rv = self.client.get(
+                "/api/token/" + test_token.name,
+                content_type="application/json",
+                headers=headers,
+            )
+
+            self.assertEqual(rv.status_code, 404)
+
+
     @parameterized.expand(
         [
             [None, True, None],
