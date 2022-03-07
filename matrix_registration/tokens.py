@@ -191,6 +191,16 @@ class Tokens:
                 return True
         return False
 
+    def delete(self, token_name):
+        logger.debug("disabling token: %s" % token_name)
+        try:
+            Token.query.filter_by(name=token_name).delete()
+            session.commit()
+        except SQLAlchemyError:
+            logger.exception(error)
+            return False
+        return True
+    
     def new(self, expiration_date=None, max_usage=False):
         logger.debug(
             (
