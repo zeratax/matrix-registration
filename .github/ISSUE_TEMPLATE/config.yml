@@ -6,4 +6,6 @@ contact_links:
   - name: "\U0001F4DA Examples for api usage"
     url: https://github.com/zeratax/matrix-registration/wiki/api
     about: Need help with using the api?
- 
+  - name: "\U0001F310 Our comunity matrix channel"
+    url: https://matrix.to/#/#matrix-registration:dmnd.sh
+    about: Need general help?

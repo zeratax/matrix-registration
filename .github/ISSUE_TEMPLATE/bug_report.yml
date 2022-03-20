@@ -29,7 +29,7 @@ body:
 
 - type: input
   attributes:
-    label: What version are you running?
+    label: What version of matrix-registration are you running?
     placeholder: "0.9.7"
     description: It's fine to write "latest" if you updated recently or "unknown" if your unsure.
   validations:
@@ -46,13 +46,12 @@ body:
 - type: textarea
   attributes:
     label: Your error log
+    description: Provide it here if you got one.
     placeholder: |
-        matrix-registration[40828]: Traceback (most recent call last):
-        matrix-registration[40828]:   File "/usr/local/bin/matrix-registration", line 5, in <module>
-        matrix-registration[40828]:     from matrix_registration.app import cli
-        matrix-registration[40828]:   File "/usr/local/lib/python3.8/site-packages/matrix_registration/app.py", line 9, in <module>
-        matrix-registration[40828]:     from flask_limiter.util import get_ipaddr
-        matrix-registration[40828]: ImportError: cannot import name 'get_ipaddr' from 'flask_limiter.util' (/usr/local/lib/python3.8/site-packages/flask_limiter/util.py)
+        matrix[187]: Traceback (most recent call last):
+        matrix[187]:   File "/usr/local/lib/python3.8/site-packages/matrix_registration/app.py", line 9, in <module>
+        matrix[187]:     from flask_limiter.util import get_ipaddr
+        matrix[187]: ImportError: cannot import name 'get_ipaddr' from 'flask_limiter.util'
         systemd[1]: matrix-registration.service: Main process exited, code=exited, status=1/FAILURE
     render: text
   validations:
@@ -61,7 +60,6 @@ body:
 - type: dropdown
   attributes:
     label: Area of your issue?
-    description: What things had an issue? 
     multiple: false
     options:
       - installation

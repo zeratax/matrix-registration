@@ -21,7 +21,7 @@ body:
     required: true
 - type: textarea
   attributes: 
-    label: further information
+    label: Further information
     placeholder: |
       Do you want to provide anything else? Screenshots? Additional context?
   validations:
