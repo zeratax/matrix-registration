@@ -1,0 +1,87 @@
+name: "🐛 Bug report"
+description: Report errors or unexpected behavior
+labels: 
+- bug
+body:
+- type: markdown
+  attributes:
+    value: Please make sure to [search for existing issues](https://github.com/zeratax/matrix-registration/issues) before filing a new one!
+
+- type: dropdown
+  attributes:
+    label: How did you install matrix-registration?
+    multiple: false
+    options:
+      - pip
+      - direct clone from repo
+      - docker
+      - matrix-docker-ansible-deploy
+  validations:
+    required: true
+    
+- type: input
+  attributes:
+    label: What python version are you running?
+    placeholder: "3.7"
+    description: Only provide this, when you aren't using docker.
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: What version are you running?
+    placeholder: "0.9.7"
+    description: It's fine to write "latest" if you updated recently or "unknown" if your unsure.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Your config.yml
+    description: This is not always required - if your are unsure, please provide it.
+    placeholder: DO NOT POST PASSWORDS!
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: Your error log
+    placeholder: |
+        matrix-registration[40828]: Traceback (most recent call last):
+        matrix-registration[40828]:   File "/usr/local/bin/matrix-registration", line 5, in <module>
+        matrix-registration[40828]:     from matrix_registration.app import cli
+        matrix-registration[40828]:   File "/usr/local/lib/python3.8/site-packages/matrix_registration/app.py", line 9, in <module>
+        matrix-registration[40828]:     from flask_limiter.util import get_ipaddr
+        matrix-registration[40828]: ImportError: cannot import name 'get_ipaddr' from 'flask_limiter.util' (/usr/local/lib/python3.8/site-packages/flask_limiter/util.py)
+        systemd[1]: matrix-registration.service: Main process exited, code=exited, status=1/FAILURE
+    render: text
+  validations:
+    required: false
+      
+- type: dropdown
+  attributes:
+    label: Area of your issue?
+    description: What things had an issue? 
+    multiple: false
+    options:
+      - installation
+      - api
+      - general usage
+      - other
+  validations:
+    required: true  
+    
+- type: textarea
+  attributes:
+    label: What happened
+    description: Describe your issue here:
+  validations:
+    required: false  
+    
+- type: textarea
+  attributes:
+    label: Steps to reproduce
+    placeholder: Tell us the steps required to trigger your bug.
+  validations:
+    required: false
+    

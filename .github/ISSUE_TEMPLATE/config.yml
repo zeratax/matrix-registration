@@ -1,0 +1,9 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "\U0001F4DA Explanation to all config entries"
+    url: https://github.com/zeratax/matrix-registration/wiki#configuration
+    about: Need help with your config.yaml?
+  - name: "\U0001F4DA Examples for api usage"
+    url: https://github.com/zeratax/matrix-registration/wiki/api
+    about: Need help with using the api?
+ 

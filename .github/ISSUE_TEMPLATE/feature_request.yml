@@ -1,0 +1,28 @@
+name: "⭐ Feature / enhancement request"
+description: Suggest an idea for this project
+labels: 
+- enhancement
+body:
+- type: textarea
+  attributes: 
+    label: Description of the new feature / enhancement
+    placeholder: |
+      What is the expected behavior of the proposed feature?
+  validations:
+    required: true
+- type: textarea
+  attributes: 
+    label: Scenario when this would be used? 
+    placeholder: |
+      What is the scenario this would be used?
+      Is this enhancing to your workflow?
+      Are there benefits for the end-user?
+  validations:
+    required: true
+- type: textarea
+  attributes: 
+    label: further information
+    placeholder: |
+      Do you want to provide anything else? Screenshots? Additional context?
+  validations:
+    required: false
