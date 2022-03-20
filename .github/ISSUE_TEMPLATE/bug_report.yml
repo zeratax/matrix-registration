@@ -25,7 +25,7 @@ body:
     placeholder: "3.7"
     description: Only provide this, when you aren't using docker.
   validations:
-    required: true
+    required: false
 
 - type: input
   attributes:
@@ -76,7 +76,7 @@ body:
     label: What happened
     description: Describe your issue here
   validations:
-    required: false  
+    required: true  
     
 - type: textarea
   attributes:
