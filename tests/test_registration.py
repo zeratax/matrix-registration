@@ -2,26 +2,22 @@
 # Standard library imports...
 import hashlib
 import hmac
-import logging
-import logging.config
 import json
+import logging.config
 import os
-import yaml
 import random
 import re
-import requests
-from requests import exceptions
 import string
 import sys
 import unittest
+from datetime import datetime
 from unittest.mock import patch
 from urllib.parse import urlparse
 
 # Third-party imports...
+import yaml
 from parameterized import parameterized
-from datetime import datetime
-from click.testing import CliRunner
-from flask import Flask
+from requests import exceptions
 
 # Local imports...
 try:
@@ -29,7 +25,6 @@ try:
 except ModuleNotFoundError:
     from context import matrix_registration
 from matrix_registration.config import Config
-from matrix_registration.app import create_app
 from matrix_registration.tokens import db
 from matrix_registration.app import (
     create_app,
@@ -37,7 +32,6 @@ from matrix_registration.app import (
 )
 
 logger = logging.getLogger(__name__)
-
 
 LOGGING = {
     "version": 1,
@@ -66,7 +60,7 @@ GOOD_CONFIG = {
     "db": "sqlite:///%s/tests/db.sqlite" % (os.getcwd(),),
     "host": "",
     "port": 5000,
-    "rate_limit": ["100 per day", "10 per minute"],
+    "rate_limit": ["1000 per day", "100 per minute"],
     "allow_cors": False,
     "password": {"min_length": 8},
     "username": {
@@ -390,11 +384,11 @@ class TokensTest(unittest.TestCase):
             test_token5 = test_tokens.new()
 
             expected_answer = (
-                "%s, " % test_token1.name
-                + "%s, " % test_token2.name
-                + "%s, " % test_token3.name
-                + "%s, " % test_token4.name
-                + "%s" % test_token5.name
+                    "%s, " % test_token1.name
+                    + "%s, " % test_token2.name
+                    + "%s, " % test_token3.name
+                    + "%s, " % test_token4.name
+                    + "%s" % test_token5.name
             )
 
             self.assertEqual(str(test_tokens), expected_answer)
@@ -448,7 +442,7 @@ class ApiTest(unittest.TestCase):
         "matrix_registration.matrix_api.requests.post", side_effect=mocked_requests_post
     )
     def test_register(
-        self, username, password, confirm, token, status, mock_get, mock_nonce
+            self, username, password, confirm, token, status, mock_get, mock_nonce
     ):
         matrix_registration.config.config = Config(GOOD_CONFIG)
         with self.app.app_context():
@@ -723,7 +717,7 @@ class ApiTest(unittest.TestCase):
                 headers=headers,
             )
             self.assertEqual(rv.status_code, 200)
-            
+
             rv = self.client.delete(
                 "/api/token/" + test_token.name,
                 content_type="application/json",
@@ -772,7 +766,6 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(token_data["errcode"], "MR_TOKEN_NOT_FOUND")
             self.assertEqual(token_data["error"], "token does not exist")
 
-            
     @parameterized.expand(
         [
             [None, True, None],
@@ -837,6 +830,26 @@ class ApiTest(unittest.TestCase):
             token_data = json.loads(rv.data.decode("utf8").replace("'", '"'))
             self.assertEqual(token_data["errcode"], "MR_BAD_SECRET")
             self.assertEqual(token_data["error"], "wrong shared secret")
+
+    def test_rate_limit_exempt(self):
+        matrix_registration.config.config = Config(GOOD_CONFIG)
+
+        with self.app.app_context():
+            matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()
+            secret = matrix_registration.config.config.admin_api_shared_secret
+            headers = {"Authorization": "SharedSecret %s" % secret}
+
+            for i in range(110):
+                self.client.get("/api/token", headers=headers)
+
+            rv = self.client.get("/api/token", headers=headers)
+            self.assertEqual(rv.status_code, 429)
+
+            for i in range(110):
+                self.client.get("/health")
+
+            rv = self.client.get("/health")
+            self.assertEqual(rv.status_code, 200)
 
 
 class ConfigTest(unittest.TestCase):

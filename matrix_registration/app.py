@@ -1,19 +1,18 @@
+import json
 import logging
 import logging.config
-import click
-import json
+import os
 
+import click
 from flask import Flask
 from flask.cli import FlaskGroup, pass_script_info
-from flask_limiter import Limiter
-from flask import request
 from flask_cors import CORS
 from waitress import serve
 
 from . import config
 from . import tokens
+from .limiter import limiter
 from .tokens import db
-import os
 
 
 def create_app(testing=False):
@@ -21,10 +20,12 @@ def create_app(testing=False):
     app.testing = testing
 
     with app.app_context():
-        from .api import api
+        from .api import api, healthcheck
 
         app.register_blueprint(api)
+        app.register_blueprint(healthcheck)
 
+    limiter.init_app(app)
     return app
 
 
@@ -52,15 +53,11 @@ def cli(info, config_path):
         db.create_all()
         tokens.tokens = tokens.Tokens()
 
-def get_real_user_ip() -> str:
-    """ratelimit the users original ip instead of (optional) reverse proxy"""
-    return next(iter(request.headers.getlist('X-Forwarded-For')), request.remote_addr)
-        
+
 @cli.command("serve", help="start api server")
 @pass_script_info
 def run_server(info):
     app = info.load_app()
-    Limiter(key_func=get_real_user_ip, app=app, default_limits=config.config.rate_limit)
     if config.config.allow_cors:
         CORS(app)
     serve(
