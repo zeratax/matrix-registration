@@ -150,7 +150,7 @@ def get_request_ips(request):
     reverse proxy (such as nginx) is directly in front of the app, if any.
     (X-Real-IP and similar are not supported at this time.)
     """
-    return request.headers.getlist('X-Forwarded-For') + [request.remote_addr]
+    return request.headers.getlist("X-Forwarded-For") + [request.remote_addr]
 
 
 @auth.verify_token
@@ -192,76 +192,141 @@ def register():
         logger.debug("validating request data...")
         if form.validate():
             logger.debug("request valid")
-            # remove sigil and the domain from the username
-            username = form.username.data.rsplit(":")[0].split("@")[-1]
-            logger.debug("creating account %s..." % username)
-            # send account creation request to the hs
-            try:
-                account_data = create_account(
-                    form.username.data,
-                    form.password.data,
-                    config.config.server_location,
-                    config.config.registration_shared_secret,
-                )
-            except exceptions.ConnectionError:
-                logger.error(
-                    "can not connect to %s" % config.config.server_location,
-                    exc_info=True,
-                )
-                abort(500)
-            except exceptions.HTTPError as e:
-                resp = e.response
-                error = resp.json()
-                status_code = resp.status_code
-                if status_code == 404:
-                    logger.error("no HS found at %s" % config.config.server_location)
-                elif status_code == 403:
-                    logger.error("wrong shared registration secret or not enabled")
-                elif status_code == 400:
-                    # most likely this should only be triggered if a userid
-                    # is already in use
-                    return make_response(jsonify(error), 400)
-                else:
-                    logger.error("failure communicating with HS", exc_info=True)
-                abort(500)
+            return create_account_from_form(form)
 
-            logger.debug("using token %s" % form.token.data)
-            ips = ', '.join(get_request_ips(request)) if config.config.ip_logging else False
-            tokens.tokens.use(form.token.data, ips)
+        logger.debug("account creation failed!")
+        resp = {"errcode": "MR_BAD_USER_REQUEST", "error": form.errors}
+        return make_response(jsonify(resp), 400)
 
-            logger.debug("account creation succeded!")
-            return jsonify(
-                access_token=account_data["access_token"],
-                home_server=account_data["home_server"],
-                user_id=account_data["user_id"],
-                status="success",
-                status_code=200,
-            )
-        else:
-            logger.debug("account creation failed!")
-            resp = {"errcode": "MR_BAD_USER_REQUEST", "error": form.errors}
-            return make_response(jsonify(resp), 400)
-            # for fieldName, errorMessages in form.errors.items():
-            #     for err in errorMessages:
-            #         # return error to user
-    else:
-        server_name = config.config.server_name
-        pw_length = config.config.password["min_length"]
-        uname_regex = config.config.username["validation_regex"]
-        uname_regex_inv = config.config.username["invalidation_regex"]
-        lang = request.args.get("lang") or request.accept_languages.best
-        replacements = {"server_name": server_name, "pw_length": pw_length}
-        translations = get_translations(lang, replacements)
-        return render_template(
-            "register.html",
-            server_name=server_name,
-            pw_length=pw_length,
-            uname_regex=uname_regex,
-            uname_regex_inv=uname_regex_inv,
-            client_redirect=config.config.client_redirect,
-            base_url=config.config.base_url,
-            translations=translations,
+    # GET REQUEST
+    server_name = config.config.server_name
+    pw_length = config.config.password["min_length"]
+    uname_regex = config.config.username["validation_regex"]
+    uname_regex_inv = config.config.username["invalidation_regex"]
+    lang = request.args.get("lang") or request.accept_languages.best
+    replacements = {"server_name": server_name, "pw_length": pw_length}
+    translations = get_translations(lang, replacements)
+    return render_template(
+        "register.html",
+        server_name=server_name,
+        pw_length=pw_length,
+        uname_regex=uname_regex,
+        uname_regex_inv=uname_regex_inv,
+        client_redirect=config.config.client_redirect,
+        base_url=config.config.base_url,
+        translations=translations,
+    )
+
+
+def create_account_from_form(form):
+    # remove sigil and the domain from the username
+    username = form.username.data.rsplit(":")[0].split("@")[-1]
+    logger.debug("creating account %s..." % username)
+    # send account creation request to the hs
+    try:
+        account_data = create_account(
+            form.username.data,
+            form.password.data,
+            config.config.server_location,
+            config.config.registration_shared_secret,
         )
+    except exceptions.ConnectionError:
+        logger.error(
+            "can not connect to %s" % config.config.server_location,
+            exc_info=True,
+        )
+        abort(500)
+    except exceptions.HTTPError as e:
+        resp = e.response
+        error = resp.json()
+        status_code = resp.status_code
+        if status_code == 404:
+            logger.error("no HS found at %s" % config.config.server_location)
+        elif status_code == 403:
+            logger.error("wrong shared registration secret or not enabled")
+        elif status_code == 400:
+            # most likely this should only be triggered if a userid
+            # is already in use
+            return make_response(jsonify(error), 400)
+        else:
+            logger.error("failure communicating with HS", exc_info=True)
+        abort(500)
+
+    logger.debug("using token %s" % form.token.data)
+    ips = ", ".join(get_request_ips(request)) if config.config.ip_logging else False
+    tokens.tokens.use(form.token.data, ips)
+
+    logger.debug("account creation succeded!")
+    return jsonify(
+        access_token=account_data["access_token"],
+        home_server=account_data["home_server"],
+        user_id=account_data["user_id"],
+        status="success",
+        status_code=200,
+    )
+
+
+def get_token(token):
+    if tokens.tokens.get_token(token):
+        return jsonify(tokens.tokens.get_token(token).toDict())
+    resp = {"errcode": "MR_TOKEN_NOT_FOUND", "error": "token does not exist"}
+    return make_response(jsonify(resp), 404)
+
+
+def get_tokens():
+    return jsonify(tokens.tokens.toList())
+
+
+def create_token(data):
+    if not data:
+        resp = {
+            "errcode": "MR_BAD_USER_REQUEST",
+            "error": "no data was sent",
+        }
+        return make_response(jsonify(resp), 400)
+
+    max_usage = False
+    expiration_date = None
+    try:
+
+        if "expiration_date" in data and data["expiration_date"] is not None:
+            expiration_date = datetime.fromisoformat(data["expiration_date"])
+        if "max_usage" in data:
+            max_usage = data["max_usage"]
+        token = tokens.tokens.new(expiration_date=expiration_date, max_usage=max_usage)
+    except ValueError:
+        resp = {
+            "errcode": "MR_BAD_DATE_FORMAT",
+            "error": "date wasn't in YYYY-MM-DD format",
+        }
+        return make_response(jsonify(resp), 400)
+    return jsonify(token.toDict())
+
+
+def update_token(token, data):
+    if "ips" in data or "active" in data or "name" in data:
+        resp = {
+            "errcode": "MR_BAD_USER_REQUEST",
+            "error": "you're not allowed to change this property",
+        }
+        return make_response(jsonify(resp), 400)
+    if tokens.tokens.update(token, data):
+        return jsonify(tokens.tokens.get_token(token).toDict())
+
+    resp = {"errcode": "MR_TOKEN_NOT_FOUND", "error": "token does not exist"}
+    return make_response(jsonify(resp), 404)
+
+
+def delete_token(token):
+    if not tokens.tokens.get_token(token):
+        resp = {"errcode": "MR_TOKEN_NOT_FOUND", "error": "token does not exist"}
+        return (jsonify(resp), 404)
+    if tokens.tokens.delete(token):
+        resp = {"success": "true"}
+        return make_response(jsonify(resp), 200)
+
+    resp = {"success": "false"}
+    return make_response(jsonify(resp), 500)
 
 
 @api.route("/health")
@@ -285,30 +350,11 @@ def version():
 @auth.login_required
 def token():
     tokens.tokens.load()
-
-    data = False
-    max_usage = False
-    expiration_date = None
     if request.method == "GET":
-        return jsonify(tokens.tokens.toList())
+        return get_tokens()
     elif request.method == "POST":
-        data = request.get_json()
-        try:
-            if data:
-                if "expiration_date" in data and data["expiration_date"] is not None:
-                    expiration_date = datetime.fromisoformat(data["expiration_date"])
-                if "max_usage" in data:
-                    max_usage = data["max_usage"]
-                token = tokens.tokens.new(
-                    expiration_date=expiration_date, max_usage=max_usage
-                )
-        except ValueError:
-            resp = {
-                "errcode": "MR_BAD_DATE_FORMAT",
-                "error": "date wasn't in YYYY-MM-DD format",
-            }
-            return make_response(jsonify(resp), 400)
-        return jsonify(token.toDict())
+        return create_token(request.get_json())
+
     resp = {"errcode": "MR_BAD_USER_REQUEST", "error": "malformed request"}
     return make_response(jsonify(resp), 400)
 
@@ -319,42 +365,13 @@ def token_status(token):
     tokens.tokens.load()
     data = False
     if request.method == "GET":
-        if tokens.tokens.get_token(token):
-            return jsonify(tokens.tokens.get_token(token).toDict())
-        else:
-            resp = {"errcode": "MR_TOKEN_NOT_FOUND", "error": "token does not exist"}
-            return make_response(jsonify(resp), 404)
+        return get_token(token)
+
     elif request.method == "PATCH":
-        try:
-            data = request.get_json(force=True)
-        except BadRequest as e:
-            # empty request means use default values
-            if len(request.get_data()) == 0:
-                data = None
-            else:
-                raise e
-        if data:
-            if "ips" not in data and "active" not in data and "name" not in data:
-                if tokens.tokens.update(token, data):
-                    return jsonify(tokens.tokens.get_token(token).toDict())
-            else:
-                resp = {
-                    "errcode": "MR_BAD_USER_REQUEST",
-                    "error": "you're not allowed to change this property",
-                }
-                return make_response(jsonify(resp), 400)
-            resp = {"errcode": "MR_TOKEN_NOT_FOUND", "error": "token does not exist"}
-            return make_response(jsonify(resp), 404)
+        return update_token(token, request.get_json())
+
     elif request.method == "DELETE":
-        if tokens.tokens.get_token(token):
-            if tokens.tokens.delete(token):
-                resp = {"success": "true"}
-                return make_response(jsonify(resp), 200)
-            else:
-                resp = {"success": "false"}
-                return make_response(jsonify(resp), 500)
-        else:
-            resp = {"errcode": "MR_TOKEN_NOT_FOUND", "error": "token does not exist"}
-            return make_response(jsonify(resp), 404)
+        return delete_token(token)
+
     resp = {"errcode": "MR_BAD_USER_REQUEST", "error": "malformed request"}
     return make_response(jsonify(resp), 400)
