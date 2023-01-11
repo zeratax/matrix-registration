@@ -832,7 +832,7 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(token_data["error"], "wrong shared secret")
 
     def test_rate_limit_exempt(self):
-        matrix_registration.config.config = Config(GOOD_CONFIG)
+        matrix_registration.config.config = Config(data=GOOD_CONFIG)
 
         with self.app.app_context():
             matrix_registration.tokens.tokens = matrix_registration.tokens.Tokens()

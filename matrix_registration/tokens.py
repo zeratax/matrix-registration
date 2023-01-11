@@ -190,7 +190,7 @@ class Tokens:
                 session.commit()
                 return True
         return False
-    
+
     def delete(self, token_name):
         logger.debug("disabling token: %s" % token_name)
         try:

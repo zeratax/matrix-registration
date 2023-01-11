@@ -23,8 +23,7 @@ def find_version(*file_paths):
 
 
 test_requirements = [
-        "parameterized>=0.7.0",
-        "flake8>=3.7.7"
+        "parameterized>=0.7.0"
 ]
 
 

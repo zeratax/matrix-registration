@@ -28,5 +28,5 @@ buildPythonPackage rec {
     psycopg2
   ];
 
-  checkInputs = [ flake8 parameterized ];
+  checkInputs = [ parameterized ];
 }

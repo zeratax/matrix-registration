@@ -157,7 +157,7 @@ def get_request_ips(request):
 @auth.verify_token
 def verify_token(token):
     return (
-            token != "APIAdminPassword" and token == config.config.admin_api_shared_secret
+        token != "APIAdminPassword" and token == config.config.admin_api_shared_secret
     )
 
 
