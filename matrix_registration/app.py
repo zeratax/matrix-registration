@@ -34,28 +34,28 @@ def create_app(testing=False):
     create_app=create_app,
     context_settings=dict(help_option_names=["-h", "--help"]),
 )
-@click.option(
-    "--config-path", default="config.yaml", help="specifies the config file to be used"
-)
+@click.option("--config-path", help="specifies the config file to be used")
 @pass_script_info
 def cli(info, config_path):
     """a token based matrix registration app"""
-    config.config = config.Config(config_path)
+    config.config = config.Config(path=config_path)
     logging.config.dictConfig(config.config.logging)
     app = info.load_app()
     with app.app_context():
         app.config.from_mapping(
-            SQLALCHEMY_DATABASE_URI=config.config.db.format(cwd=f"{os.getcwd()}/"),
+            SQLALCHEMY_DATABASE_URI=config.config.db.format(cwd=f"{os.getcwd()}"),
             SQLALCHEMY_TRACK_MODIFICATIONS=False,
         )
         db.init_app(app)
         db.create_all()
         tokens.tokens = tokens.Tokens()
 
+
 def get_real_user_ip() -> str:
     """ratelimit the users original ip instead of (optional) reverse proxy"""
-    return next(iter(request.headers.getlist('X-Forwarded-For')), request.remote_addr)
-        
+    return next(iter(request.headers.getlist("X-Forwarded-For")), request.remote_addr)
+
+
 @cli.command("serve", help="start api server")
 @pass_script_info
 def run_server(info):
