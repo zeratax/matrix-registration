@@ -17,7 +17,7 @@ jobs:
           arch_name: 'x64'
         - arch: 'import <nixpkgs> { crossSystem.config = "aarch64-unknown-linux-musl"; }'
           arch_name: 'arm64'
-        - arch: 'import <nixpkgs> { crossSystem.config = "aarch32-unknown-linux-musl"; }'
+        - arch: 'import <nixpkgs> { crossSystem.config = "armv7l-unknown-linux-musl"; }'
           arch_name: 'arm32'
     steps:
       - name: Check out the repo
