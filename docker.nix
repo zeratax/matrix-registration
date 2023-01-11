@@ -19,7 +19,7 @@ let
     };
   in pkgs.python3.override {
     inherit packageOverrides;
-    enableOptimizations = true;
+    # enableOptimizations = true;
     # reproducibleBuild = false;
     self = python3;
   };
