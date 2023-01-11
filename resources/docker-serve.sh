@@ -6,5 +6,4 @@ docker run \
   --network matrix \
   --publish 5000:5000/tcp \
   --volume $(pwd)/data:/data \
-  matrix-registration:latest \
-  serve
+  matrix-registration:latest
