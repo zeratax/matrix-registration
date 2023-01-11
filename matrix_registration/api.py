@@ -1,12 +1,10 @@
 # Standard library imports...
 import logging
-from requests import exceptions
-import re
-from urllib.parse import urlparse
 import os
+import re
+from datetime import datetime
 
 # Third-party imports...
-from datetime import datetime
 from flask import (
     Blueprint,
     abort,
@@ -17,21 +15,24 @@ from flask import (
     send_file,
 )
 from flask_httpauth import HTTPTokenAuth
+from requests import exceptions
 from werkzeug.exceptions import BadRequest
 from wtforms import Form, StringField, PasswordField, validators
 
 # Local imports...
-from .matrix_api import create_account
 from . import config
 from . import tokens
 from .constants import __location__
+from .limiter import limiter, get_default_rate_limit
+from .matrix_api import create_account
 from .translation import get_translations
-
 
 auth = HTTPTokenAuth(scheme="SharedSecret")
 logger = logging.getLogger(__name__)
 
 api = Blueprint("api", __name__)
+healthcheck = Blueprint("healthcheck", __name__)
+limiter.limit(get_default_rate_limit)(api)
 
 
 def validate_token(form, token):
@@ -70,7 +71,7 @@ def validate_username(form, username):
     ValidationError
         Username doesn't follow mxid requirements
     """
-    re_mxid = f"^(?P<at>@)?(?P<username>[a-zA-Z_\-=\.\/0-9]+)(?P<server_name>:{ re.escape(config.config.server_name) })?$"
+    re_mxid = f"^(?P<at>@)?(?P<username>[a-zA-Z_\-=\.\/0-9]+)(?P<server_name>:{re.escape(config.config.server_name)})?$"
     match = re.search(re_mxid, username.data)
     if not match:
         raise validators.ValidationError(
@@ -156,7 +157,7 @@ def get_request_ips(request):
 @auth.verify_token
 def verify_token(token):
     return (
-        token != "APIAdminPassword" and token == config.config.admin_api_shared_secret
+            token != "APIAdminPassword" and token == config.config.admin_api_shared_secret
     )
 
 
@@ -329,7 +330,7 @@ def delete_token(token):
     return make_response(jsonify(resp), 500)
 
 
-@api.route("/health")
+@healthcheck.route("/health")
 def health():
     return make_response("OK", 200)
 
