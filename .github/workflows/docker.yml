@@ -11,6 +11,8 @@ jobs:
 
     strategy:
       matrix:
+        arch_name: [ 'x64', 'arm64', 'arm32' ]
+        include:
         - arch: 'import <nixpkgs> {}'
           arch_name: 'x64'
         - arch: 'import <nixpkgs> { crossSystem.config = "aarch64-unknown-linux-musl"; }'
